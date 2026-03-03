@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { MagnetizeButton } from "@/components/ui/magnetize-button";
 import { ArrowRight, Users, Search, CheckCircle, ArrowDown, Briefcase } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
