@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const FLOATING_TAGS = [
   { label: "Frontend", top: "12%", left: "8%", delay: 0, scale: 1.02 },
@@ -35,6 +36,7 @@ const sectionReveal = {
 };
 
 const Landing = () => {
+  const { user } = useAuth();
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.96]);
@@ -131,12 +133,12 @@ const Landing = () => {
             </h2>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Button size="lg" className="min-w-[200px] gap-2 rounded-full text-base h-14 px-8 brand-gradient border-0 text-white shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]" asChild>
-                <Link to="/signup?role=employer">
+                <Link to={user ? "/dashboard" : "/signup?role=employer"}>
                   Find your next hire
                 </Link>
               </Button>
               <Button size="lg" variant="outline" className="min-w-[200px] gap-2 rounded-full text-base h-14 px-8 hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200" asChild>
-                <Link to="/signup?role=student">
+                <Link to={user ? "/dashboard" : "/signup?role=student"}>
                   Find your next internship
                 </Link>
               </Button>
@@ -229,8 +231,8 @@ const Landing = () => {
             <div className="mt-8">
               <MagnetizeButton className="animated-border rounded-full">
                 <Button size="lg" className="gap-2 rounded-full h-14 px-10 text-base brand-gradient border-0 text-white shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]" asChild>
-                  <Link to="/signup">
-                    Get Started <ArrowRight className="h-4 w-4" />
+                <Link to={user ? "/dashboard" : "/signup"}>
+                    {user ? "Go to Dashboard" : "Get Started"} <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </MagnetizeButton>
