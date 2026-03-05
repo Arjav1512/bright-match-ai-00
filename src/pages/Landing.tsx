@@ -131,7 +131,7 @@ const Landing = () => {
       >
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="font-display text-3xl font-bold md:text-4xl">
+            <h2 style={{ font: "var(--text-section)", letterSpacing: "var(--letter-spacing-heading)" }}>
               Where students and companies connect
             </h2>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
