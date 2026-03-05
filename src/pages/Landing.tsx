@@ -164,8 +164,8 @@ const Landing = () => {
       >
         <div className="container">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="font-display text-3xl font-bold md:text-4xl">How it works</h2>
-            <p className="mt-4 text-muted-foreground">Three simple steps to get started.</p>
+            <h2 style={{ font: "var(--text-section)", letterSpacing: "var(--letter-spacing-heading)" }}>How it works</h2>
+            <p className="mt-4 text-muted-foreground" style={{ font: "var(--text-body)" }}>Three simple steps to get started.</p>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {HOW_STEPS.map((step, i) => (
