@@ -72,7 +72,8 @@ const Landing = () => {
                 transition={{ delay: tag.delay, duration: 0.6 }}
               >
                 <motion.div
-                  className="glass rounded-full px-4 py-2 text-sm text-muted-foreground shadow-sm"
+                  className="glass rounded-full px-4 py-2 text-muted-foreground shadow-sm"
+                  style={{ font: "var(--text-label)", letterSpacing: "var(--letter-spacing-label)" }}
                   animate={{ y: [0, -8, 0] }}
                   transition={{ duration: 4 + tag.delay, repeat: Infinity, ease: "easeInOut" }}
                   whileHover={{ scale: 1.08, y: -4 }}
