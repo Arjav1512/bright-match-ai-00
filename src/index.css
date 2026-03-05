@@ -2,10 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 @layer base {
   :root {
+    --font-primary: 'Satoshi', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    --text-hero: 700 68px/1.1 var(--font-primary);
+    --text-section: 700 38px/1.2 var(--font-primary);
+    --text-card-title: 500 19px/1.4 var(--font-primary);
+    --text-body: 400 15px/1.6 var(--font-primary);
+    --text-label: 500 12px/1 var(--font-primary);
+    --text-button: 500 14px/1 var(--font-primary);
+    --text-nav: 400 15px/1 var(--font-primary);
+
+    --letter-spacing-hero: -0.03em;
+    --letter-spacing-heading: -0.02em;
+    --letter-spacing-label: 0.01em;
+
     --background: 220 20% 98%;
     --foreground: 220 25% 10%;
 
