@@ -182,8 +182,8 @@ const Landing = () => {
                   <step.icon className="h-6 w-6" />
                 </div>
                 <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Step {i + 1}</div>
-                <h3 className="font-display text-xl font-semibold">{step.title}</h3>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+                <h3 style={{ font: "var(--text-card-title)", letterSpacing: "var(--letter-spacing-heading)" }}>{step.title}</h3>
+                <p className="mt-3 text-muted-foreground" style={{ font: "var(--text-body)" }}>{step.desc}</p>
               </motion.div>
             ))}
           </div>
