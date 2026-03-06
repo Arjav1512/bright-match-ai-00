@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Briefcase, GraduationCap, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 const Signup = () => {
   const [searchParams] = useSearchParams();
