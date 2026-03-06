@@ -2,3 +2,6 @@ project_id = "vlavfpvrxnmoutybczfy"
 
 [functions.geo-group-assign]
 verify_jwt = false
+
+[functions.apply-to-internship]
+verify_jwt = false

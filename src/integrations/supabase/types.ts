@@ -280,6 +280,8 @@ export type Database = {
       }
       internships: {
         Row: {
+          app_cap: number
+          application_count: number
           created_at: string
           deadline: string | null
           description: string | null
@@ -289,12 +291,15 @@ export type Database = {
           location: string | null
           requirements: string | null
           skills_required: string[] | null
+          slots: number
           status: Database["public"]["Enums"]["internship_status"]
           title: string
           type: Database["public"]["Enums"]["internship_type"]
           updated_at: string
         }
         Insert: {
+          app_cap?: number
+          application_count?: number
           created_at?: string
           deadline?: string | null
           description?: string | null
@@ -304,12 +309,15 @@ export type Database = {
           location?: string | null
           requirements?: string | null
           skills_required?: string[] | null
+          slots?: number
           status?: Database["public"]["Enums"]["internship_status"]
           title: string
           type?: Database["public"]["Enums"]["internship_type"]
           updated_at?: string
         }
         Update: {
+          app_cap?: number
+          application_count?: number
           created_at?: string
           deadline?: string | null
           description?: string | null
@@ -319,6 +327,7 @@ export type Database = {
           location?: string | null
           requirements?: string | null
           skills_required?: string[] | null
+          slots?: number
           status?: Database["public"]["Enums"]["internship_status"]
           title?: string
           type?: Database["public"]["Enums"]["internship_type"]

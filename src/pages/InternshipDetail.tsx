@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { InternshipCapBar } from "@/components/InternshipCapBar";
 import { MapPin, Clock, Building2, Calendar, ArrowLeft, CheckCircle, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
@@ -52,19 +53,40 @@ const InternshipDetail = () => {
   const handleApply = async () => {
     if (!user || !id) return;
     setApplying(true);
-    const { error } = await supabase.from("applications").insert({
-      student_id: user.id,
-      internship_id: id,
-      cover_letter: coverLetter,
-    });
-    setApplying(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      setHasApplied(true);
-      setShowApplyForm(false);
-      toast({ title: "Application submitted!", description: "The employer will review your application." });
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({ title: "Please log in", variant: "destructive" });
+        setApplying(false);
+        return;
+      }
+
+      const res = await supabase.functions.invoke("apply-to-internship", {
+        body: { internship_id: id, cover_letter: coverLetter },
+      });
+
+      if (res.error || res.data?.error) {
+        const msg = res.data?.error || res.error?.message || "Something went wrong";
+        toast({ title: "Error", description: msg, variant: "destructive" });
+      } else {
+        setHasApplied(true);
+        setShowApplyForm(false);
+        // Update local internship state with new counts
+        if (res.data?.application_count != null) {
+          setInternship((prev: any) => ({
+            ...prev,
+            application_count: res.data.application_count,
+            status: res.data.application_count >= prev.app_cap ? "closed" : prev.status,
+          }));
+        }
+        toast({ title: "Application submitted!", description: res.data?.message || "The employer will review your application." });
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     }
+
+    setApplying(false);
   };
 
   const matchScore = () => {
@@ -91,6 +113,8 @@ const InternshipDetail = () => {
   );
 
   const score = matchScore();
+  const isFull = internship.application_count >= internship.app_cap;
+  const isClosed = internship.status === "closed";
 
   return (
     <div className="min-h-screen bg-background">
@@ -149,6 +173,15 @@ const InternshipDetail = () => {
             </div>
           </div>
 
+          {/* Application Capacity Bar */}
+          {internship.app_cap > 0 && (
+            <InternshipCapBar
+              applicationCount={internship.application_count}
+              appCap={internship.app_cap}
+              slots={internship.slots}
+            />
+          )}
+
           {/* Description */}
           <div className="space-y-2">
             <h2 className="font-display text-lg font-semibold">About the role</h2>
@@ -164,23 +197,25 @@ const InternshipDetail = () => {
           )}
 
           {/* Skills */}
-          <div className="space-y-3">
-            <h2 className="font-display text-lg font-semibold">Required Skills</h2>
-            <div className="flex flex-wrap gap-2">
-              {internship.skills_required.map((s: string) => (
-                <span
-                  key={s}
-                  className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-                    studentSkills.includes(s)
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-secondary-foreground"
-                  }`}
-                >
-                  {s}
-                </span>
-              ))}
+          {internship.skills_required?.length > 0 && (
+            <div className="space-y-3">
+              <h2 className="font-display text-lg font-semibold">Required Skills</h2>
+              <div className="flex flex-wrap gap-2">
+                {internship.skills_required.map((s: string) => (
+                  <span
+                    key={s}
+                    className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+                      studentSkills.includes(s)
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary text-secondary-foreground"
+                    }`}
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Apply section */}
           {role === "student" && (
@@ -205,8 +240,13 @@ const InternshipDetail = () => {
                   </div>
                 </div>
               ) : (
-                <Button size="lg" className="w-full rounded-full h-14 text-base font-semibold" onClick={() => setShowApplyForm(true)}>
-                  Apply Now
+                <Button
+                  size="lg"
+                  className="w-full rounded-full h-14 text-base font-semibold"
+                  onClick={() => setShowApplyForm(true)}
+                  disabled={isFull || isClosed}
+                >
+                  {isFull ? "Applications Full" : isClosed ? "Internship Closed" : "Apply Now"}
                 </Button>
               )}
             </div>

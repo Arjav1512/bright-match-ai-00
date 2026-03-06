@@ -24,6 +24,7 @@ const PostInternship = () => {
     title: "", description: "", requirements: "", location: "",
     type: "remote" as "remote" | "onsite" | "hybrid",
     skills_required: [] as string[], deadline: "", industry: "",
+    slots: 5,
   });
 
   useEffect(() => {
@@ -44,11 +45,14 @@ const PostInternship = () => {
   const handleSubmit = async (status: "draft" | "published") => {
     if (!user) return;
     setLoading(true);
+    const appCap = form.slots * 2;
     const { error } = await supabase.from("internships").insert({
       ...form,
       employer_id: user.id,
       status,
       deadline: form.deadline || null,
+      app_cap: appCap,
+      application_count: 0,
     });
     setLoading(false);
     if (error) {
@@ -105,6 +109,13 @@ const PostInternship = () => {
               <div className="space-y-2">
                 <Label>Deadline</Label>
                 <Input type="date" value={form.deadline} onChange={(e) => setForm((f) => ({ ...f, deadline: e.target.value }))} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Available Slots *</Label>
+                <Input type="number" min={1} value={form.slots} onChange={(e) => setForm((f) => ({ ...f, slots: parseInt(e.target.value) || 1 }))} placeholder="e.g. 5" />
+                <p className="text-xs text-muted-foreground">Max applications = slots × 2 = {form.slots * 2}</p>
               </div>
             </div>
             <div className="space-y-2">
