@@ -163,6 +163,21 @@ const Profile = () => {
                   <Input type="file" accept=".pdf,.doc,.docx" onChange={handleResumeUpload} />
                   {studentProfile.resume_url && <p className="text-sm text-muted-foreground">Resume uploaded ✓</p>}
                 </div>
+                <div className="space-y-2">
+                  <Label>Local Community Group</Label>
+                  <LocationCapture
+                    captured={locationCaptured}
+                    onCapture={async (lat, lng) => {
+                      if (!user) return;
+                      setLocationCaptured(true);
+                      // Call edge function to assign geo group
+                      await supabase.functions.invoke("geo-group-assign", {
+                        body: { user_id: user.id, lat, lng },
+                      });
+                      toast({ title: "Location saved! You've been added to a local group." });
+                    }}
+                  />
+                </div>
               </CardContent>
             </Card>
           )}
