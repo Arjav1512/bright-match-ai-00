@@ -22,6 +22,7 @@ const Profile = () => {
   const [employerProfile, setEmployerProfile] = useState({ company_name: "", industry: "", company_size: "", website: "" });
   const [allSkills, setAllSkills] = useState<{ name: string; category: string }[]>([]);
   const [skillSearch, setSkillSearch] = useState("");
+  const [locationCaptured, setLocationCaptured] = useState(false);
 
   useEffect(() => {
     if (!user) return;
