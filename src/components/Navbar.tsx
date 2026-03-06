@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useUnreadGroupMessages } from "@/hooks/useUnreadGroupMessages";
 
 const Navbar = () => {
   const { user, role, profile, signOut } = useAuth();
