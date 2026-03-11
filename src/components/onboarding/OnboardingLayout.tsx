@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { Briefcase } from "lucide-react";
 import OnboardingStepIndicator from "./OnboardingStepIndicator";
+import wroobeLogo from "@/assets/wroobe-logo.png";
 
 interface OnboardingLayoutProps {
   currentStep: number;
