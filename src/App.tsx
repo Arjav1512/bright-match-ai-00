@@ -29,7 +29,6 @@ import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 import Groups from "./pages/Groups";
 import OnboardingProfile from "./pages/onboarding/OnboardingProfile";
-import OnboardingPreferences from "./pages/onboarding/OnboardingPreferences";
 import OnboardingCulture from "./pages/onboarding/OnboardingCulture";
 import OnboardingResume from "./pages/onboarding/OnboardingResume";
 import OnboardingDone from "./pages/onboarding/OnboardingDone";
