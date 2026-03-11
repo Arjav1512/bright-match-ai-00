@@ -12,12 +12,23 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
-const ROLES = [
-  "Software Engineer", "Product Manager", "Designer", "Data Scientist",
-  "Marketing", "Sales", "Operations", "Finance", "HR", "Other",
+const SPECIALISATIONS = [
+  "Computer Science", "Information Technology", "Electronics", "Mechanical Engineering",
+  "Civil Engineering", "Electrical Engineering", "Data Science", "Business Administration",
+  "Commerce", "Arts & Humanities", "Law", "Medicine", "Design", "Other",
 ];
 
-const EXPERIENCE = ["0-1 years", "1-3 years", "3-5 years", "5-10 years", "10+ years"];
+const EXPERIENCE_OPTIONS = [
+  { value: "0", label: "0 months" },
+  { value: "3", label: "3 months" },
+  { value: "6", label: "6 months" },
+  { value: "9", label: "9 months" },
+  { value: "12", label: "12 months" },
+  { value: "15", label: "15 months" },
+  { value: "18", label: "18 months" },
+  { value: "21", label: "21 months" },
+  { value: "24", label: "24 months" },
+];
 
 const OnboardingProfile = () => {
   const { user } = useAuth();
@@ -67,7 +78,7 @@ const OnboardingProfile = () => {
   const handleSubmit = async () => {
     if (!user) return;
     if (!form.location || !form.profile_role || !form.experience_years) {
-      toast({ title: "Required fields missing", description: "Please fill in location, role, and experience.", variant: "destructive" });
+      toast({ title: "Required fields missing", description: "Please fill in location, specialisation, and experience.", variant: "destructive" });
       return;
     }
     if (form.linkedin_url && !form.linkedin_url.includes("linkedin.com")) {
@@ -97,7 +108,7 @@ const OnboardingProfile = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       await updateStep(2);
-      navigate("/onboarding/preferences");
+      navigate("/onboarding/culture");
     }
   };
 
@@ -122,58 +133,61 @@ const OnboardingProfile = () => {
             />
           </div>
 
-          {/* Role */}
+          {/* Course Specialisation */}
           <div className="space-y-2">
             <Label className="font-semibold">
-              <span className="text-primary mr-1">*</span>What best describes your current role?
+              <span className="text-primary mr-1">*</span>Course Specialisation
             </Label>
             <Select value={form.profile_role} onValueChange={(v) => setForm((f) => ({ ...f, profile_role: v }))}>
               <SelectTrigger className="w-full sm:w-72">
-                <SelectValue placeholder="Select a role" />
+                <SelectValue placeholder="Select your specialisation" />
               </SelectTrigger>
               <SelectContent>
-                {ROLES.map((r) => (
+                {SPECIALISATIONS.map((r) => (
                   <SelectItem key={r} value={r}>{r}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Experience */}
+          {/* Experience in 3-month increments */}
           <div className="space-y-2">
             <Label className="font-semibold">
-              <span className="text-primary mr-1">*</span>How many years of experience do you have?
+              <span className="text-primary mr-1">*</span>How many months of experience do you have?
             </Label>
             <Select value={form.experience_years} onValueChange={(v) => setForm((f) => ({ ...f, experience_years: v }))}>
               <SelectTrigger className="w-full sm:w-72">
-                <SelectValue placeholder="Select years of experience" />
+                <SelectValue placeholder="Select months of experience" />
               </SelectTrigger>
               <SelectContent>
-                {EXPERIENCE.map((e) => (
-                  <SelectItem key={e} value={e}>{e}</SelectItem>
+                {EXPERIENCE_OPTIONS.map((e) => (
+                  <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Student toggle */}
+          {/* Undergrad / PG toggle */}
           <div className="space-y-2">
             <Label className="font-semibold">
-              <span className="text-primary mr-1">*</span>Are you a student or new grad?
+              <span className="text-primary mr-1">*</span>Are you undergrad or PG?
             </Label>
             <div className="flex gap-3">
-              {[true, false].map((val) => (
+              {[
+                { value: true, label: "Undergraduate" },
+                { value: false, label: "Postgraduate" },
+              ].map((opt) => (
                 <button
-                  key={String(val)}
+                  key={String(opt.value)}
                   type="button"
-                  onClick={() => setForm((f) => ({ ...f, is_student: val }))}
+                  onClick={() => setForm((f) => ({ ...f, is_student: opt.value }))}
                   className={`rounded-full px-6 py-2 text-sm font-medium border transition-all ${
-                    form.is_student === val
+                    form.is_student === opt.value
                       ? "bg-primary text-primary-foreground border-primary"
                       : "bg-card border-border text-foreground hover:border-muted-foreground/50"
                   }`}
                 >
-                  {val ? "Yes" : "No"}
+                  {opt.label}
                 </button>
               ))}
             </div>
@@ -181,9 +195,7 @@ const OnboardingProfile = () => {
 
           {/* Current work */}
           <div className="space-y-2">
-            <Label className="font-semibold">
-              <span className="text-primary mr-1">*</span>Where do you currently work?
-            </Label>
+            <Label className="font-semibold">Where do you currently work?</Label>
             <p className="text-xs text-muted-foreground">Your company will never see that you're looking for a job</p>
             <div className="flex flex-col sm:flex-row gap-3 items-start">
               <div className="flex-1 space-y-1">

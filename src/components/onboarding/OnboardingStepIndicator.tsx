@@ -3,14 +3,13 @@ import { cn } from "@/lib/utils";
 
 const STEPS = [
   { key: "profile", label: "Profile" },
-  { key: "preferences", label: "Preferences" },
   { key: "culture", label: "Culture" },
   { key: "resume", label: "Resume/CV" },
   { key: "done", label: "Done" },
 ];
 
 interface OnboardingStepIndicatorProps {
-  currentStep: number; // 1-5
+  currentStep: number; // 1-4
 }
 
 const OnboardingStepIndicator = ({ currentStep }: OnboardingStepIndicatorProps) => {

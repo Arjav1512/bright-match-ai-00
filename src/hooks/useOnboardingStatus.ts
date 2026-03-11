@@ -47,7 +47,7 @@ export function useOnboardingStatus() {
       .from("student_profiles")
       .update({
         onboarding_status: "completed",
-        onboarding_step: 5,
+        onboarding_step: 4,
         onboarding_completed_at: new Date().toISOString(),
       } as any)
       .eq("user_id", user.id);

@@ -16,7 +16,7 @@ const OnboardingResume = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { updateStep, completeOnboarding } = useOnboardingStatus();
+  const { completeOnboarding } = useOnboardingStatus();
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
 
@@ -49,7 +49,6 @@ const OnboardingResume = () => {
         return;
       }
 
-      // Save reference
       const { data: { publicUrl } } = supabase.storage.from("resumes").getPublicUrl(path);
       await supabase.from("student_profiles").update({ resume_url: publicUrl } as any).eq("user_id", user.id);
 
@@ -57,7 +56,6 @@ const OnboardingResume = () => {
       setUploaded(true);
       toast({ title: "Resume uploaded successfully!" });
 
-      // Complete onboarding
       await completeOnboarding();
       setTimeout(() => navigate("/onboarding/done"), 500);
     };
@@ -71,9 +69,9 @@ const OnboardingResume = () => {
 
   return (
     <OnboardingLayout
-      currentStep={4}
+      currentStep={3}
       title="Upload a recent resume or CV"
-      subtitle="Autocomplete your profile in just a few seconds by uploading a resume."
+      subtitle="Autocomplete your profile in just a few seconds by uploading a resume. This step is optional."
     >
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-16 px-8">

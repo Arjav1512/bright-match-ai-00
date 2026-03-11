@@ -9,14 +9,13 @@ const OnboardingDone = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Auto-redirect after 5 seconds
     const timer = setTimeout(() => navigate("/dashboard"), 5000);
     return () => clearTimeout(timer);
   }, [navigate]);
 
   return (
     <OnboardingLayout
-      currentStep={5}
+      currentStep={4}
       title="You're all set!"
       subtitle="Your profile is complete. Start exploring internships now."
     >
