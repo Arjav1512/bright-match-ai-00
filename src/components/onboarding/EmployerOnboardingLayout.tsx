@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Briefcase } from "lucide-react";
+import { cn } from "@/lib/utils";
+import wroobeLogo from "@/assets/wroobe-logo.png";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
