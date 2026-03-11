@@ -58,13 +58,13 @@ const Landing = () => {
         <div className="absolute inset-0 hero-grid-pattern opacity-[0.03] pointer-events-none" />
 
         {/* Floating tags with parallax */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 pointer-events-none z-20">
           {FLOATING_TAGS.map((tag, i) => {
             const speed = 0.3 + (i % 4) * 0.15;
             return (
               <motion.div
                 key={tag.label}
-                className="absolute hidden lg:block"
+                className="absolute hidden lg:block pointer-events-auto"
                 style={{
                   top: tag.top,
                   left: tag.left,
