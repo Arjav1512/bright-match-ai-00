@@ -12,7 +12,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2.5">
               <img src={wroobeLogoLight} alt="Wroobe" className="h-10 w-10 rounded-lg" />
-              <span className="font-display font-bold" style={{ fontSize: "19px", letterSpacing: "-0.02em" }}>
+              <span className="font-display font-bold" style={{ fontSize: "20px", letterSpacing: "-0.02em" }}>
                 Wroobe
               </span>
             </div>
