@@ -168,6 +168,35 @@ const AvatarUpload = ({ userId, currentUrl, fullName, onUpload }: AvatarUploadPr
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={showPhotoTip} onOpenChange={setShowPhotoTip}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex justify-center mb-3">
+              <div className="rounded-full bg-primary/10 p-3">
+                <UserCircle className="h-8 w-8 text-primary" />
+              </div>
+            </div>
+            <AlertDialogTitle className="text-center">Upload a Professional Photo</AlertDialogTitle>
+            <AlertDialogDescription className="text-center space-y-2">
+              <p>
+                Your profile photo is one of the first things employers and fellow students see. Please choose a clear, professional-looking image — similar to what you'd use on LinkedIn.
+              </p>
+              <ul className="text-left text-sm space-y-1 mt-3 list-disc list-inside text-muted-foreground">
+                <li>Use a recent, well-lit headshot</li>
+                <li>Face the camera with a friendly, approachable expression</li>
+                <li>Avoid group photos, selfies with filters, or casual snapshots</li>
+                <li>A plain or uncluttered background works best</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="sm:justify-center">
+            <AlertDialogAction onClick={() => { setShowPhotoTip(false); openFilePicker(); }}>
+              Got it — Choose Photo
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
