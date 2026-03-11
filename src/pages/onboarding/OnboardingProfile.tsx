@@ -129,10 +129,9 @@ const OnboardingProfile = () => {
             </Label>
             <p className="text-xs text-muted-foreground">Tip: You can type a location or detect it automatically</p>
             <div className="flex gap-2">
-              <Input
-                placeholder="Search for a location"
+              <LocationAutocomplete
                 value={form.location}
-                onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+                onChange={(v) => setForm((f) => ({ ...f, location: v }))}
                 className="flex-1"
               />
               <Button
