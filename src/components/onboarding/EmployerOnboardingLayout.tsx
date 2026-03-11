@@ -64,9 +64,7 @@ const EmployerOnboardingLayout = ({ currentStep, children }: EmployerOnboardingL
       {/* Mobile header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-foreground text-background px-4 py-3 flex items-center gap-3">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg brand-gradient">
-            <img src={wroobeLogo} alt="Wroobe" className="h-7 w-7 rounded-lg" />
-          </div>
+          <img src={wroobeLogoLight} alt="Wroobe" className="h-8 w-8 rounded-lg" />
           <span className="font-display text-base font-bold">Wroobe</span>
         </Link>
         <div className="ml-auto flex gap-2">
