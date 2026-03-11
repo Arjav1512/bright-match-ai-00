@@ -111,7 +111,7 @@ const Profile = () => {
           <Card>
             <CardHeader><CardTitle>Basic Information</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              {/* Avatar */}
+              {/* Avatar & Follow Stats */}
               {user && (
                 <div className="flex items-center gap-4">
                   <AvatarUpload
@@ -120,9 +120,12 @@ const Profile = () => {
                     fullName={profile.full_name}
                     onUpload={(url) => setProfile((p) => ({ ...p, avatar_url: url }))}
                   />
-                  <div>
-                    <p className="text-sm font-medium">Profile Photo</p>
-                    <p className="text-xs text-muted-foreground">Click to upload or change</p>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-sm font-medium">Profile Photo</p>
+                      <p className="text-xs text-muted-foreground">Click to upload or change</p>
+                    </div>
+                    <FollowStats userId={user.id} />
                   </div>
                 </div>
               )}
