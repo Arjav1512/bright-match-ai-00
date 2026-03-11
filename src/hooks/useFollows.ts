@@ -62,6 +62,23 @@ export function useFollows(targetUserId: string) {
         following_id: targetUserId,
       } as any);
       if (error) throw error;
+
+      // Get follower's name for the notification
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", user.id)
+        .single();
+
+      const followerName = profile?.full_name || "Someone";
+
+      await supabase.from("notifications").insert({
+        user_id: targetUserId,
+        type: "general" as const,
+        title: "New Follower",
+        message: `${followerName} started following you.`,
+        link: "/students",
+      });
     },
     onSuccess: invalidate,
   });
