@@ -28,6 +28,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 import Groups from "./pages/Groups";
+import StudentDiscovery from "./pages/StudentDiscovery";
 import OnboardingProfile from "./pages/onboarding/OnboardingProfile";
 import OnboardingCulture from "./pages/onboarding/OnboardingCulture";
 import OnboardingResume from "./pages/onboarding/OnboardingResume";
