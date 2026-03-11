@@ -68,7 +68,7 @@ const AvatarUpload = ({ userId, currentUrl, fullName, onUpload }: AvatarUploadPr
   const [showPhotoTip, setShowPhotoTip] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const handleFileSelect = () => {
+  const openFilePicker = () => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ACCEPTED.map((t) => `.${t.split("/")[1]}`).join(",");
@@ -87,6 +87,10 @@ const AvatarUpload = ({ userId, currentUrl, fullName, onUpload }: AvatarUploadPr
       reader.readAsDataURL(file);
     };
     input.click();
+  };
+
+  const handleFileSelect = () => {
+    setShowPhotoTip(true);
   };
 
   const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
