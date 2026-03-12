@@ -22,7 +22,7 @@ const Terms = () => (
             </section>
             <section>
               <h2 className="font-display text-lg font-semibold text-foreground">3. Use of the Platform</h2>
-              <p className="mt-2">Wroobe provides a platform for students to discover internship opportunities and for employers to post openings. Users agree not to misuse the platform, submit false information, or engage in any activity that violates applicable laws.</p>
+              <p className="mt-2">Wroob provides a platform for students to discover internship opportunities and for employers to post openings. Users agree not to misuse the platform, submit false information, or engage in any activity that violates applicable laws.</p>
             </section>
             <section>
               <h2 className="font-display text-lg font-semibold text-foreground">4. Content & Intellectual Property</h2>
