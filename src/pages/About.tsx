@@ -29,9 +29,9 @@ const About = () => (
       <div className="container">
         <h2 className="font-display text-2xl font-bold text-center md:text-3xl">Our Story</h2>
         <div className="mx-auto mt-8 max-w-2xl space-y-4 text-muted-foreground leading-relaxed">
-          <p>Founded in 2026, Wroobe was born from a simple observation: the internship search is broken. Students spend countless hours applying to roles that don't match their skills, while companies struggle to find the right talent in a sea of generic resumes.</p>
+          <p>Founded in 2026, Wroob was born from a simple observation: the internship search is broken. Students spend countless hours applying to roles that don't match their skills, while companies struggle to find the right talent in a sea of generic resumes.</p>
           <p>We set out to change that. By building a platform centered on skills-based matching, we help students discover opportunities they're genuinely qualified for — and help employers find candidates who can make an impact from day one.</p>
-          <p>Today, Wroobe serves thousands of students and hundreds of companies across industries from fintech to AI, connecting talent with opportunity through technology and thoughtful design.</p>
+          <p>Today, Wroob serves thousands of students and hundreds of companies across industries from fintech to AI, connecting talent with opportunity through technology and thoughtful design.</p>
         </div>
       </div>
     </section>
