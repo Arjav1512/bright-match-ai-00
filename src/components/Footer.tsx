@@ -10,9 +10,9 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5">
-              <img src={wroobeLogo} alt="Wroobe" className="h-11 w-11 rounded-lg invert" />
+              <img src={wroobeLogo} alt="Wroob" className="h-11 w-11 rounded-lg invert" />
               <span className="font-display font-bold" style={{ fontSize: "21px", letterSpacing: "-0.02em" }}>
-                Wroobe
+                Wroob
               </span>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-background/50">
