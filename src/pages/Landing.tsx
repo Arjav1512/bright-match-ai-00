@@ -107,7 +107,7 @@ const Landing = () => {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
               </span>
               <span className="text-muted-foreground" style={{ font: "var(--text-label)", letterSpacing: "var(--letter-spacing-label)" }}>
-                Now matching 10,000+ internships
+                Connecting students with early internship opportunities
               </span>
             </motion.div>
 
@@ -184,7 +184,7 @@ const Landing = () => {
                 ))}
               </div>
               <p className="text-muted-foreground/60" style={{ font: "var(--text-label)", letterSpacing: "var(--letter-spacing-label)" }}>
-                Trusted by 2,500+ students across top universities
+                Early users from top universities
               </p>
             </motion.div>
           </motion.div>
@@ -282,9 +282,9 @@ const Landing = () => {
           <div className="mx-auto max-w-3xl text-center">
             <div className="flex items-center justify-center gap-8 text-muted-foreground">
               {[
-                { value: "2,500+", label: "Active Students" },
-                { value: "500+", label: "Companies" },
-                { value: "10k+", label: "Internships Posted" },
+                { value: "100+", label: "Students Joined" },
+                { value: "20+", label: "Early Companies" },
+                { value: "150+", label: "Internships Curated" },
               ].map((stat, i) => (
                 <motion.div
                   key={i}
@@ -314,7 +314,7 @@ const Landing = () => {
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">
             <h2 style={{ font: "var(--text-section)", letterSpacing: "var(--letter-spacing-heading)" }}>Ready to get started?</h2>
-            <p className="mt-4 text-muted-foreground" style={{ font: "var(--text-body)" }}>Join thousands already on Wroob.</p>
+            <p className="mt-4 text-muted-foreground" style={{ font: "var(--text-body)" }}>Join early users already on Wroob.</p>
             <div className="mt-8">
               <MagnetizeButton className="animated-border rounded-full">
                 <Button size="lg" className="gap-2 rounded-full h-14 px-10 text-base brand-gradient border-0 text-white shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]" asChild>
