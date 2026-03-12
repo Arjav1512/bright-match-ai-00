@@ -25,26 +25,27 @@ const Blog = () => (
 
         <div className="mx-auto mt-14 grid max-w-4xl gap-6">
           {POSTS.map((post, i) => (
-            <motion.article
-              key={i}
-              className="group card-depth p-6"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08, duration: 0.4 }}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-primary">{post.category}</span>
-                  <h2 className="mt-1 font-display text-lg font-semibold group-hover:text-primary transition-colors">{post.title}</h2>
-                  <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
-                  <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <CalendarDays className="h-3 w-3" />
-                    {post.date}
+            <Link key={i} to={`/blog/${post.slug}`} className="block">
+              <motion.article
+                className="group card-depth p-6 cursor-pointer"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08, duration: 0.4 }}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-primary">{post.category}</span>
+                    <h2 className="mt-1 font-display text-lg font-semibold group-hover:text-primary transition-colors">{post.title}</h2>
+                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
+                    <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <CalendarDays className="h-3 w-3" />
+                      {post.date}
+                    </div>
                   </div>
+                  <ArrowRight className="mt-6 h-4 w-4 shrink-0 text-muted-foreground/30 transition-all group-hover:text-primary group-hover:translate-x-1" />
                 </div>
-                <ArrowRight className="mt-6 h-4 w-4 shrink-0 text-muted-foreground/30 transition-colors group-hover:text-primary" />
-              </div>
-            </motion.article>
+              </motion.article>
+            </Link>
           ))}
         </div>
       </div>
