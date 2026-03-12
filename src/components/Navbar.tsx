@@ -123,7 +123,7 @@ const Navbar = () => {
     )}>
       <div className="container flex h-16 items-center justify-between">
         {/* Left: Logo */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0">
+        <Link to="/" className="flex items-center gap-1.5 shrink-0">
           <img src={wroobeLogo} alt="Wroob" className="h-11 w-11 rounded-lg" />
           <span className="font-display font-bold" style={{ fontSize: "21px", letterSpacing: "-0.02em" }}>Wroob</span>
         </Link>

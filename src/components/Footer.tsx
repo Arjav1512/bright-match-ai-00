@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-1.5">
               <img src={wroobeLogo} alt="Wroob" className="h-11 w-11 rounded-lg invert" />
               <span className="font-display font-bold" style={{ fontSize: "21px", letterSpacing: "-0.02em" }}>
                 Wroob
