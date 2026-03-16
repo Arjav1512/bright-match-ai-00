@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.recommendation-feedback]
 verify_jwt = false
+
+[functions.student-reputation]
+verify_jwt = false
+
+[functions.skill-tests]
+verify_jwt = false
