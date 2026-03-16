@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import wroobeLogo from "@/assets/wroob-logo.png";
+import wroobeLogo from "@/assets/wroob-logo-transparent.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -124,7 +124,7 @@ const Navbar = () => {
       <div className="container flex h-16 items-center justify-between">
         {/* Left: Logo */}
         <Link to="/" className="shrink-0">
-          <img src={wroobeLogo} alt="Wroob" className="h-14" style={{ imageRendering: "auto" }} />
+          <img src={wroobeLogo} alt="Wroob" className="h-16" />
         </Link>
 
         {/* Center: Nav links */}
