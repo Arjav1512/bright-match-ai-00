@@ -85,6 +85,36 @@ export type Database = {
         }
         Relationships: []
       }
+      campus_statuses: {
+        Row: {
+          content: string
+          created_at: string
+          expires_at: string
+          id: string
+          latitude: number
+          longitude: number
+          student_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          latitude: number
+          longitude: number
+          student_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          student_id?: string
+        }
+        Relationships: []
+      }
       employer_invitations: {
         Row: {
           created_at: string
@@ -607,6 +637,38 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      status_replies: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          sender_id: string
+          status_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          sender_id: string
+          status_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          sender_id?: string
+          status_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "status_replies_status_id_fkey"
+            columns: ["status_id"]
+            isOneToOne: false
+            referencedRelation: "campus_statuses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       student_culture: {
         Row: {
