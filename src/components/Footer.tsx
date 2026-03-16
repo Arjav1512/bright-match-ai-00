@@ -63,7 +63,7 @@ const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h4 className="font-display text-xs font-semibold uppercase tracking-wider text-background/70">Legal</h4>
+            <h4 className="font-display text-xs font-semibold uppercase tracking-wider text-background/90">Legal</h4>
             <ul className="mt-3 space-y-2.5">
               {[
                 { label: "Terms of Service", href: "/terms" },
