@@ -42,7 +42,7 @@ const Signup = () => {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link to="/">
-            <img src={wroobeLogo} alt="Wroob" className="h-10 rounded-lg" />
+            <img src={wroobeLogo} alt="Wroob" className="h-14" />
           </Link>
         </div>
         <Card>

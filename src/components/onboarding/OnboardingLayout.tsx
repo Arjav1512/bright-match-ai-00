@@ -16,7 +16,7 @@ const OnboardingLayout = ({ currentStep, title, subtitle, children }: Onboarding
       <header className="border-b bg-card/80 backdrop-blur-sm">
         <div className="container flex h-14 items-center">
           <Link to="/">
-            <img src={wroobeLogo} alt="Wroob" className="h-11 rounded-lg" />
+            <img src={wroobeLogo} alt="Wroob" className="h-14" />
           </Link>
         </div>
       </header>
