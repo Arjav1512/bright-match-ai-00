@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.skill-tests]
 verify_jwt = false
+
+[functions.campus-status]
+verify_jwt = false
