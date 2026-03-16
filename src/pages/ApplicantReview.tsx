@@ -36,7 +36,7 @@ const ApplicantReview = () => {
 
       const { data: apps } = await supabase
         .from("applications")
-        .select("*, profiles:profiles!applications_student_id_fkey(full_name, avatar_url), student_profiles:student_profiles!applications_student_id_fkey(skills, university, resume_url)")
+        .select("*, profiles:profiles!applications_student_id_fkey(full_name, avatar_url), student_profiles:student_profiles!applications_student_id_fkey(skills, university, resume_url, reputation_score)")
         .eq("internship_id", id!)
         .order("applied_at", { ascending: false });
       setApplicants(apps || []);
