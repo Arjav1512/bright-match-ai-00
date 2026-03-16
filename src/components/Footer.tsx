@@ -47,7 +47,7 @@ const Footer = () => {
 
           {/* Company */}
           <div>
-            <h4 className="font-display text-xs font-semibold uppercase tracking-wider text-background/70">Company</h4>
+            <h4 className="font-display text-xs font-semibold uppercase tracking-wider text-background/90">Company</h4>
             <ul className="mt-3 space-y-2.5">
               {[
                 { label: "About", href: "/about" },
