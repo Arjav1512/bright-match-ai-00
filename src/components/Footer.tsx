@@ -55,7 +55,7 @@ const Footer = () => {
                 { label: "Help Center", href: "/help" },
               ].map((l) => (
                 <li key={l.label}>
-                  <Link to={l.href} className="text-sm text-background/45 transition-colors hover:text-background/80">{l.label}</Link>
+                  <Link to={l.href} className="text-sm text-background/75 transition-colors hover:text-background">{l.label}</Link>
                 </li>
               ))}
             </ul>
