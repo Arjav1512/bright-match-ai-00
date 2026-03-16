@@ -19,7 +19,7 @@ const EmployerOnboardingLayout = ({ currentStep, children }: EmployerOnboardingL
       {/* Dark sidebar */}
       <aside className="hidden md:flex w-72 flex-col bg-foreground text-background p-8">
         <Link to="/" className="mb-12">
-          <img src={wroobeLogo} alt="Wroob" className="h-11 rounded-lg invert" />
+          <img src={wroobeLogo} alt="Wroob" className="h-14 brightness-0 invert" />
         </Link>
 
         <nav className="space-y-6">
@@ -63,7 +63,7 @@ const EmployerOnboardingLayout = ({ currentStep, children }: EmployerOnboardingL
       {/* Mobile header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-foreground text-background px-4 py-3 flex items-center gap-3">
         <Link to="/">
-          <img src={wroobeLogo} alt="Wroob" className="h-9 rounded-lg invert" />
+          <img src={wroobeLogo} alt="Wroob" className="h-11 brightness-0 invert" />
         </Link>
         <div className="ml-auto flex gap-2">
           {STEPS.map((step, i) => (
