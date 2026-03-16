@@ -22,7 +22,7 @@ const Footer = () => {
                 { Icon: Linkedin, label: "LinkedIn" },
                 { Icon: Github, label: "GitHub" },
               ].map((item, i) => (
-                <a key={i} href="#" className="text-background/30 transition-colors hover:text-background/70" aria-label={item.label}>
+                <a key={i} href="#" className="text-background/60 transition-colors hover:text-background" aria-label={item.label}>
                   {typeof item.Icon === 'function' && item.Icon.length === 0 && !item.Icon.prototype ? <item.Icon /> : <item.Icon className="h-4 w-4" />}
                 </a>
               ))}
