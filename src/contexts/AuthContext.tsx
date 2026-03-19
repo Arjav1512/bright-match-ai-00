@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
-import { User, Session } from "@supabase/supabase-js";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 type AppRole = "student" | "employer" | "admin";
@@ -25,69 +25,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [role, setRole] = useState<AppRole | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
-  const fetchingRef = useRef<string | null>(null);
+  const mountedRef = useRef(true);
+  const requestIdRef = useRef(0);
 
-  const fetchUserData = useCallback(async (userId: string) => {
-    // Deduplicate concurrent fetches for the same user
-    if (fetchingRef.current === userId) return;
-    fetchingRef.current = userId;
+  const syncAuthState = useCallback(async (nextSession: Session | null) => {
+    const requestId = ++requestIdRef.current;
+
+    setSession(nextSession);
+    setUser(nextSession?.user ?? null);
+
+    if (!nextSession?.user) {
+      setRole(null);
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const [{ data: roleData }, { data: profileData }] = await Promise.all([
-        supabase.from("user_roles").select("role").eq("user_id", userId).single(),
-        supabase.from("profiles").select("*").eq("user_id", userId).single(),
+        supabase.from("user_roles").select("role").eq("user_id", nextSession.user.id).maybeSingle(),
+        supabase.from("profiles").select("*").eq("user_id", nextSession.user.id).maybeSingle(),
       ]);
-      if (roleData) setRole(roleData.role as AppRole);
-      else setRole(null);
-      if (profileData) setProfile(profileData);
-      else setProfile(null);
-    } catch (e) {
-      console.error("Error fetching user data:", e);
+
+      if (!mountedRef.current || requestId !== requestIdRef.current) return;
+
+      setRole((roleData?.role as AppRole | null) ?? null);
+      setProfile(profileData ?? null);
+    } catch (error) {
+      if (!mountedRef.current || requestId !== requestIdRef.current) return;
+      console.error("Error fetching user data:", error);
+      setRole(null);
+      setProfile(null);
     } finally {
-      fetchingRef.current = null;
+      if (mountedRef.current && requestId === requestIdRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    let mounted = true;
+    mountedRef.current = true;
 
-    // 1. Restore session from storage first
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return;
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchUserData(session.user.id);
-      }
-      if (mounted) setLoading(false);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (!mountedRef.current || event === "INITIAL_SESSION") return;
+      void syncAuthState(nextSession);
     });
 
-    // 2. Listen for subsequent auth changes — DO NOT await inside callback
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (!mounted) return;
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          // Fire-and-forget — never block the auth event queue
-          fetchUserData(session.user.id);
-        } else {
-          setRole(null);
-          setProfile(null);
-        }
-
-        // For sign-out, ensure loading is false immediately
-        if (event === "SIGNED_OUT") {
-          setLoading(false);
-        }
-      }
-    );
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mountedRef.current) return;
+      void syncAuthState(session);
+    });
 
     return () => {
-      mounted = false;
+      mountedRef.current = false;
+      requestIdRef.current += 1;
       subscription.unsubscribe();
     };
-  }, [fetchUserData]);
+  }, [syncAuthState]);
 
   const signUp = async (email: string, password: string, fullName: string, role: AppRole) => {
     const { error } = await supabase.auth.signUp({
@@ -102,18 +100,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
+    setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) setLoading(false);
     return { error };
   };
 
   const signOut = async () => {
-    // Clear local state immediately for instant UI feedback
+    requestIdRef.current += 1;
     setUser(null);
     setSession(null);
     setRole(null);
     setProfile(null);
-    // Then tell the server (fire-and-forget is fine)
-    await supabase.auth.signOut();
+    setLoading(false);
+
+    supabase.auth.signOut().catch((error) => {
+      console.error("Sign out error:", error);
+    });
   };
 
   const resetPassword = async (email: string) => {
