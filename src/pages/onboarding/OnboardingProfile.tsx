@@ -192,7 +192,7 @@ const OnboardingProfile = () => {
             <Label className="font-semibold">
               <span className="text-primary mr-1">*</span>Course Specialisation
             </Label>
-            <Select value={form.profile_role} onValueChange={(v) => setForm((f) => ({ ...f, profile_role: v }))}>
+            <Select value={form.profile_role} onValueChange={(v) => { setForm((f) => ({ ...f, profile_role: v })); setErrors((e) => ({ ...e, profile_role: "" })); }}>
               <SelectTrigger className="w-full sm:w-72">
                 <SelectValue placeholder="Select your specialisation" />
               </SelectTrigger>
