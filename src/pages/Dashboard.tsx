@@ -25,47 +25,62 @@ const Dashboard = () => {
   const [onboardingRoute, setOnboardingRoute] = useState("");
 
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading) return;
 
-    if (role === "student") {
-      supabase
-        .from("student_profiles")
-        .select("onboarding_status, onboarding_step")
-        .eq("user_id", user.id)
-        .single()
-        .then(({ data }) => {
-          const d = data as any;
-          if (d && d.onboarding_status !== "completed") {
-            const step = Math.min(Math.max((d.onboarding_step || 1) - 1, 0), 4);
-            setOnboardingRoute(STUDENT_STEP_ROUTES[step]);
-            setOnboardingCheck("needs");
-          } else {
-            setOnboardingCheck("done");
-          }
-        });
-    } else if (role === "employer") {
-      supabase
-        .from("employer_profiles")
-        .select("onboarding_status, onboarding_step")
-        .eq("user_id", user.id)
-        .single()
-        .then(({ data }) => {
-          const d = data as any;
-          if (d && d.onboarding_status !== "completed") {
-            const step = Math.min(Math.max((d.onboarding_step || 1) - 1, 0), 4);
-            setOnboardingRoute(EMPLOYER_STEP_ROUTES[step]);
-            setOnboardingCheck("needs");
-          } else {
-            setOnboardingCheck("done");
-          }
-        });
-    } else if (!role) {
-      // New OAuth user with no role yet — send to role picker
-      setOnboardingRoute("/select-role");
-      setOnboardingCheck("needs");
-    } else {
+    if (!user) {
       setOnboardingCheck("done");
+      return;
     }
+
+    const resolveOnboarding = async () => {
+      if (role === "student") {
+        const { data } = await supabase
+          .from("student_profiles")
+          .select("onboarding_status, onboarding_step")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        const d = data as any;
+        if (d && d.onboarding_status !== "completed") {
+          const step = Math.min(Math.max((d.onboarding_step || 1) - 1, 0), 4);
+          setOnboardingRoute(STUDENT_STEP_ROUTES[step]);
+          setOnboardingCheck("needs");
+          return;
+        }
+
+        setOnboardingCheck("done");
+        return;
+      }
+
+      if (role === "employer") {
+        const { data } = await supabase
+          .from("employer_profiles")
+          .select("onboarding_status, onboarding_step")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        const d = data as any;
+        if (d && d.onboarding_status !== "completed") {
+          const step = Math.min(Math.max((d.onboarding_step || 1) - 1, 0), 4);
+          setOnboardingRoute(EMPLOYER_STEP_ROUTES[step]);
+          setOnboardingCheck("needs");
+          return;
+        }
+
+        setOnboardingCheck("done");
+        return;
+      }
+
+      if (!role) {
+        setOnboardingRoute("/select-role");
+        setOnboardingCheck("needs");
+        return;
+      }
+
+      setOnboardingCheck("done");
+    };
+
+    void resolveOnboarding();
   }, [user, role, loading]);
 
   if (loading || onboardingCheck === "loading") {
@@ -76,10 +91,8 @@ const Dashboard = () => {
     );
   }
 
-  if (onboardingCheck === "needs") {
-    return <Navigate to={onboardingRoute} replace />;
-  }
-
+  if (!user) return <Navigate to="/login" replace />;
+  if (onboardingCheck === "needs") return <Navigate to={onboardingRoute} replace />;
   if (role === "student") return <Navigate to="/internships" replace />;
   if (role === "employer") return <Navigate to="/my-internships" replace />;
   if (role === "admin") return <Navigate to="/admin" replace />;
