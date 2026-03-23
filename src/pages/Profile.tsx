@@ -46,7 +46,11 @@ const Profile = () => {
 
       if (role === "student") {
         const { data: sp } = await supabase.from("student_profiles").select("*").eq("user_id", user.id).maybeSingle();
-        if (sp) setStudentProfile({ university: sp.university || "", major: sp.major || "", graduation_year: sp.graduation_year?.toString() || "", skills: sp.skills || [], resume_url: sp.resume_url || "" });
+        if (sp) {
+          const savedRole = (sp as any).profile_role || "";
+          const derivedCategory = savedRole ? SCHOOL_NAMES.find((s) => COURSE_CATEGORIES[s].includes(savedRole)) || "" : "";
+          setStudentProfile({ university: sp.university || "", major: sp.major || "", graduation_year: sp.graduation_year?.toString() || "", skills: sp.skills || [], resume_url: sp.resume_url || "", school_category: derivedCategory, profile_role: savedRole });
+        }
       } else if (role === "employer") {
         const { data: ep } = await supabase.from("employer_profiles").select("*").eq("user_id", user.id).maybeSingle();
         if (ep) setEmployerProfile({ company_name: ep.company_name || "", industry: ep.industry || "", company_size: ep.company_size || "", website: ep.website || "" });
