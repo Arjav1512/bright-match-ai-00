@@ -184,18 +184,39 @@ const OnboardingProfile = () => {
             {errors.location && <p className="text-sm text-destructive">{errors.location}</p>}
           </div>
 
-          {/* Course Specialisation */}
+          {/* School / Category */}
           <div className="space-y-2">
             <Label className="font-semibold">
-              <span className="text-primary mr-1">*</span>Course Specialisation
+              <span className="text-primary mr-1">*</span>School / Category
             </Label>
-            <Select value={form.profile_role} onValueChange={(v) => { setForm((f) => ({ ...f, profile_role: v })); setErrors((e) => ({ ...e, profile_role: "" })); }}>
-              <SelectTrigger className="w-full sm:w-72">
-                <SelectValue placeholder="Select your specialisation" />
+            <Select value={form.school_category} onValueChange={(v) => { setForm((f) => ({ ...f, school_category: v, profile_role: "" })); setErrors((e) => ({ ...e, profile_role: "" })); }}>
+              <SelectTrigger className="w-full sm:w-96">
+                <SelectValue placeholder="Select your school" />
               </SelectTrigger>
               <SelectContent>
-                {SPECIALISATIONS.map((r) => (
-                  <SelectItem key={r} value={r}>{r}</SelectItem>
+                {SCHOOL_NAMES.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Course / Programme */}
+          <div className="space-y-2">
+            <Label className="font-semibold">
+              <span className="text-primary mr-1">*</span>Course / Programme
+            </Label>
+            <Select
+              value={form.profile_role}
+              onValueChange={(v) => { setForm((f) => ({ ...f, profile_role: v })); setErrors((e) => ({ ...e, profile_role: "" })); }}
+              disabled={!form.school_category}
+            >
+              <SelectTrigger className="w-full sm:w-96">
+                <SelectValue placeholder={form.school_category ? "Select your course" : "Select a school first"} />
+              </SelectTrigger>
+              <SelectContent>
+                {(COURSE_CATEGORIES[form.school_category] || []).map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
