@@ -170,6 +170,34 @@ const Profile = () => {
             <Card>
               <CardHeader><CardTitle>Student Details</CardTitle></CardHeader>
               <CardContent className="space-y-4">
+                {/* School / Category */}
+                <div className="space-y-2">
+                  <Label>School / Category</Label>
+                  <Select value={studentProfile.school_category} onValueChange={(v) => setStudentProfile((p) => ({ ...p, school_category: v, profile_role: "" }))}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select your school" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SCHOOL_NAMES.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {/* Course / Programme */}
+                <div className="space-y-2">
+                  <Label>Course / Programme</Label>
+                  <Select value={studentProfile.profile_role} onValueChange={(v) => setStudentProfile((p) => ({ ...p, profile_role: v }))} disabled={!studentProfile.school_category}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={studentProfile.school_category ? "Select your course" : "Select a school first"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(COURSE_CATEGORIES[studentProfile.school_category] || []).map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>University</Label>
