@@ -60,10 +60,15 @@ const OnboardingProfile = () => {
       .then(({ data }) => {
         if (data) {
           const d = data as any;
+          const savedRole = d.profile_role || "";
+          const derivedCategory = savedRole
+            ? SCHOOL_NAMES.find((s) => COURSE_CATEGORIES[s].includes(savedRole)) || ""
+            : "";
           setForm((f) => ({
             ...f,
             location: d.location || "",
-            profile_role: d.profile_role || "",
+            school_category: derivedCategory,
+            profile_role: savedRole,
             experience_years: d.experience_years || "",
             is_student: d.is_student ?? true,
             current_job_title: d.current_job_title || "",
