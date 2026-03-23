@@ -77,7 +77,8 @@ const Profile = () => {
         major: studentProfile.major,
         graduation_year: studentProfile.graduation_year ? parseInt(studentProfile.graduation_year) : null,
         skills: studentProfile.skills,
-      }).eq("user_id", user.id);
+        profile_role: studentProfile.profile_role,
+      } as any).eq("user_id", user.id);
     } else if (role === "employer") {
       await supabase.from("employer_profiles").update(employerProfile).eq("user_id", user.id);
     }
