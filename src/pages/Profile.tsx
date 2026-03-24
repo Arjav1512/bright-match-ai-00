@@ -187,16 +187,12 @@ const Profile = () => {
                 {/* Course / Programme */}
                 <div className="space-y-2">
                   <Label>Course / Programme</Label>
-                  <Select value={studentProfile.profile_role} onValueChange={(v) => setStudentProfile((p) => ({ ...p, profile_role: v }))} disabled={!studentProfile.school_category}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={studentProfile.school_category ? "Select your course" : "Select a school first"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(COURSE_CATEGORIES[studentProfile.school_category] || []).map((c) => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <CourseSearchSelect
+                    schoolCategory={studentProfile.school_category}
+                    value={studentProfile.profile_role}
+                    onValueChange={(v) => setStudentProfile((p) => ({ ...p, profile_role: v }))}
+                    disabled={!studentProfile.school_category}
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
