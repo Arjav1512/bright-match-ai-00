@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MapPin, Loader2 } from "lucide-react";
 
 import { COURSE_CATEGORIES, SCHOOL_NAMES } from "@/data/courseData";
+import CourseSearchSelect from "@/components/CourseSearchSelect";
 
 const EXPERIENCE_OPTIONS = [
   { value: "0", label: "0 months" },

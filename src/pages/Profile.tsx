@@ -19,6 +19,7 @@ import { useFollows } from "@/hooks/useFollows";
 import { ReputationScoreCard } from "@/components/reputation/ReputationScoreCard";
 import { useReputation } from "@/hooks/useReputation";
 import { COURSE_CATEGORIES, SCHOOL_NAMES } from "@/data/courseData";
+import CourseSearchSelect from "@/components/CourseSearchSelect";
 
 const FollowStats = ({ userId }: { userId: string }) => {
   const { followerCount, followingCount } = useFollows(userId);
