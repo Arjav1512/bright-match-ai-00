@@ -11,13 +11,23 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Guard: require admin seed token
+    const seedToken = req.headers.get("x-admin-seed-token");
+    const expectedToken = Deno.env.get("ADMIN_SEED_TOKEN");
+    if (!expectedToken || !seedToken || seedToken !== expectedToken) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const email = "admin@test.com";
-    const password = "Admin1234!";
+    const email = Deno.env.get("SEED_ADMIN_EMAIL")!;
+    const password = Deno.env.get("SEED_ADMIN_PASSWORD")!;
 
     // Check if user already exists
     const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
