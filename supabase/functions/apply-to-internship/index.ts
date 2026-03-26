@@ -8,6 +8,19 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const securityHeaders = {
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+};
+
+const responseHeaders = {
+  ...corsHeaders,
+  ...securityHeaders,
+  "Content-Type": "application/json",
+};
+
 // Rate limit config: max 10 applications per hour per user
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
@@ -62,7 +75,7 @@ Deno.serve(async (req) => {
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...responseHeaders },
       });
     }
 
@@ -83,7 +96,7 @@ Deno.serve(async (req) => {
     if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...responseHeaders },
       });
     }
 
@@ -97,7 +110,7 @@ Deno.serve(async (req) => {
           error: `Rate limit exceeded. Try again in ${rateLimitResult.retryAfterSeconds} seconds.`,
           code: "RATE_LIMITED",
         }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 429, headers: { ...responseHeaders } }
       );
     }
 
@@ -106,7 +119,7 @@ Deno.serve(async (req) => {
     if (!internship_id) {
       return new Response(
         JSON.stringify({ error: "internship_id is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...responseHeaders } }
       );
     }
 
@@ -120,7 +133,7 @@ Deno.serve(async (req) => {
     if (internError || !internship) {
       return new Response(
         JSON.stringify({ error: "Internship not found." }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 404, headers: { ...responseHeaders } }
       );
     }
 
@@ -128,7 +141,7 @@ Deno.serve(async (req) => {
     if (internship.status === "closed") {
       return new Response(
         JSON.stringify({ error: "This internship is no longer accepting applications." }),
-        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 409, headers: { ...responseHeaders } }
       );
     }
 
@@ -139,7 +152,7 @@ Deno.serve(async (req) => {
           error: `Applications are full. This role only accepts ${internship.app_cap} applications (${internship.slots} slots × 2).`,
           code: "CAPACITY_REACHED",
         }),
-        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 409, headers: { ...responseHeaders } }
       );
     }
 
@@ -154,7 +167,7 @@ Deno.serve(async (req) => {
     if (existing) {
       return new Response(
         JSON.stringify({ error: "You have already applied to this internship.", code: "DUPLICATE" }),
-        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 409, headers: { ...responseHeaders } }
       );
     }
 
@@ -168,7 +181,7 @@ Deno.serve(async (req) => {
     if (insertError) {
       return new Response(
         JSON.stringify({ error: insertError.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...responseHeaders } }
       );
     }
 
@@ -193,12 +206,12 @@ Deno.serve(async (req) => {
         application_count: newCount,
         app_cap: internship.app_cap,
       }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...responseHeaders } }
     );
   } catch (err) {
     return new Response(
       JSON.stringify({ error: err.message || "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...responseHeaders } }
     );
   }
 });
