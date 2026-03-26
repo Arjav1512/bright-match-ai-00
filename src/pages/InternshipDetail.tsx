@@ -10,9 +10,19 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InternshipCapBar } from "@/components/InternshipCapBar";
-import { MapPin, Clock, Building2, Calendar, ArrowLeft, CheckCircle, ExternalLink } from "lucide-react";
+import {
+  MapPin, Clock, Building2, Calendar, ArrowLeft, CheckCircle, ExternalLink,
+  IndianRupee, Briefcase, GraduationCap, FileText, FlaskConical, Users,
+} from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
+
+const BENEFIT_LABELS: Record<string, string> = {
+  certificate: "Certificate",
+  ppo: "PPO (Job Offer)",
+  incentives: "Incentives",
+  travel_allowance: "Travel Allowance",
+};
 
 const InternshipDetail = () => {
   const { id } = useParams();
@@ -79,7 +89,6 @@ const InternshipDetail = () => {
       } else {
         setHasApplied(true);
         setShowApplyForm(false);
-        // Update local internship state with new counts
         if (res.data?.application_count != null) {
           setInternship((prev: any) => ({
             ...prev,
@@ -122,6 +131,15 @@ const InternshipDetail = () => {
   const score = matchScore();
   const isFull = internship.application_count >= internship.app_cap;
   const isClosed = internship.status === "closed";
+
+  const Section = ({ icon: Icon, title, children }: { icon: any; title: string; children: React.ReactNode }) => (
+    <div className="space-y-3">
+      <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+        <Icon className="h-4.5 w-4.5 text-primary" />{title}
+      </h2>
+      {children}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -169,6 +187,19 @@ const InternshipDetail = () => {
               <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-sm font-medium capitalize">
                 <Clock className="h-3.5 w-3.5" />{internship.type}
               </span>
+              {internship.internship_category && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-sm font-medium capitalize">
+                  <Briefcase className="h-3.5 w-3.5" />{internship.internship_category}
+                </span>
+              )}
+              {internship.department && (
+                <span className="rounded-full bg-secondary px-3 py-1.5 text-sm font-medium">{internship.department}</span>
+              )}
+              {internship.duration_months && (
+                <span className="rounded-full bg-secondary px-3 py-1.5 text-sm font-medium">
+                  {internship.duration_months} month{internship.duration_months > 1 ? "s" : ""}
+                </span>
+              )}
               {internship.deadline && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-sm font-medium">
                   <Calendar className="h-3.5 w-3.5" />Deadline: {format(new Date(internship.deadline), "MMM d, yyyy")}
@@ -180,20 +211,80 @@ const InternshipDetail = () => {
             </div>
           </div>
 
-          {/* Application Capacity Bar */}
+          {/* Capacity Bar */}
           {internship.app_cap > 0 && (
-            <InternshipCapBar
-              applicationCount={internship.application_count}
-              appCap={internship.app_cap}
-              slots={internship.slots}
-            />
+            <InternshipCapBar applicationCount={internship.application_count} appCap={internship.app_cap} slots={internship.slots} />
+          )}
+
+          {/* Duration & Timing */}
+          {(internship.start_date || internship.working_days || internship.working_hours) && (
+            <Section icon={Clock} title="Duration & Timing">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                {internship.start_date && (
+                  <div><span className="text-muted-foreground">Start Date:</span> {format(new Date(internship.start_date), "MMM d, yyyy")}</div>
+                )}
+                {internship.working_days && (
+                  <div><span className="text-muted-foreground">Working Days:</span> {internship.working_days}</div>
+                )}
+                {internship.working_hours && (
+                  <div><span className="text-muted-foreground">Working Hours:</span> {internship.working_hours}</div>
+                )}
+              </div>
+            </Section>
+          )}
+
+          {/* Stipend & Benefits */}
+          {(internship.stipend_type || (internship.benefits && internship.benefits.length > 0)) && (
+            <Section icon={IndianRupee} title="Stipend & Benefits">
+              <div className="text-sm space-y-2">
+                {internship.stipend_type && (
+                  <p>
+                    <span className="text-muted-foreground">Stipend:</span>{" "}
+                    <span className="capitalize font-medium">{internship.stipend_type}</span>
+                    {internship.stipend_amount && <span> — ₹{Number(internship.stipend_amount).toLocaleString()}/month</span>}
+                  </p>
+                )}
+                {internship.benefits && internship.benefits.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {internship.benefits.map((b: string) => (
+                      <Badge key={b} variant="outline">{BENEFIT_LABELS[b] || b}</Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Section>
           )}
 
           {/* Description */}
-          <div className="space-y-2">
-            <h2 className="font-display text-lg font-semibold">About the role</h2>
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{internship.description}</p>
-          </div>
+          {internship.description && (
+            <Section icon={FileText} title="About the Role">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{internship.description}</p>
+            </Section>
+          )}
+
+          {/* Roles & Responsibilities */}
+          {internship.roles_responsibilities && (
+            <div className="space-y-2">
+              <h3 className="font-display text-base font-semibold">Roles & Responsibilities</h3>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{internship.roles_responsibilities}</p>
+            </div>
+          )}
+
+          {/* Day-to-day Tasks */}
+          {internship.day_to_day_tasks && (
+            <div className="space-y-2">
+              <h3 className="font-display text-base font-semibold">Day-to-Day Tasks</h3>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{internship.day_to_day_tasks}</p>
+            </div>
+          )}
+
+          {/* Projects */}
+          {internship.projects && (
+            <div className="space-y-2">
+              <h3 className="font-display text-base font-semibold">Projects</h3>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{internship.projects}</p>
+            </div>
+          )}
 
           {/* Requirements */}
           {internship.requirements && (
@@ -221,6 +312,44 @@ const InternshipDetail = () => {
                   </span>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Eligibility */}
+          {internship.eligibility && internship.eligibility.length > 0 && (
+            <Section icon={GraduationCap} title="Eligibility (Courses)">
+              <div className="flex flex-wrap gap-2">
+                {internship.eligibility.map((c: string) => (
+                  <Badge key={c} variant="secondary">{c}</Badge>
+                ))}
+              </div>
+            </Section>
+          )}
+
+          {/* Selection Process */}
+          {(internship.resume_screening !== null || internship.interview_required !== null || internship.test_assignment) && (
+            <Section icon={FlaskConical} title="Selection Process">
+              <ul className="text-sm space-y-1.5 text-muted-foreground">
+                {internship.resume_screening && <li>✓ Resume Screening</li>}
+                {internship.interview_required && <li>✓ Interview</li>}
+                {internship.test_assignment && <li>✓ Test/Assignment: {internship.test_assignment}</li>}
+              </ul>
+            </Section>
+          )}
+
+          {/* Joining Process */}
+          {internship.joining_process && (
+            <div className="space-y-2">
+              <h3 className="font-display text-base font-semibold">Joining Process</h3>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{internship.joining_process}</p>
+            </div>
+          )}
+
+          {/* Openings */}
+          {internship.slots && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>{internship.slots} opening{internship.slots > 1 ? "s" : ""}</span>
             </div>
           )}
 
