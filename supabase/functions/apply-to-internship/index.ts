@@ -1,5 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
+const applySchema = z.object({
+  internship_id: z.string().uuid("internship_id must be a valid UUID"),
+  cover_letter: z.string().max(5000).optional().nullable(),
+});
 const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") ?? "https://wroob.in";
 
 const corsHeaders = {
@@ -114,14 +119,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { internship_id, cover_letter } = await req.json();
-
-    if (!internship_id) {
+    const rawBody = await req.json();
+    const parsed = applySchema.safeParse(rawBody);
+    if (!parsed.success) {
       return new Response(
-        JSON.stringify({ error: "internship_id is required" }),
+        JSON.stringify({ error: "Invalid input", details: parsed.error.issues.map(i => i.message).join("; ") }),
         { status: 400, headers: { ...responseHeaders } }
       );
     }
+    const { internship_id, cover_letter } = parsed.data;
 
     // Step 1: Get internship details
     const { data: internship, error: internError } = await supabaseAdmin

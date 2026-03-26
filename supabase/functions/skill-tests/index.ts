@@ -1,5 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+
+const skillTestBodySchema = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("list_tests") }),
+  z.object({ action: z.literal("get_test"), skill_name: z.string().min(1, "skill_name is required").max(100) }),
+  z.object({ action: z.literal("submit_test"), skill_name: z.string().min(1).max(100), answers: z.array(z.number().int().min(0).max(10)).min(1, "answers are required") }),
+]);
 
 // Rate limit: 15 requests per hour per user
 const RATE_LIMIT_MAX = 15;
@@ -133,7 +140,15 @@ serve(async (req) => {
       );
     }
 
-    const body = await req.json();
+    const rawBody = await req.json();
+    const parsed = skillTestBodySchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input", details: parsed.error.issues.map(i => i.message).join("; ") }),
+        { status: 400, headers: { ...responseHeaders } }
+      );
+    }
+    const body = parsed.data;
     const { action } = body;
 
     // Get available tests

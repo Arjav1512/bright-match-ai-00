@@ -1,4 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+
+const geoSchema = z.object({
+  lat: z.number().min(-90, "lat must be >= -90").max(90, "lat must be <= 90"),
+  lng: z.number().min(-180, "lng must be >= -180").max(180, "lng must be <= 180"),
+});
 
 // Rate limit: 30 requests per hour per user
 const RATE_LIMIT_MAX = 30;
@@ -137,13 +143,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { lat, lng } = await req.json();
-    if (lat == null || lng == null) {
-      return new Response(JSON.stringify({ error: "Missing lat, lng" }), {
-        status: 400,
-        headers: { ...responseHeaders },
-      });
+    const rawBody = await req.json();
+    const parsed = geoSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input", details: parsed.error.issues.map(i => i.message).join("; ") }),
+        { status: 400, headers: { ...responseHeaders } }
+      );
     }
+    const { lat, lng } = parsed.data;
 
     const geohash = encodeGeohash(lat, lng, 5);
 

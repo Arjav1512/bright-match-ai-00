@@ -1,5 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+
+const feedbackSchema = z.object({
+  internship_id: z.string().uuid("internship_id must be a valid UUID"),
+  action: z.enum(["applied", "saved", "ignored", "dismissed"], { errorMap: () => ({ message: "action must be one of: applied, saved, ignored, dismissed" }) }),
+});
 
 // Rate limit: 30 requests per hour per user
 const RATE_LIMIT_MAX = 30;
@@ -93,22 +99,15 @@ serve(async (req) => {
       );
     }
 
-    const { internship_id, action } = await req.json();
-
-    if (!internship_id || !action) {
-      return new Response(JSON.stringify({ error: "internship_id and action are required" }), {
-        status: 400,
-        headers: { ...responseHeaders },
-      });
+    const rawBody = await req.json();
+    const parsed = feedbackSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input", details: parsed.error.issues.map(i => i.message).join("; ") }),
+        { status: 400, headers: { ...responseHeaders } }
+      );
     }
-
-    const validActions = ["applied", "saved", "ignored", "dismissed"];
-    if (!validActions.includes(action)) {
-      return new Response(JSON.stringify({ error: `action must be one of: ${validActions.join(", ")}` }), {
-        status: 400,
-        headers: { ...responseHeaders },
-      });
-    }
+    const { internship_id, action } = parsed.data;
 
     const { error } = await supabase.from("recommendation_feedback").upsert(
       {
