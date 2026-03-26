@@ -1,4 +1,4 @@
-import { BarChart3, Users, Briefcase, Settings, Shield, LogOut } from "lucide-react";
+import { BarChart3, Users, Briefcase, Settings, Shield, LogOut, BadgeCheck } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,6 +20,7 @@ const navItems = [
   { title: "Dashboard", url: "/admin", icon: BarChart3 },
   { title: "Users", url: "/admin/users", icon: Users },
   { title: "Internships", url: "/admin/internships", icon: Briefcase },
+  { title: "Verification", url: "/admin/verification", icon: BadgeCheck },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
