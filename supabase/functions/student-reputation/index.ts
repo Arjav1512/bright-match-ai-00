@@ -1,5 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+
+const submitFeedbackSchema = z.object({
+  action: z.literal("submit_feedback"),
+  student_id: z.string().uuid("student_id must be a valid UUID"),
+  internship_id: z.string().uuid("internship_id must be a valid UUID"),
+  rating: z.number().int().min(1, "Rating must be at least 1").max(5, "Rating must be at most 5"),
+  review: z.string().max(1000, "Review max 1000 chars").optional().nullable(),
+});
+
+const recalculateSchema = z.object({
+  action: z.literal("recalculate"),
+});
+
+const reputationPostSchema = z.discriminatedUnion("action", [submitFeedbackSchema, recalculateSchema]);
 
 // Rate limit: 20 requests per hour per user
 const RATE_LIMIT_MAX = 20;
@@ -100,18 +115,19 @@ serve(async (req) => {
 
     // POST /student-reputation - submit feedback (employer only)
     if (req.method === "POST") {
-      const body = await req.json();
+      const rawBody = await req.json();
+      const parsed = reputationPostSchema.safeParse(rawBody);
+      if (!parsed.success) {
+        return new Response(
+          JSON.stringify({ error: "Invalid input", details: parsed.error.issues.map(i => i.message).join("; ") }),
+          { status: 400, headers: { ...responseHeaders } }
+        );
+      }
+      const body = parsed.data;
       const action = body.action;
 
       if (action === "submit_feedback") {
         const { student_id, internship_id, rating, review } = body;
-
-        if (!student_id || !internship_id || !rating || rating < 1 || rating > 5) {
-          return new Response(JSON.stringify({ error: "Invalid feedback data. Rating must be 1-5." }), {
-            status: 400,
-            headers: { ...responseHeaders },
-          });
-        }
 
         // Verify employer owns the internship
         const { data: internship } = await serviceClient

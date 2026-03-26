@@ -1,4 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+
+const createStatusSchema = z.object({
+  content: z.string().min(1, "Content is required").max(200, "Content max 200 chars"),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+});
+
+const replySchema = z.object({
+  status_id: z.string().uuid("status_id must be a valid UUID"),
+  message: z.string().min(1, "Message is required").max(500, "Message max 500 chars"),
+});
 
 // Rate limit: 20 requests per hour per user
 const RATE_LIMIT_MAX = 20;
@@ -115,13 +127,14 @@ Deno.serve(async (req) => {
 
       if (path === "reply") {
         // Reply to status
-        const { status_id, message } = body;
-        if (!status_id || !message || message.length > 500) {
+        const replyParsed = replySchema.safeParse(body);
+        if (!replyParsed.success) {
           return new Response(
-            JSON.stringify({ error: "Invalid reply. Max 500 chars." }),
+            JSON.stringify({ error: "Invalid input", details: replyParsed.error.issues.map(i => i.message).join("; ") }),
             { status: 400, headers: { ...responseHeaders } }
           );
         }
+        const { status_id, message } = replyParsed.data;
 
         const { data, error } = await supabaseAdmin
           .from("status_replies")
@@ -136,13 +149,14 @@ Deno.serve(async (req) => {
       }
 
       // Create status
-      const { content, latitude, longitude } = body;
-      if (!content || content.length > 200 || latitude == null || longitude == null) {
+      const statusParsed = createStatusSchema.safeParse(body);
+      if (!statusParsed.success) {
         return new Response(
-          JSON.stringify({ error: "Content required (max 200 chars) with location." }),
+          JSON.stringify({ error: "Invalid input", details: statusParsed.error.issues.map(i => i.message).join("; ") }),
           { status: 400, headers: { ...responseHeaders } }
         );
       }
+      const { content, latitude, longitude } = statusParsed.data;
 
       const { data, error } = await supabaseAdmin
         .from("campus_statuses")
