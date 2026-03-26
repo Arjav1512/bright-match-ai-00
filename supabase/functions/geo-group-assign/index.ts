@@ -47,9 +47,36 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { user_id, lat, lng } = await req.json();
-    if (!user_id || lat == null || lng == null) {
-      return new Response(JSON.stringify({ error: "Missing user_id, lat, lng" }), {
+    // --- JWT auth check ---
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const authClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const user_id = claimsData.claims.sub;
+    // --- End auth check ---
+
+    const { lat, lng } = await req.json();
+    if (lat == null || lng == null) {
+      return new Response(JSON.stringify({ error: "Missing lat, lng" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
