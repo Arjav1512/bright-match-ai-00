@@ -98,7 +98,7 @@ const AdminVerification = () => {
   const pendingCount = employers.filter((e) => !e.is_verified && e.onboarding_status === "completed").length;
 
   return (
-    <AdminLayout>
+    <AdminLayout title="Company Verification">
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Company Verification</h1>
