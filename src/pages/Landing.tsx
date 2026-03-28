@@ -64,7 +64,7 @@ const Landing = () => {
             return (
               <motion.div
                 key={tag.label}
-                className="absolute hidden lg:block pointer-events-auto"
+                className={`absolute pointer-events-auto ${tag.showOnMobile ? '' : 'hidden md:block'}`}
                 style={{
                   top: tag.top,
                   left: tag.left,
@@ -77,8 +77,8 @@ const Landing = () => {
                 transition={{ delay: tag.delay, duration: 0.8 }}
               >
                 <motion.div
-                  className="glass rounded-full px-4 py-2 text-muted-foreground/70 shadow-sm cursor-pointer transition-shadow duration-300 hover:shadow-2xl hover:shadow-primary/35"
-                  style={{ font: "var(--text-label)", letterSpacing: "var(--letter-spacing-label)" }}
+                  className="glass rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm text-muted-foreground/70 shadow-sm cursor-pointer transition-shadow duration-300 hover:shadow-2xl hover:shadow-primary/35"
+                  style={{ letterSpacing: "var(--letter-spacing-label)" }}
                   animate={{ y: [0, -8, 0] }}
                   transition={{ duration: 4 + tag.delay, repeat: Infinity, ease: "easeInOut" }}
                   whileHover={{ scale: 1.1, y: -6, opacity: 1 }}
