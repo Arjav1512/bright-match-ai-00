@@ -36,6 +36,7 @@ const Internships = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [stipendRange, setStipendRange] = useState<[number]>([0]);
   const [durationFilter, setDurationFilter] = useState("all");
   const [studentSkills, setStudentSkills] = useState<string[]>([]);
@@ -68,9 +69,10 @@ const Internships = () => {
     .filter((i) => {
       const matchesSearch = !search || i.title.toLowerCase().includes(search.toLowerCase()) || i.description?.toLowerCase().includes(search.toLowerCase());
       const matchesType = typeFilter === "all" || i.type === typeFilter;
+      const matchesCategory = categoryFilter === "all" || (i as any).internship_category === categoryFilter;
       const matchesStipend = stipendRange[0] === 0 || (i.stipend_amount != null && i.stipend_amount >= stipendRange[0]);
       const matchesDuration = durationFilter === "all" || (i.duration_months != null && String(i.duration_months) === durationFilter);
-      return matchesSearch && matchesType && matchesStipend && matchesDuration;
+      return matchesSearch && matchesType && matchesCategory && matchesStipend && matchesDuration;
     })
     .sort((a, b) => {
       if (studentSkills.length) return calcMatchScore(b.skills_required) - calcMatchScore(a.skills_required);
@@ -103,6 +105,19 @@ const Internships = () => {
                     <SelectItem value="remote">Remote</SelectItem>
                     <SelectItem value="onsite">On-site</SelectItem>
                     <SelectItem value="hybrid">Hybrid</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Category filter */}
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="full-time">Full-time</SelectItem>
+                    <SelectItem value="part-time">Part-time</SelectItem>
+                    <SelectItem value="micro-internship">Micro-Internships</SelectItem>
                   </SelectContent>
                 </Select>
 

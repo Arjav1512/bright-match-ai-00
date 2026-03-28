@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,6 +24,7 @@ function getInitials(name: string) {
 const FollowListDialog = ({ userId, followerCount, followingCount }: FollowListDialogProps) => {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"followers" | "following">("followers");
+  const navigate = useNavigate();
 
   const { data: followers = [], isLoading: loadingFollowers } = useFollowList(userId, "followers");
   const { data: following = [], isLoading: loadingFollowing } = useFollowList(userId, "following");
@@ -66,12 +68,18 @@ const FollowListDialog = ({ userId, followerCount, followingCount }: FollowListD
               ) : (
                 followers.map((p: any) => (
                   <div key={p.user_id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
                         <AvatarImage src={p.avatar_url || undefined} />
                         <AvatarFallback className="text-xs">{getInitials(p.full_name || "?")}</AvatarFallback>
                       </Avatar>
-                      <span className="text-sm font-medium">{p.full_name || "Anonymous"}</span>
+                      <button
+                        type="button"
+                        className="text-sm font-medium hover:text-primary hover:underline transition-colors text-left"
+                        onClick={() => { setOpen(false); navigate(`/students?highlight=${p.user_id}`); }}
+                      >
+                        {p.full_name || "Anonymous"}
+                      </button>
                     </div>
                     <FollowButton targetUserId={p.user_id} />
                   </div>
@@ -86,12 +94,18 @@ const FollowListDialog = ({ userId, followerCount, followingCount }: FollowListD
               ) : (
                 following.map((p: any) => (
                   <div key={p.user_id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
                         <AvatarImage src={p.avatar_url || undefined} />
                         <AvatarFallback className="text-xs">{getInitials(p.full_name || "?")}</AvatarFallback>
                       </Avatar>
-                      <span className="text-sm font-medium">{p.full_name || "Anonymous"}</span>
+                      <button
+                        type="button"
+                        className="text-sm font-medium hover:text-primary hover:underline transition-colors text-left"
+                        onClick={() => { setOpen(false); navigate(`/students?highlight=${p.user_id}`); }}
+                      >
+                        {p.full_name || "Anonymous"}
+                      </button>
                     </div>
                     <FollowButton targetUserId={p.user_id} />
                   </div>
