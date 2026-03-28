@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
@@ -27,7 +27,7 @@ const FollowStats = ({ userId }: { userId: string }) => {
 };
 
 const Profile = () => {
-  const { user, role } = useAuth();
+  const { user, role, refreshProfile: refreshAuthProfile } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState({ full_name: "", bio: "", avatar_url: "" });
@@ -37,9 +37,16 @@ const Profile = () => {
   const [allSkills, setAllSkills] = useState<{ name: string; category: string }[]>([]);
   const [skillSearch, setSkillSearch] = useState("");
   const [locationCaptured, setLocationCaptured] = useState(false);
+  const initialFetchDone = useRef(false);
+  const currentUserId = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !role) return;
+    // Only fetch once per user — prevent re-fetch on token refresh (tab switch)
+    if (initialFetchDone.current && currentUserId.current === user.id) return;
+    currentUserId.current = user.id;
+    initialFetchDone.current = true;
+
     const fetchData = async () => {
       const { data: p } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
       if (p) setProfile({ full_name: p.full_name || "", bio: p.bio || "", avatar_url: p.avatar_url || "" });
@@ -145,7 +152,10 @@ const Profile = () => {
                     userId={user.id}
                     currentUrl={profile.avatar_url || null}
                     fullName={profile.full_name}
-                    onUpload={(url) => setProfile((p) => ({ ...p, avatar_url: url }))}
+                    onUpload={(url) => {
+                      setProfile((p) => ({ ...p, avatar_url: url }));
+                      refreshAuthProfile();
+                    }}
                   />
                   <div className="space-y-2">
                     <div>
