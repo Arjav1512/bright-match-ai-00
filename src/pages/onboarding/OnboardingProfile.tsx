@@ -49,6 +49,7 @@ const OnboardingProfile = () => {
     not_employed: false,
     linkedin_url: "",
     website_url: "",
+    phone_number: "",
   });
 
   useEffect(() => {
@@ -77,6 +78,7 @@ const OnboardingProfile = () => {
             not_employed: d.not_employed ?? false,
             linkedin_url: d.linkedin_url || "",
             website_url: d.website_url || "",
+            phone_number: d.phone_number || "",
           }));
         }
       });
@@ -88,6 +90,7 @@ const OnboardingProfile = () => {
     if (!form.location.trim()) newErrors.location = "Location is required.";
     if (!form.profile_role) newErrors.profile_role = "Specialisation is required.";
     if (!form.experience_years) newErrors.experience_years = "Experience is required.";
+    if (form.phone_number && form.phone_number.length !== 10) newErrors.phone_number = "Phone number must be exactly 10 digits.";
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
       toast({ title: "Required fields missing", description: "Please fill in all mandatory fields.", variant: "destructive" });
@@ -111,6 +114,7 @@ const OnboardingProfile = () => {
         not_employed: form.not_employed,
         linkedin_url: form.linkedin_url,
         website_url: form.website_url,
+        phone_number: form.phone_number || null,
         onboarding_step: 2,
       } as any)
       .eq("user_id", user.id);
