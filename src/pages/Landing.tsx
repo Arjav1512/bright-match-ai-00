@@ -10,18 +10,18 @@ import { useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const FLOATING_TAGS = [
-  { label: "Frontend", top: "12%", left: "8%", delay: 0, scale: 1.02 },
-  { label: "AI / ML", top: "18%", right: "12%", delay: 0.5, scale: 0.97 },
-  { label: "Remote", top: "35%", left: "5%", delay: 1.2, scale: 1.0 },
-  { label: "React", bottom: "28%", left: "12%", delay: 0.8, scale: 1.04 },
-  { label: "Fintech", top: "8%", left: "32%", delay: 1.5, scale: 0.96 },
-  { label: "Web3", bottom: "18%", right: "8%", delay: 0.3, scale: 1.01 },
-  { label: "Data Science", top: "42%", right: "6%", delay: 1.8, scale: 0.98 },
-  { label: "Python", bottom: "35%", right: "15%", delay: 0.7, scale: 1.03 },
-  { label: "UI/UX", bottom: "12%", left: "25%", delay: 1.1, scale: 0.99 },
-  { label: "Backend", top: "6%", right: "30%", delay: 1.4, scale: 1.0 },
-  { label: "Marketing", bottom: "22%", left: "3%", delay: 2.0, scale: 1.02 },
-  { label: "Machine Learning", top: "25%", left: "18%", delay: 0.6, scale: 0.97 },
+  { label: "Frontend", top: "12%", left: "8%", delay: 0, scale: 1.02, showOnMobile: true },
+  { label: "AI / ML", top: "18%", right: "12%", delay: 0.5, scale: 0.97, showOnMobile: true },
+  { label: "Remote", top: "35%", left: "5%", delay: 1.2, scale: 1.0, showOnMobile: false },
+  { label: "React", bottom: "28%", left: "12%", delay: 0.8, scale: 1.04, showOnMobile: true },
+  { label: "Fintech", top: "8%", left: "32%", delay: 1.5, scale: 0.96, showOnMobile: false },
+  { label: "Web3", bottom: "18%", right: "8%", delay: 0.3, scale: 1.01, showOnMobile: false },
+  { label: "Data Science", top: "42%", right: "6%", delay: 1.8, scale: 0.98, showOnMobile: true },
+  { label: "Python", bottom: "35%", right: "15%", delay: 0.7, scale: 1.03, showOnMobile: true },
+  { label: "UI/UX", bottom: "12%", left: "25%", delay: 1.1, scale: 0.99, showOnMobile: false },
+  { label: "Backend", top: "6%", right: "30%", delay: 1.4, scale: 1.0, showOnMobile: true },
+  { label: "Marketing", bottom: "22%", left: "3%", delay: 2.0, scale: 1.02, showOnMobile: false },
+  { label: "Machine Learning", top: "25%", left: "18%", delay: 0.6, scale: 0.97, showOnMobile: false },
 ];
 
 const HOW_STEPS = [
@@ -64,7 +64,7 @@ const Landing = () => {
             return (
               <motion.div
                 key={tag.label}
-                className="absolute hidden lg:block pointer-events-auto"
+                className={`absolute pointer-events-auto ${tag.showOnMobile ? '' : 'hidden md:block'}`}
                 style={{
                   top: tag.top,
                   left: tag.left,
@@ -77,8 +77,8 @@ const Landing = () => {
                 transition={{ delay: tag.delay, duration: 0.8 }}
               >
                 <motion.div
-                  className="glass rounded-full px-4 py-2 text-muted-foreground/70 shadow-sm cursor-pointer transition-shadow duration-300 hover:shadow-2xl hover:shadow-primary/35"
-                  style={{ font: "var(--text-label)", letterSpacing: "var(--letter-spacing-label)" }}
+                  className="glass rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm text-muted-foreground/70 shadow-sm cursor-pointer transition-shadow duration-300 hover:shadow-2xl hover:shadow-primary/35"
+                  style={{ letterSpacing: "var(--letter-spacing-label)" }}
                   animate={{ y: [0, -8, 0] }}
                   transition={{ duration: 4 + tag.delay, repeat: Infinity, ease: "easeInOut" }}
                   whileHover={{ scale: 1.1, y: -6, opacity: 1 }}
