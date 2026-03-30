@@ -155,6 +155,8 @@ export type Database = {
           gst_number: string | null
           gstin: string | null
           head_office_address: string | null
+          head_office_landline: string | null
+          head_office_mobile: string | null
           hiring_roles: string[] | null
           hr_contact_name: string | null
           hr_designation: string | null
@@ -196,6 +198,8 @@ export type Database = {
           gst_number?: string | null
           gstin?: string | null
           head_office_address?: string | null
+          head_office_landline?: string | null
+          head_office_mobile?: string | null
           hiring_roles?: string[] | null
           hr_contact_name?: string | null
           hr_designation?: string | null
@@ -237,6 +241,8 @@ export type Database = {
           gst_number?: string | null
           gstin?: string | null
           head_office_address?: string | null
+          head_office_landline?: string | null
+          head_office_mobile?: string | null
           hiring_roles?: string[] | null
           hr_contact_name?: string | null
           hr_designation?: string | null
