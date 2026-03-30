@@ -12,7 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { X, Share2, Copy, Check } from "lucide-react";
+import { X, Share2, Copy, Check, Upload, FileText, Trash2 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import LocationCapture from "@/components/groups/LocationCapture";
 import AvatarUpload from "@/components/AvatarUpload";
 import FollowListDialog from "@/components/FollowListDialog";
@@ -180,9 +184,16 @@ const Profile = () => {
     (s) => s.name.toLowerCase().includes(skillSearch.toLowerCase()) && !studentProfile.skills.includes(s.name)
   );
 
+  const MAX_RESUME_SIZE = 5 * 1024 * 1024; // 5 MB
+
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
+    if (file.size > MAX_RESUME_SIZE) {
+      toast({ title: "File too large", description: "Maximum file size is 5 MB.", variant: "destructive" });
+      e.target.value = "";
+      return;
+    }
     const path = `${user.id}/${file.name}`;
     const { error } = await supabase.storage.from("resumes").upload(path, file, { upsert: true });
     if (error) {
@@ -193,7 +204,25 @@ const Profile = () => {
       await supabase.from("student_profiles").update({ resume_url: publicUrl }).eq("user_id", user.id);
       toast({ title: "Resume uploaded!" });
     }
+    e.target.value = "";
   };
+
+  const handleResumeDelete = async () => {
+    if (!user || !studentProfile.resume_url) return;
+    // Extract storage path from URL
+    const urlParts = studentProfile.resume_url.split("/resumes/");
+    if (urlParts.length > 1) {
+      const storagePath = decodeURIComponent(urlParts[1]);
+      await supabase.storage.from("resumes").remove([storagePath]);
+    }
+    setStudentProfile((p) => ({ ...p, resume_url: "" }));
+    await supabase.from("student_profiles").update({ resume_url: null } as any).eq("user_id", user.id);
+    toast({ title: "Resume deleted" });
+  };
+
+  const resumeFileName = studentProfile.resume_url
+    ? decodeURIComponent(studentProfile.resume_url.split("/").pop() || "Resume")
+    : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -388,10 +417,41 @@ const Profile = () => {
                   </div>
 
                   {/* Resume */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <Label>Resume</Label>
-                    <Input type="file" accept=".pdf,.doc,.docx" onChange={handleResumeUpload} />
-                    {studentProfile.resume_url && <p className="text-sm text-muted-foreground">Resume uploaded ✓</p>}
+                    {studentProfile.resume_url ? (
+                      <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-3">
+                        <FileText className="h-5 w-5 text-primary shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{resumeFileName}</p>
+                          <p className="text-xs text-muted-foreground">Uploaded ✓</p>
+                        </div>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Resume?</AlertDialogTitle>
+                              <AlertDialogDescription>This will permanently remove your uploaded resume. You can upload a new one afterwards.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleResumeDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors">
+                        <Upload className="h-8 w-8 text-muted-foreground" />
+                        <span className="text-sm font-medium">Click to upload resume</span>
+                        <span className="text-xs text-muted-foreground">.pdf, .doc, .docx — Max 5 MB</span>
+                        <input type="file" accept=".pdf,.doc,.docx" onChange={handleResumeUpload} className="hidden" />
+                      </label>
+                    )}
                   </div>
                 </CardContent>
               </Card>
