@@ -35,6 +35,8 @@ const EmployerOnboardingLocation = () => {
     city: "",
     state: "",
     pincode: "",
+    head_office_landline: "",
+    head_office_mobile: "",
     hr_contact_name: "",
     hr_designation: "",
     hr_email: "",
@@ -45,7 +47,7 @@ const EmployerOnboardingLocation = () => {
     if (!user) return;
     supabase
       .from("employer_profiles")
-      .select("head_office_address, city, state, pincode, hr_contact_name, hr_designation, hr_email, hr_phone")
+      .select("head_office_address, city, state, pincode, head_office_landline, head_office_mobile, hr_contact_name, hr_designation, hr_email, hr_phone")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }: any) => {
@@ -55,6 +57,8 @@ const EmployerOnboardingLocation = () => {
             city: data.city || "",
             state: data.state || "",
             pincode: data.pincode || "",
+            head_office_landline: data.head_office_landline || "",
+            head_office_mobile: data.head_office_mobile || "",
             hr_contact_name: data.hr_contact_name || "",
             hr_designation: data.hr_designation || "",
             hr_email: data.hr_email || "",
@@ -70,6 +74,10 @@ const EmployerOnboardingLocation = () => {
     if (!user) return;
     if (!form.city.trim()) {
       toast({ title: "City is required", variant: "destructive" });
+      return;
+    }
+    if (!form.head_office_mobile.trim() || form.head_office_mobile.length !== 10) {
+      toast({ title: "Head office mobile number is required (10 digits)", variant: "destructive" });
       return;
     }
     if (!form.hr_contact_name.trim()) {
@@ -94,6 +102,8 @@ const EmployerOnboardingLocation = () => {
         city: form.city.trim(),
         state: form.state || null,
         pincode: form.pincode || null,
+        head_office_landline: form.head_office_landline || null,
+        head_office_mobile: form.head_office_mobile.trim(),
         hr_contact_name: form.hr_contact_name.trim(),
         hr_designation: form.hr_designation || null,
         hr_email: form.hr_email.trim(),
@@ -147,6 +157,39 @@ const EmployerOnboardingLocation = () => {
             <div className="space-y-2">
               <Label>Pincode</Label>
               <Input value={form.pincode} onChange={(e) => update("pincode", e.target.value)} placeholder="e.g. 110001" maxLength={6} />
+            </div>
+          </div>
+
+          {/* Head Office Contact */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Landline Number</Label>
+              <Input
+                type="tel"
+                inputMode="numeric"
+                value={form.head_office_landline}
+                onChange={(e) => update("head_office_landline", e.target.value.replace(/\D/g, ""))}
+                placeholder="e.g. 01112345678"
+              />
+              <p className="text-xs text-muted-foreground">Optional</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Mobile Number *</Label>
+              <div className="flex gap-2">
+                <div className="flex items-center justify-center rounded-md border border-input bg-muted px-3 text-sm font-medium text-muted-foreground">+91</div>
+                <Input
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
+                  placeholder="Enter 10-digit mobile number"
+                  value={form.head_office_mobile}
+                  onChange={(e) => update("head_office_mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                  className="flex-1"
+                />
+              </div>
+              {form.head_office_mobile && form.head_office_mobile.length > 0 && form.head_office_mobile.length !== 10 && (
+                <p className="text-xs text-destructive">Must be exactly 10 digits</p>
+              )}
             </div>
           </div>
         </div>
