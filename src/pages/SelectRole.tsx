@@ -33,7 +33,7 @@ const SelectRole = () => {
 
   const handleContinue = async () => {
     if (!selected || !user) return;
-    setLoading(true);
+    setSubmitting(true);
 
     try {
       // Use SECURITY DEFINER function — prevents client-side role manipulation
