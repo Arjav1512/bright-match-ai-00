@@ -117,7 +117,19 @@ const EmployerOnboardingManager = () => {
           </div>
           <div className="space-y-2">
             <Label>Phone Number *</Label>
-            <Input value={form.manager_phone} onChange={(e) => update("manager_phone", e.target.value)} placeholder="+91 98765 43210" />
+            <div className="flex gap-2">
+              <div className="flex items-center justify-center rounded-md border border-input bg-muted px-3 text-sm font-medium text-muted-foreground">+91</div>
+              <Input
+                type="tel"
+                inputMode="numeric"
+                maxLength={10}
+                placeholder="Enter 10-digit phone number"
+                value={form.manager_phone}
+                onChange={(e) => update("manager_phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                className="flex-1"
+              />
+            </div>
+          </div>
           </div>
         </div>
       </div>
