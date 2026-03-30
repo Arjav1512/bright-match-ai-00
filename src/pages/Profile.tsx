@@ -72,6 +72,23 @@ const ShareProfileCard = ({ userId }: { userId?: string }) => {
   );
 };
 
+const DRAFT_KEY = "wroob_profile_draft";
+
+const saveDraft = (userId: string, data: Record<string, any>) => {
+  try { localStorage.setItem(`${DRAFT_KEY}_${userId}`, JSON.stringify(data)); } catch {}
+};
+
+const loadDraft = (userId: string): Record<string, any> | null => {
+  try {
+    const raw = localStorage.getItem(`${DRAFT_KEY}_${userId}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+};
+
+const clearDraft = (userId: string) => {
+  try { localStorage.removeItem(`${DRAFT_KEY}_${userId}`); } catch {}
+};
+
 const Profile = () => {
   const { user, role, refreshProfile: refreshAuthProfile } = useAuth();
   const { toast } = useToast();
@@ -98,6 +115,13 @@ const Profile = () => {
   const [locationCaptured, setLocationCaptured] = useState(false);
   const initialFetchDone = useRef(false);
   const currentUserId = useRef<string | null>(null);
+  const dbFetchDone = useRef(false);
+
+  // Persist draft to localStorage on every form change
+  useEffect(() => {
+    if (!user || !dbFetchDone.current) return;
+    saveDraft(user.id, { profile, studentProfile, employerProfile });
+  }, [profile, studentProfile, employerProfile, user]);
 
   useEffect(() => {
     if (!user || !role) return;
