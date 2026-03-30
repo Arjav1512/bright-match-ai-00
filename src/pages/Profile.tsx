@@ -184,9 +184,16 @@ const Profile = () => {
     (s) => s.name.toLowerCase().includes(skillSearch.toLowerCase()) && !studentProfile.skills.includes(s.name)
   );
 
+  const MAX_RESUME_SIZE = 5 * 1024 * 1024; // 5 MB
+
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
+    if (file.size > MAX_RESUME_SIZE) {
+      toast({ title: "File too large", description: "Maximum file size is 5 MB.", variant: "destructive" });
+      e.target.value = "";
+      return;
+    }
     const path = `${user.id}/${file.name}`;
     const { error } = await supabase.storage.from("resumes").upload(path, file, { upsert: true });
     if (error) {
@@ -197,7 +204,25 @@ const Profile = () => {
       await supabase.from("student_profiles").update({ resume_url: publicUrl }).eq("user_id", user.id);
       toast({ title: "Resume uploaded!" });
     }
+    e.target.value = "";
   };
+
+  const handleResumeDelete = async () => {
+    if (!user || !studentProfile.resume_url) return;
+    // Extract storage path from URL
+    const urlParts = studentProfile.resume_url.split("/resumes/");
+    if (urlParts.length > 1) {
+      const storagePath = decodeURIComponent(urlParts[1]);
+      await supabase.storage.from("resumes").remove([storagePath]);
+    }
+    setStudentProfile((p) => ({ ...p, resume_url: "" }));
+    await supabase.from("student_profiles").update({ resume_url: null } as any).eq("user_id", user.id);
+    toast({ title: "Resume deleted" });
+  };
+
+  const resumeFileName = studentProfile.resume_url
+    ? decodeURIComponent(studentProfile.resume_url.split("/").pop() || "Resume")
+    : null;
 
   return (
     <div className="min-h-screen bg-background">
