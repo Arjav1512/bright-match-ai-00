@@ -83,7 +83,6 @@ const EmployerOnboardingLegal = () => {
       .from("employer_profiles")
       .update({
         gstin: form.gstin.trim().toUpperCase(),
-        gst_number: form.gst_number || null,
         pan_number: form.pan_number.trim().toUpperCase(),
         cin: form.cin || null,
         linkedin_profile: form.linkedin_profile.trim(),
