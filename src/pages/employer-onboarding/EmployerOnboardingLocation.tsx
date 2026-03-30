@@ -47,7 +47,7 @@ const EmployerOnboardingLocation = () => {
     if (!user) return;
     supabase
       .from("employer_profiles")
-      .select("head_office_address, city, state, pincode, hr_contact_name, hr_designation, hr_email, hr_phone")
+      .select("head_office_address, city, state, pincode, head_office_landline, head_office_mobile, hr_contact_name, hr_designation, hr_email, hr_phone")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }: any) => {
