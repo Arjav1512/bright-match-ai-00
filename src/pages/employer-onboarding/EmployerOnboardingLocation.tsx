@@ -35,6 +35,8 @@ const EmployerOnboardingLocation = () => {
     city: "",
     state: "",
     pincode: "",
+    head_office_landline: "",
+    head_office_mobile: "",
     hr_contact_name: "",
     hr_designation: "",
     hr_email: "",
