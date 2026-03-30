@@ -19,7 +19,6 @@ const EmployerOnboardingLegal = () => {
 
   const [form, setForm] = useState({
     gstin: "",
-    gst_number: "",
     pan_number: "",
     cin: "",
     linkedin_profile: "",
@@ -29,14 +28,13 @@ const EmployerOnboardingLegal = () => {
     if (!user) return;
     supabase
       .from("employer_profiles")
-      .select("gstin, gst_number, pan_number, cin, linkedin_profile")
+      .select("gstin, pan_number, cin, linkedin_profile")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }: any) => {
         if (data) {
           setForm({
             gstin: data.gstin || "",
-            gst_number: data.gst_number || "",
             pan_number: data.pan_number || "",
             cin: data.cin || "",
             linkedin_profile: data.linkedin_profile || "",
@@ -85,7 +83,6 @@ const EmployerOnboardingLegal = () => {
       .from("employer_profiles")
       .update({
         gstin: form.gstin.trim().toUpperCase(),
-        gst_number: form.gst_number || null,
         pan_number: form.pan_number.trim().toUpperCase(),
         cin: form.cin || null,
         linkedin_profile: form.linkedin_profile.trim(),
@@ -117,22 +114,16 @@ const EmployerOnboardingLegal = () => {
             <p className="text-xs text-muted-foreground">15-character alphanumeric</p>
           </div>
           <div className="space-y-2">
-            <Label>GST Number</Label>
-            <Input value={form.gst_number} onChange={(e) => update("gst_number", e.target.value)} placeholder="If different from GSTIN" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
             <Label>PAN (Company) *</Label>
             <Input value={form.pan_number} onChange={(e) => update("pan_number", e.target.value.toUpperCase())} placeholder="e.g. ABCDE1234F" maxLength={10} />
             <p className="text-xs text-muted-foreground">10-character format: XXXXX0000X</p>
           </div>
-          <div className="space-y-2">
-            <Label>CIN (if registered)</Label>
-            <Input value={form.cin} onChange={(e) => update("cin", e.target.value)} placeholder="Company Identification Number" />
-            <p className="text-xs text-muted-foreground">Optional</p>
-          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>CIN (if registered)</Label>
+          <Input value={form.cin} onChange={(e) => update("cin", e.target.value)} placeholder="Company Identification Number" />
+          <p className="text-xs text-muted-foreground">Optional</p>
         </div>
 
         <div className="space-y-2">
