@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { X } from "lucide-react";
+import { X, Share2, Copy, Check } from "lucide-react";
 import LocationCapture from "@/components/groups/LocationCapture";
 import AvatarUpload from "@/components/AvatarUpload";
 import FollowListDialog from "@/components/FollowListDialog";
@@ -37,6 +37,35 @@ const EXPERIENCE_OPTIONS = [
 const FollowStats = ({ userId }: { userId: string }) => {
   const { followerCount, followingCount } = useFollows(userId);
   return <FollowListDialog userId={userId} followerCount={followerCount} followingCount={followingCount} />;
+};
+
+const ShareProfileCard = ({ userId }: { userId?: string }) => {
+  const [copied, setCopied] = useState(false);
+  if (!userId) return null;
+
+  const shareUrl = `${window.location.origin}/student/${userId}`;
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Card>
+      <CardHeader><CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" /> Share Your Profile</CardTitle></CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-sm text-muted-foreground">Share this link with other students so they can find and connect with you.</p>
+        <div className="flex gap-2">
+          <Input value={shareUrl} readOnly className="bg-muted text-xs" />
+          <Button variant="outline" size="icon" onClick={handleCopy} className="shrink-0">
+            {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+          </Button>
+        </div>
+        {copied && <p className="text-xs text-green-600">Link copied to clipboard!</p>}
+      </CardContent>
+    </Card>
+  );
 };
 
 const Profile = () => {
@@ -401,6 +430,9 @@ const Profile = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Share Profile Link */}
+              <ShareProfileCard userId={user?.id} />
 
               {/* Links & Community */}
               <Card>
