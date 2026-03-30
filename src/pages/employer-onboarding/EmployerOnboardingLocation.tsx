@@ -102,6 +102,8 @@ const EmployerOnboardingLocation = () => {
         city: form.city.trim(),
         state: form.state || null,
         pincode: form.pincode || null,
+        head_office_landline: form.head_office_landline || null,
+        head_office_mobile: form.head_office_mobile.trim(),
         hr_contact_name: form.hr_contact_name.trim(),
         hr_designation: form.hr_designation || null,
         hr_email: form.hr_email.trim(),
