@@ -10,11 +10,26 @@ import { Button } from "@/components/ui/button";
 import wroobeLogo from "@/assets/wroob-logo.png";
 
 const SelectRole = () => {
-  const { user } = useAuth();
+  const { user, role, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selected, setSelected] = useState<"student" | "employer" | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // If user already has a role, skip this page entirely
+  useEffect(() => {
+    if (!loading && role) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [loading, role, navigate]);
+
+  if (loading || role) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   const handleContinue = async () => {
     if (!selected || !user) return;
