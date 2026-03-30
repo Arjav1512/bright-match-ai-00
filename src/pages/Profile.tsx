@@ -341,28 +341,6 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  {/* Phone Number */}
-                  <div className="space-y-2">
-                    <Label>Phone Number</Label>
-                    <div className="flex gap-2">
-                      <div className="flex items-center justify-center rounded-md border border-input bg-muted px-3 text-sm font-medium text-muted-foreground">+91</div>
-                      <Input
-                        type="tel"
-                        inputMode="numeric"
-                        maxLength={10}
-                        placeholder="Enter 10-digit phone number"
-                        value={studentProfile.phone_number}
-                        onChange={(e) => {
-                          const v = e.target.value.replace(/\D/g, "").slice(0, 10);
-                          setStudentProfile((p) => ({ ...p, phone_number: v }));
-                        }}
-                        className="flex-1"
-                      />
-                    </div>
-                    {studentProfile.phone_number && studentProfile.phone_number.length > 0 && studentProfile.phone_number.length !== 10 && (
-                      <p className="text-xs text-destructive">Phone number must be exactly 10 digits</p>
-                    )}
-                  </div>
 
                   {/* Skills */}
                   <div className="space-y-2">
