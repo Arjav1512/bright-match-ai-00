@@ -137,6 +137,11 @@ const Profile = () => {
 
   const handleSave = async () => {
     if (!user) return;
+    const bioWordCount = profile.bio?.trim().split(/\s+/).filter(Boolean).length || 0;
+    if (bioWordCount > 100) {
+      toast({ title: "Bio too long", description: "Bio must be 100 words or fewer.", variant: "destructive" });
+      return;
+    }
     if (role === "student" && studentProfile.phone_number && studentProfile.phone_number.length !== 10) {
       toast({ title: "Invalid phone number", description: "Phone number must be exactly 10 digits.", variant: "destructive" });
       return;
