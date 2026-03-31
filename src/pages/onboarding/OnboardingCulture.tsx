@@ -95,7 +95,7 @@ const OnboardingCulture = () => {
       .upsert({
         user_id: user.id,
         tech_interests: form.tech_interests,
-        tech_avoid: form.tech_avoid,
+        tech_avoid: null,
         motivation_type: form.motivation_type,
         job_priorities: form.job_priorities,
         remote_importance: form.remote_importance,
