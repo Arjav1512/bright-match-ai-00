@@ -178,6 +178,15 @@ const Navbar = () => {
                   <DropdownMenuItem onClick={() => navigate("/profile")}>
                     <User className="mr-2 h-4 w-4" /> Profile
                   </DropdownMenuItem>
+                  {role === "student" && (
+                    <DropdownMenuItem onClick={async () => {
+                      const url = `${window.location.origin}/student/${user.id}`;
+                      await navigator.clipboard.writeText(url);
+                      toast({ title: "Link copied!", description: "Your profile link has been copied to clipboard." });
+                    }}>
+                      <Share2 className="mr-2 h-4 w-4" /> Share your profile
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" /> Sign Out
