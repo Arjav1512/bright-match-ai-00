@@ -271,6 +271,9 @@ const Landing = () => {
         </div>
       </motion.section>
 
+      {/* Why Choose Wroob */}
+      <WhyChooseWroobSection />
+
       {/* Social proof */}
       <motion.section
         className="border-t py-24 section-blue"
