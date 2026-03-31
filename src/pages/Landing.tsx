@@ -5,6 +5,7 @@ import { ArrowRight, Users, Search, CheckCircle, ArrowDown, Briefcase } from "lu
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
+import WhyChooseWroobSection from "@/components/landing/WhyChooseWroobSection";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
