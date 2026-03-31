@@ -28,7 +28,7 @@ const WHY_CARDS: WhyCard[] = [
   {
     title: "Real-Time Machine & Equipment Tracker",
     tag: "Never done before",
-    description: "Logs machines/tools worked on → verified "Machine Resume"",
+    description: 'Logs machines/tools worked on → verified "Machine Resume"',
     wroobLabel: "Machine Resume",
     othersLabel: "Just certificates",
     icon: Cpu,
