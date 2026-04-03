@@ -64,7 +64,7 @@ const PostInternship = () => {
       <Navbar />
       <div className="container max-w-2xl py-10">
         <h1 className="font-display text-3xl font-bold mb-8">Post Internship</h1>
-        <InternshipForm onSubmit={handleSubmit} loading={loading} />
+        <InternshipForm onSubmit={handleSubmit} loading={loading} persistKey={`wroob_internship_new_${user?.id || "anon"}`} />
       </div>
     </div>
   );
