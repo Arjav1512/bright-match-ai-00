@@ -191,6 +191,7 @@ const InternshipForm = ({ initialData, onSubmit, loading, submitLabel = "Publish
       }
     }
     await onSubmit(form, status);
+    clearDraft();
   };
 
   const SectionHeader = ({ id, icon: Icon, title }: { id: string; icon: any; title: string }) => (
