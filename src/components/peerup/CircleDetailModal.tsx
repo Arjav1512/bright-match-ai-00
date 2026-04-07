@@ -324,7 +324,7 @@ const CircleDetailModal = ({
                     <AvatarFallback className="bg-muted text-xs">{getInitials(req.requester_name || "S")}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{req.requester_name}</p>
+                    <ProfileLink userId={req.requester_id} type="student" className="text-sm font-medium truncate">{req.requester_name}</ProfileLink>
                     <p className="text-[11px] text-muted-foreground">{req.requester_info}</p>
                   </div>
                   <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-600 dark:text-emerald-400">In circle</Badge>
