@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { PeerUpCircle, CircleRequest, CircleParticipant } from "@/hooks/usePeerUpCircles";
+import ProfileLink from "@/components/ProfileLink";
 import { useAuth } from "@/contexts/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
