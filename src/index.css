@@ -275,6 +275,10 @@
     background: hsl(var(--background));
   }
 
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+
   @keyframes rotate-border {
     to { --border-angle: 360deg; }
   }
