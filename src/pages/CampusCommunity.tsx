@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import LocalCommunityGroups from "@/components/LocalCommunityGroups";
 import { usePeerUpCircles, PeerUpCircle } from "@/hooks/usePeerUpCircles";
 import CircleBubbles from "@/components/peerup/CircleBubbles";
-import CircleCard from "@/components/peerup/CircleCard";
+
 import CircleDetailModal from "@/components/peerup/CircleDetailModal";
 import CreateCircleForm from "@/components/peerup/CreateCircleForm";
 import { Card, CardContent } from "@/components/ui/card";
