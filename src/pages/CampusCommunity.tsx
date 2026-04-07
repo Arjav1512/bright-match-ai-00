@@ -43,13 +43,6 @@ const CampusCommunity = () => {
 
           {/* Campus Feed Tab — Wroob Circles */}
           <TabsContent value="campus" className="space-y-6 mt-6">
-            {/* Circle Bubbles */}
-            <CircleBubbles
-              circles={circles}
-              onSelect={(c) => setSelectedCircle(c)}
-              onCreateNew={() => setShowCreateForm(true)}
-            />
-
             {/* Create Form */}
             {showCreateForm && (
               <CreateCircleForm
@@ -58,7 +51,7 @@ const CampusCommunity = () => {
               />
             )}
 
-            {/* Refresh */}
+            {/* Section Header */}
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-lg flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" /> Wroob Circles
@@ -68,7 +61,7 @@ const CampusCommunity = () => {
               </Button>
             </div>
 
-            {/* Circle Feed */}
+            {/* Circle Bubbles Row */}
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -87,15 +80,11 @@ const CampusCommunity = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-3">
-                {circles.map((circle) => (
-                  <CircleCard
-                    key={circle.id}
-                    circle={circle}
-                    onClick={() => setSelectedCircle(circle)}
-                  />
-                ))}
-              </div>
+              <CircleBubbles
+                circles={circles}
+                onSelect={(c) => setSelectedCircle(c)}
+                onCreateNew={() => setShowCreateForm(true)}
+              />
             )}
 
             {/* Detail Modal */}
