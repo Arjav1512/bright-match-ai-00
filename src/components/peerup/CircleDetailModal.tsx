@@ -371,10 +371,10 @@ const CircleDetailModal = ({
         </div>
       ) : (
         <>
-          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Circle Members</p>
+          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Circle Host</p>
           <ScrollArea className="max-h-[250px]">
             <div className="space-y-2">
-              {participants.map((p) => (
+              {participants.filter((p) => p.is_creator).map((p) => (
                 <div key={p.user_id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
                   <Avatar className="h-9 w-9">
                     <AvatarImage src={p.user_avatar || undefined} />
@@ -382,11 +382,8 @@ const CircleDetailModal = ({
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{p.user_name}</p>
-                    <p className="text-[11px] text-muted-foreground">{p.user_info}</p>
                   </div>
-                  {p.is_creator && (
-                    <Badge variant="outline" className="text-[10px] border-primary/50 text-primary">Host</Badge>
-                  )}
+                  <Badge variant="outline" className="text-[10px] border-primary/50 text-primary">Host</Badge>
                 </div>
               ))}
             </div>
