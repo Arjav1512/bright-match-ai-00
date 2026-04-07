@@ -3,7 +3,8 @@ import Navbar from "@/components/Navbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { RefreshCw, Sparkles } from "lucide-react";
+import { CircleBubblesSkeleton } from "@/components/skeletons";
 import Footer from "@/components/Footer";
 import LocalCommunityGroups from "@/components/LocalCommunityGroups";
 import { usePeerUpCircles, PeerUpCircle } from "@/hooks/usePeerUpCircles";
@@ -63,9 +64,7 @@ const CampusCommunity = () => {
 
             {/* Circle Bubbles Row */}
             {loading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
+              <CircleBubblesSkeleton />
             ) : circles.length === 0 ? (
               <Card>
                 <CardContent className="py-16 text-center">

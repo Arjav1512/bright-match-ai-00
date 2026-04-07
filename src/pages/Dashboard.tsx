@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-
+import { PageLoadingSkeleton } from "@/components/skeletons";
 const STUDENT_STEP_ROUTES = [
   "/onboarding/profile",
   "/onboarding/culture",
@@ -84,11 +84,7 @@ const Dashboard = () => {
   }, [user, role, loading]);
 
   if (loading || onboardingCheck === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <PageLoadingSkeleton />;
   }
 
   if (!user) return <Navigate to="/login" replace />;

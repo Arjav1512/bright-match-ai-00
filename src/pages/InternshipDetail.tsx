@@ -125,7 +125,7 @@ const InternshipDetail = () => {
   if (loading) return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container max-w-3xl py-10"><Skeleton className="h-96" /></div>
+      <div className="container max-w-3xl py-10"><InternshipDetailSkeleton /></div>
     </div>
   );
 
