@@ -1,4 +1,4 @@
-import { useEffect, useState, memo } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Factory, Cpu, ShieldCheck, Users, LayoutDashboard,
@@ -38,24 +38,20 @@ const TAG_COLORS = [
   "bg-indigo-500/15 text-indigo-400",
 ];
 
-const CARDS_PER_VIEW_DESKTOP = 4;
-const CARDS_PER_VIEW_TABLET = 2;
-const CARDS_PER_VIEW_MOBILE = 1;
-const AUTO_SLIDE_INTERVAL = 2500;
+const AUTO_SLIDE_INTERVAL = 3000;
+const TOTAL = WHY_CARDS.length;
 
 function useCardsPerView() {
-  const [count, setCount] = useState(CARDS_PER_VIEW_DESKTOP);
-
+  const [count, setCount] = useState(3);
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth;
-      setCount(w < 640 ? CARDS_PER_VIEW_MOBILE : w < 1024 ? CARDS_PER_VIEW_TABLET : CARDS_PER_VIEW_DESKTOP);
+      setCount(w < 640 ? 1 : w < 1024 ? 2 : 3);
     };
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
-
   return count;
 }
 
@@ -64,19 +60,17 @@ const CardItem = memo(({ card, index }: { card: WhyCard; index: number }) => {
   const tagColor = TAG_COLORS[index % TAG_COLORS.length];
 
   return (
-    <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm p-5 sm:p-6 flex flex-col gap-4 h-full">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl brand-gradient text-white shadow-md shadow-primary/15">
-          <Icon className="h-5 w-5" />
-        </div>
-        <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium whitespace-nowrap ${tagColor}`}>
-          {card.tag}
-        </span>
+    <div className="card-depth p-8 text-center flex flex-col gap-4 h-full">
+      <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-2xl brand-gradient text-white shadow-lg shadow-primary/20">
+        <Icon className="h-6 w-6" />
       </div>
-      <h3 className="font-medium text-foreground leading-snug text-sm sm:text-base">
+      <span className={`mx-auto rounded-full px-3 py-1 text-[11px] font-medium ${tagColor}`}>
+        {card.tag}
+      </span>
+      <h3 style={{ font: "var(--text-card-title)", letterSpacing: "var(--letter-spacing-heading)" }}>
         {card.title}
       </h3>
-      <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+      <p className="mt-1 text-muted-foreground" style={{ font: "var(--text-body)" }}>
         {card.description}
       </p>
     </div>
@@ -86,20 +80,21 @@ CardItem.displayName = "CardItem";
 
 const WhyChooseWroobSection = () => {
   const cardsPerView = useCardsPerView();
-  const [index, setIndex] = useState(0);
-  const total = WHY_CARDS.length;
+  const [startIndex, setStartIndex] = useState(0);
+
+  const advance = useCallback(() => {
+    setStartIndex((prev) => (prev + 1) % TOTAL);
+  }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + cardsPerView) % total);
-    }, AUTO_SLIDE_INTERVAL);
+    const interval = setInterval(advance, AUTO_SLIDE_INTERVAL);
     return () => clearInterval(interval);
-  }, [total, cardsPerView]);
+  }, [advance]);
 
-  const visibleCards: { card: WhyCard; originalIndex: number }[] = [];
+  // Build visible indices
+  const visibleIndices: number[] = [];
   for (let i = 0; i < cardsPerView; i++) {
-    const idx = (index + i) % total;
-    visibleCards.push({ card: WHY_CARDS[idx], originalIndex: idx });
+    visibleIndices.push((startIndex + i) % TOTAL);
   }
 
   return (
@@ -123,22 +118,23 @@ const WhyChooseWroobSection = () => {
       </div>
 
       <div className="container">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={index}
-            className={`grid gap-4 sm:gap-6 ${
-              cardsPerView === 1 ? "grid-cols-1" : cardsPerView === 2 ? "grid-cols-2" : "grid-cols-4"
-            }`}
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -60 }}
-            transition={{ duration: 0.45, ease: "easeInOut" }}
-          >
-            {visibleCards.map(({ card, originalIndex }) => (
-              <CardItem key={originalIndex} card={card} index={originalIndex} />
-            ))}
-          </motion.div>
-        </AnimatePresence>
+        <div className={`grid gap-8 ${
+          cardsPerView === 1 ? "grid-cols-1" : cardsPerView === 2 ? "grid-cols-2" : "md:grid-cols-3"
+        }`}>
+          {visibleIndices.map((idx, position) => (
+            <AnimatePresence mode="popLayout" key={`slot-${position}`}>
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: 80 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -80 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+              >
+                <CardItem card={WHY_CARDS[idx]} index={idx} />
+              </motion.div>
+            </AnimatePresence>
+          ))}
+        </div>
       </div>
     </motion.section>
   );
