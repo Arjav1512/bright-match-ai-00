@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useFollowList } from "@/hooks/useFollows";
+import { useAuth } from "@/contexts/AuthContext";
 import FollowButton from "@/components/FollowButton";
 
 interface FollowListDialogProps {
@@ -25,9 +26,16 @@ const FollowListDialog = ({ userId, followerCount, followingCount }: FollowListD
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"followers" | "following">("followers");
   const navigate = useNavigate();
+  const { role } = useAuth();
 
   const { data: followers = [], isLoading: loadingFollowers } = useFollowList(userId, "followers");
   const { data: following = [], isLoading: loadingFollowing } = useFollowList(userId, "following");
+
+  const isStudent = role === "student";
+  const followersLabel = isStudent ? "Connections" : "Followers";
+  const followingLabel = isStudent ? "Connected To" : "Following";
+  const noFollowersText = isStudent ? "No connections yet" : "No followers yet";
+  const noFollowingText = isStudent ? "Not connected to anyone yet" : "Not following anyone yet";
 
   return (
     <>
@@ -38,7 +46,7 @@ const FollowListDialog = ({ userId, followerCount, followingCount }: FollowListD
           className="hover:underline"
         >
           <span className="font-semibold">{followerCount}</span>{" "}
-          <span className="text-muted-foreground">Followers</span>
+          <span className="text-muted-foreground">{followersLabel}</span>
         </button>
         <button
           type="button"
@@ -46,7 +54,7 @@ const FollowListDialog = ({ userId, followerCount, followingCount }: FollowListD
           className="hover:underline"
         >
           <span className="font-semibold">{followingCount}</span>{" "}
-          <span className="text-muted-foreground">Following</span>
+          <span className="text-muted-foreground">{followingLabel}</span>
         </button>
       </div>
 
@@ -57,14 +65,14 @@ const FollowListDialog = ({ userId, followerCount, followingCount }: FollowListD
           </DialogHeader>
           <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
             <TabsList className="w-full">
-              <TabsTrigger value="followers" className="flex-1">Followers ({followerCount})</TabsTrigger>
-              <TabsTrigger value="following" className="flex-1">Following ({followingCount})</TabsTrigger>
+              <TabsTrigger value="followers" className="flex-1">{followersLabel} ({followerCount})</TabsTrigger>
+              <TabsTrigger value="following" className="flex-1">{followingLabel} ({followingCount})</TabsTrigger>
             </TabsList>
             <TabsContent value="followers" className="mt-4 max-h-72 overflow-y-auto space-y-3">
               {loadingFollowers ? (
                 <p className="text-sm text-muted-foreground text-center py-4">Loading...</p>
               ) : followers.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">No followers yet</p>
+                <p className="text-sm text-muted-foreground text-center py-4">{noFollowersText}</p>
               ) : (
                 followers.map((p: any) => (
                   <div key={p.user_id} className="flex items-center justify-between">
@@ -90,7 +98,7 @@ const FollowListDialog = ({ userId, followerCount, followingCount }: FollowListD
               {loadingFollowing ? (
                 <p className="text-sm text-muted-foreground text-center py-4">Loading...</p>
               ) : following.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">Not following anyone yet</p>
+                <p className="text-sm text-muted-foreground text-center py-4">{noFollowingText}</p>
               ) : (
                 following.map((p: any) => (
                   <div key={p.user_id} className="flex items-center justify-between">
