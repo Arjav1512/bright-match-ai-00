@@ -380,9 +380,10 @@ const CircleDetailModal = ({
         </div>
       ) : (
         <>
-          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Circle Host</p>
-          <ScrollArea className="max-h-[250px]">
-            <div className="space-y-2">
+          <ScrollArea className="max-h-[300px]">
+            {/* Host */}
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Circle Host</p>
+            <div className="space-y-2 mb-4">
               {participants.filter((p) => p.is_creator).map((p) => (
                 <div key={p.user_id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
                   <Avatar className="h-9 w-9">
@@ -390,12 +391,35 @@ const CircleDetailModal = ({
                     <AvatarFallback className="bg-muted text-xs">{getInitials(p.user_name || "S")}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{p.user_name}</p>
+                    <ProfileLink userId={p.user_id} type="student" className="text-sm font-medium truncate">{p.user_name}</ProfileLink>
+                    {p.user_info && <p className="text-[11px] text-muted-foreground">{p.user_info}</p>}
                   </div>
                   <Badge variant="outline" className="text-[10px] border-primary/50 text-primary">Host</Badge>
                 </div>
               ))}
             </div>
+
+            {/* Other Members */}
+            {participants.filter((p) => !p.is_creator).length > 0 && (
+              <>
+                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Members</p>
+                <div className="space-y-2">
+                  {participants.filter((p) => !p.is_creator).map((p) => (
+                    <div key={p.user_id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
+                      <Avatar className="h-9 w-9">
+                        <AvatarImage src={p.user_avatar || undefined} />
+                        <AvatarFallback className="bg-muted text-xs">{getInitials(p.user_name || "S")}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <ProfileLink userId={p.user_id} type="student" className="text-sm font-medium truncate">{p.user_name}</ProfileLink>
+                        {p.user_info && <p className="text-[11px] text-muted-foreground">{p.user_info}</p>}
+                      </div>
+                      <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-600 dark:text-emerald-400">Member</Badge>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </ScrollArea>
 
           <div className="space-y-2 pt-2">
