@@ -1,5 +1,6 @@
 import { PeerUpCircle } from "@/hooks/usePeerUpCircles";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -45,6 +46,9 @@ const CircleBubble = ({ circle, index, onSelect }: { circle: PeerUpCircle; index
     </div>
     <span className="text-[11px] text-muted-foreground truncate max-w-[72px] font-medium">
       {circle.creator_name?.split(" ")[0] || circle.spot_name}
+    </span>
+    <span className="text-[9px] text-muted-foreground/60">
+      {formatDistanceToNow(new Date(circle.created_at), { addSuffix: true })}
     </span>
   </button>
 );
