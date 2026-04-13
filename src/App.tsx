@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { SessionTimeoutWarning } from "@/components/SessionTimeoutWarning";
 import LoginGreeting from "@/components/LoginGreeting";
 import ChatPopup from "@/components/chat/ChatPopup";
@@ -60,7 +61,19 @@ const EmployerOnboardingVerify = lazy(() => import("./pages/employer-onboarding/
 const EmployerOnboardingTeam = lazy(() => import("./pages/employer-onboarding/EmployerOnboardingTeam"));
 const EmployerOnboardingDone = lazy(() => import("./pages/employer-onboarding/EmployerOnboardingDone"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Data stays fresh for 60s — prevents redundant refetches on every mount/focus
+      staleTime: 60 * 1000,
+      // Don't retry auth-gated queries that will keep failing while unauthenticated
+      retry: (failureCount, error: any) => {
+        if (error?.status === 401 || error?.status === 403) return false;
+        return failureCount < 2;
+      },
+    },
+  },
+});
 
 const PageLoader = () => (
   <div className="flex min-h-[50vh] items-center justify-center">
@@ -78,6 +91,7 @@ const App = () => (
           <SessionTimeoutWarning />
           <LoginGreeting />
           <ChatPopup />
+          <ErrorBoundary>
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Landing />} />
@@ -132,6 +146,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

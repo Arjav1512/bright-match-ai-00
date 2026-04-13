@@ -12,39 +12,10 @@ const replySchema = z.object({
   message: z.string().min(1, "Message is required").max(500, "Message max 500 chars"),
 });
 
-// Rate limit: 20 requests per hour per user
+// FIX (HIGH-4): Atomic rate limit via DB function — replaces TOCTOU read-check-write
 const RATE_LIMIT_MAX = 20;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT_FN_NAME = "campus_status";
-
-async function checkRateLimit(
-  supabaseAdmin: ReturnType<typeof createClient>,
-  userId: string
-): Promise<{ allowed: boolean; retryAfterSeconds?: number }> {
-  const now = Date.now();
-  const windowStart = now - RATE_LIMIT_WINDOW_MS;
-  const { data } = await supabaseAdmin
-    .from("rate_limits")
-    .select("timestamps")
-    .eq("user_id", userId)
-    .eq("function_name", RATE_LIMIT_FN_NAME)
-    .maybeSingle();
-  const existing: number[] = data?.timestamps ?? [];
-  const recent = existing.filter((ts: number) => ts > windowStart);
-  if (recent.length >= RATE_LIMIT_MAX) {
-    const oldest = Math.min(...recent);
-    const retryAfterSeconds = Math.ceil((oldest + RATE_LIMIT_WINDOW_MS - now) / 1000);
-    return { allowed: false, retryAfterSeconds };
-  }
-  const updated = [...recent, now].slice(-200);
-  await supabaseAdmin
-    .from("rate_limits")
-    .upsert(
-      { user_id: userId, function_name: RATE_LIMIT_FN_NAME, timestamps: updated, updated_at: new Date().toISOString() },
-      { onConflict: "user_id,function_name" }
-    );
-  return { allowed: true };
-}
 
 const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") ?? "https://wroob.in";
 
@@ -88,29 +59,54 @@ Deno.serve(async (req) => {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const authHeader = req.headers.get("authorization");
 
-  const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
-  const supabaseUser = createClient(supabaseUrl, supabaseKey, {
-    global: { headers: { authorization: authHeader || "" } },
-  });
-
-  // Get user
-  const {
-    data: { user },
-  } = await supabaseUser.auth.getUser(authHeader?.replace("Bearer ", ""));
-
-  if (!user) {
+  if (!authHeader?.startsWith("Bearer ")) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { ...responseHeaders },
     });
   }
 
-  // ── Rate Limit Check ──────────────────────────────────────────────────
-  const rateLimitResult = await checkRateLimit(supabaseAdmin, user.id);
-  if (!rateLimitResult.allowed) {
+  // SECURITY: Admin client (service role) is for privileged operations only.
+  // User client uses ANON key + user's JWT so RLS is enforced.
+  const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+  const supabaseUser = createClient(supabaseUrl, anonKey, {
+    global: { headers: { authorization: authHeader } },
+  });
+
+  // Verify JWT server-side (not just local decode)
+  const {
+    data: { user },
+    error: authError,
+  } = await supabaseUser.auth.getUser();
+
+  if (authError || !user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...responseHeaders },
+    });
+  }
+
+  // ── Rate Limit Check (atomic) ─────────────────────────────────────────
+  const { data: rlAllowed, error: rlError } = await supabaseAdmin.rpc(
+    "check_and_increment_rate_limit",
+    {
+      p_user_id: user.id,
+      p_function_name: RATE_LIMIT_FN_NAME,
+      p_max_requests: RATE_LIMIT_MAX,
+      p_window_ms: RATE_LIMIT_WINDOW_MS,
+    }
+  );
+  if (rlError) {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { ...responseHeaders },
+    });
+  }
+  if (!rlAllowed) {
     return new Response(
       JSON.stringify({ error: "Rate limit exceeded", retryAfter: 3600 }),
       { status: 429, headers: { ...responseHeaders } }

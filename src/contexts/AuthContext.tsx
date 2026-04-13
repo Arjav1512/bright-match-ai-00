@@ -127,11 +127,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [syncAuthState]);
 
   const signUp = async (email: string, password: string, fullName: string, role: AppRole) => {
+    // SECURITY: Only pass full_name and the allowed role (student|employer).
+    // The trigger enforces this server-side too; this is just belt-and-suspenders.
+    const allowedRole: AppRole = role === "employer" ? "employer" : "student";
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName, role },
+        data: { full_name: fullName, role: allowedRole },
         emailRedirectTo: window.location.origin,
       },
     });
@@ -145,16 +148,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     requestIdRef.current += 1;
-    setUser(null);
-    setSession(null);
-    setRole(null);
-    setProfile(null);
-    setLoading(false);
     setCachedAuth(null, null, null);
-
-    supabase.auth.signOut().catch((error) => {
+    // Await sign-out so the server-side refresh token is invalidated before
+    // clearing local state. If the request fails, still clear local state.
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
       console.error("Sign out error:", error);
-    });
+    } finally {
+      setUser(null);
+      setSession(null);
+      setRole(null);
+      setProfile(null);
+      setLoading(false);
+    }
   };
 
   const resetPassword = async (email: string) => {

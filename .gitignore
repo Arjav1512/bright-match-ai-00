@@ -1,3 +1,8 @@
+# Environment variables — NEVER commit .env files with real credentials
+.env
+.env.*
+!.env.example
+
 # Logs
 logs
 *.log

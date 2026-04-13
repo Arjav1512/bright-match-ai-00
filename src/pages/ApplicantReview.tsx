@@ -33,7 +33,21 @@ const ApplicantReview = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!user) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
       const { data: intern } = await supabase.from("internships").select("*").eq("id", id!).maybeSingle();
+
+      // SECURITY: Verify this employer owns the internship before showing applicants.
+      // RLS enforces this at the DB level, but an explicit UI check provides
+      // defence-in-depth and a clean redirect rather than an empty applicant list.
+      if (!intern || intern.employer_id !== user.id) {
+        navigate("/my-internships", { replace: true });
+        return;
+      }
+
       setInternship(intern);
 
       const { data: apps } = await supabase
@@ -45,7 +59,7 @@ const ApplicantReview = () => {
       setLoading(false);
     };
     fetchData();
-  }, [id]);
+  }, [id, user, navigate]);
 
   const updateStatus = async (appId: string, status: "pending" | "reviewed" | "interview" | "accepted" | "rejected") => {
     const { error } = await supabase.from("applications").update({ status }).eq("id", appId);

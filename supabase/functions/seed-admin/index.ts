@@ -88,8 +88,10 @@ Deno.serve(async (req) => {
       await supabaseAdmin.from("profiles").insert({ user_id: userId, full_name: "Admin User" });
     }
 
+    // SECURITY: Never return credentials in the response body.
+    // Credentials live in env vars (SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD) — check there.
     return new Response(
-      JSON.stringify({ success: true, message: "Admin account ready", email, password }),
+      JSON.stringify({ success: true, message: "Admin account ready", email }),
       { headers: { ...responseHeaders } }
     );
   } catch (error: any) {

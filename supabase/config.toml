@@ -1,25 +1,12 @@
 project_id = "vlavfpvrxnmoutybczfy"
 
-[functions.geo-group-assign]
-verify_jwt = false
+# All authenticated edge functions use gateway-level JWT verification (verify_jwt = true
+# is the default — no override needed). This provides defense-in-depth: even if a
+# function's manual auth check has a bug, the gateway rejects unauthenticated requests.
 
-[functions.apply-to-internship]
-verify_jwt = false
-
-[functions.ai-recommendations]
-verify_jwt = false
-
-[functions.recommendation-feedback]
-verify_jwt = false
-
-[functions.student-reputation]
-verify_jwt = false
-
-[functions.skill-tests]
-verify_jwt = false
-
-[functions.campus-status]
-verify_jwt = false
-
+# seed-admin is a one-time bootstrapping utility called before any admin account exists.
+# It uses its own x-admin-seed-token header for auth rather than a user JWT, so gateway
+# JWT verification is intentionally disabled. It must NOT be called in production after
+# initial setup.
 [functions.seed-admin]
 verify_jwt = false

@@ -1,8 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
+// FIX (HIGH-3): `to` is removed from the input schema.
+// The recipient is always the authenticated user's own email (from the JWT),
+// preventing use as an open relay for phishing or spam.
 const emailSchema = z.object({
-  to: z.string().email("to must be a valid email").min(1),
   subject: z.string().min(1, "subject is required").max(500),
   html: z.string().min(1, "html is required").max(100000),
 });
@@ -31,54 +33,29 @@ const responseHeaders = {
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 
-async function checkRateLimit(
-  supabaseAdmin: ReturnType<typeof createClient>,
-  userId: string
-): Promise<{ allowed: boolean; retryAfterSeconds?: number }> {
-  const now = Date.now();
-  const windowStart = now - RATE_LIMIT_WINDOW_MS;
-
-  const { data } = await supabaseAdmin
-    .from("rate_limits")
-    .select("timestamps")
-    .eq("user_id", userId)
-    .eq("function_name", "send_email")
-    .maybeSingle();
-
-  const existing: number[] = data?.timestamps ?? [];
-  const recent = existing.filter((ts: number) => ts > windowStart);
-
-  if (recent.length >= RATE_LIMIT_MAX) {
-    const oldest = Math.min(...recent);
-    const retryAfterSeconds = Math.ceil((oldest + RATE_LIMIT_WINDOW_MS - now) / 1000);
-    return { allowed: false, retryAfterSeconds };
-  }
-
-  const updated = [...recent, now].slice(-200);
-  await supabaseAdmin
-    .from("rate_limits")
-    .upsert(
-      {
-        user_id: userId,
-        function_name: "send_email",
-        timestamps: updated,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id,function_name" }
-    );
-
-  return { allowed: true };
-}
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // JWT auth check
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: responseHeaders,
+      });
+    }
+
+    // FIX (HIGH-9): Use getUser() — the documented, stable method.
+    const supabaseUser = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
+    if (authError || !user?.email) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: responseHeaders,
@@ -90,35 +67,31 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const supabaseUser = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
+    // FIX (HIGH-4): Atomic rate limit — single DB call with FOR UPDATE locking
+    const { data: allowed, error: rlError } = await supabaseAdmin.rpc(
+      "check_and_increment_rate_limit",
+      {
+        p_user_id: user.id,
+        p_function_name: "send_email",
+        p_max_requests: RATE_LIMIT_MAX,
+        p_window_ms: RATE_LIMIT_WINDOW_MS,
+      }
     );
 
-    const { data: claimsData, error: claimsError } = await supabaseUser.auth.getClaims(
-      authHeader.replace("Bearer ", "")
-    );
-
-    if (claimsError || !claimsData?.claims?.sub) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
+    if (rlError) {
+      return new Response(JSON.stringify({ error: "Internal server error" }), {
+        status: 500,
         headers: responseHeaders,
       });
     }
 
-    const userId = claimsData.claims.sub as string;
-
-    // Rate limiting
-    const rateCheck = await checkRateLimit(supabaseAdmin, userId);
-    if (!rateCheck.allowed) {
+    if (!allowed) {
       return new Response(
         JSON.stringify({ error: "Rate limit exceeded", retryAfter: 3600 }),
         { status: 429, headers: responseHeaders }
       );
     }
 
-    // Validate input
     const body = await req.json();
     const parsed = emailSchema.safeParse(body);
     if (!parsed.success) {
@@ -131,9 +104,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { to, subject, html } = parsed.data;
+    const { subject, html } = parsed.data;
+    // FIX (HIGH-3): Recipient is always the authenticated user's verified email.
+    const to = user.email;
 
-    // Send via Resend
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) {
       return new Response(
@@ -169,7 +143,7 @@ Deno.serve(async (req) => {
       status: 200,
       headers: responseHeaders,
     });
-  } catch (err) {
+  } catch (_err) {
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: responseHeaders }
