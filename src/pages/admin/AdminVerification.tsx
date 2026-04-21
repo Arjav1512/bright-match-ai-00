@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { safeExternalUrl } from "@/lib/utils";
 
 interface EmployerRow {
   id: string;
@@ -32,6 +34,7 @@ interface EmployerRow {
 }
 
 const AdminVerification = () => {
+  const { user: currentUser } = useAuth();
   const { toast } = useToast();
   const [employers, setEmployers] = useState<EmployerRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,9 +58,10 @@ const AdminVerification = () => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchEmployers();
-  }, []);
+  useEffect(() => { fetchEmployers(); }, []);
+
+  // ISSUE-02: Only allow verify when onboarding is complete; revoke is always allowed.
+  const canVerify = (employer: EmployerRow) => employer.onboarding_status === "completed";
 
   const handleToggleVerified = async () => {
     if (!confirmDialog) return;
@@ -78,6 +82,19 @@ const AdminVerification = () => {
         prev.map((e) => (e.id === employer.id ? { ...e, is_verified: newStatus } : e))
       );
       toast({ title: newStatus ? "Company verified ✅" : "Verification revoked" });
+
+      // ISSUE-08: Non-blocking audit log.
+      if (currentUser) {
+        supabase.from("audit_log").insert({
+          action: action === "verify" ? "employer_verified" : "employer_verification_revoked",
+          admin_id: currentUser.id,
+          target_id: employer.user_id,
+          target_type: "employer",
+          details: { company_name: employer.company_name } as any,
+        }).then(({ error: auditErr }) => {
+          if (auditErr) console.warn("audit_log write failed:", auditErr.message);
+        });
+      }
     }
     setToggling(null);
   };
@@ -88,14 +105,16 @@ const AdminVerification = () => {
       e.company_name?.toLowerCase().includes(search.toLowerCase()) ||
       e.gstin?.toLowerCase().includes(search.toLowerCase()) ||
       e.pan_number?.toLowerCase().includes(search.toLowerCase());
+    // ISSUE-02: "pending" = onboarding complete but not yet verified.
     const matchesFilter =
       filter === "all" ||
       (filter === "verified" && e.is_verified) ||
-      (filter === "pending" && !e.is_verified);
+      (filter === "pending" && !e.is_verified && e.onboarding_status === "completed");
     return matchesSearch && matchesFilter;
   });
 
   const verifiedCount = employers.filter((e) => e.is_verified).length;
+  // ISSUE-02: pendingCount = onboarding complete and not verified.
   const pendingCount = employers.filter((e) => !e.is_verified && e.onboarding_status === "completed").length;
 
   return (
@@ -106,7 +125,6 @@ const AdminVerification = () => {
           <p className="text-muted-foreground">Review company documents and toggle the Verified badge.</p>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           <Card>
             <CardContent className="pt-6 text-center">
@@ -128,7 +146,6 @@ const AdminVerification = () => {
           </Card>
         </div>
 
-        {/* Filters */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -154,7 +171,6 @@ const AdminVerification = () => {
           </div>
         </div>
 
-        {/* Company list */}
         {loading ? (
           <AdminVerificationSkeleton />
         ) : filtered.length === 0 ? (
@@ -214,9 +230,10 @@ const AdminVerification = () => {
                     </div>
                     <div>
                       <p className="text-muted-foreground font-medium">LinkedIn</p>
-                      {employer.linkedin_profile ? (
+                      {/* ISSUE-01: safeExternalUrl blocks javascript: / data: XSS vectors. */}
+                      {safeExternalUrl(employer.linkedin_profile) ? (
                         <a
-                          href={employer.linkedin_profile}
+                          href={safeExternalUrl(employer.linkedin_profile)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary hover:underline flex items-center gap-1"
@@ -241,10 +258,12 @@ const AdminVerification = () => {
                         <XCircle className="h-4 w-4 mr-1" /> Revoke Verification
                       </Button>
                     ) : (
+                      // ISSUE-02: Disable verify button when onboarding is incomplete.
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"
-                        disabled={toggling === employer.id}
+                        disabled={toggling === employer.id || !canVerify(employer)}
+                        title={!canVerify(employer) ? "Employer must complete onboarding before verification" : undefined}
                         onClick={() => setConfirmDialog({ employer, action: "verify" })}
                       >
                         <Shield className="h-4 w-4 mr-1" /> Grant Verified Badge
@@ -258,7 +277,6 @@ const AdminVerification = () => {
         )}
       </div>
 
-      {/* Confirmation dialog */}
       <Dialog open={!!confirmDialog} onOpenChange={() => setConfirmDialog(null)}>
         <DialogContent>
           <DialogHeader>
@@ -267,8 +285,8 @@ const AdminVerification = () => {
             </DialogTitle>
             <DialogDescription>
               {confirmDialog?.action === "verify"
-                ? `Are you sure you want to grant the "Verified Company ✅" badge to ${confirmDialog?.employer.company_name || "this company"}? This signals trust to students.`
-                : `Are you sure you want to revoke the verified badge from ${confirmDialog?.employer.company_name || "this company"}?`}
+                ? `Grant the "Verified Company ✅" badge to ${confirmDialog?.employer.company_name || "this company"}? This signals trust to students.`
+                : `Revoke the verified badge from ${confirmDialog?.employer.company_name || "this company"}?`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
