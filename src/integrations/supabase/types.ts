@@ -1120,7 +1120,117 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      employer_profiles_public: {
+        Row: {
+          city: string | null
+          company_description: string | null
+          company_name: string | null
+          company_size: string | null
+          created_at: string | null
+          funding_stage: string | null
+          id: string | null
+          industry: string | null
+          is_verified: boolean | null
+          linkedin_profile: string | null
+          logo_url: string | null
+          state: string | null
+          user_id: string | null
+          website: string | null
+          year_established: number | null
+        }
+        Insert: {
+          city?: string | null
+          company_description?: string | null
+          company_name?: string | null
+          company_size?: string | null
+          created_at?: string | null
+          funding_stage?: string | null
+          id?: string | null
+          industry?: string | null
+          is_verified?: boolean | null
+          linkedin_profile?: string | null
+          logo_url?: string | null
+          state?: string | null
+          user_id?: string | null
+          website?: string | null
+          year_established?: number | null
+        }
+        Update: {
+          city?: string | null
+          company_description?: string | null
+          company_name?: string | null
+          company_size?: string | null
+          created_at?: string | null
+          funding_stage?: string | null
+          id?: string | null
+          industry?: string | null
+          is_verified?: boolean | null
+          linkedin_profile?: string | null
+          logo_url?: string | null
+          state?: string | null
+          user_id?: string | null
+          website?: string | null
+          year_established?: number | null
+        }
+        Relationships: []
+      }
+      student_profiles_public: {
+        Row: {
+          created_at: string | null
+          current_company: string | null
+          current_job_title: string | null
+          experience_years: string | null
+          graduation_year: number | null
+          id: string | null
+          is_student: boolean | null
+          location: string | null
+          major: string | null
+          not_employed: boolean | null
+          onboarding_status: string | null
+          preferred_course: string | null
+          profile_role: string | null
+          skills: string[] | null
+          university: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_company?: string | null
+          current_job_title?: string | null
+          experience_years?: string | null
+          graduation_year?: number | null
+          id?: string | null
+          is_student?: boolean | null
+          location?: string | null
+          major?: string | null
+          not_employed?: boolean | null
+          onboarding_status?: string | null
+          preferred_course?: string | null
+          profile_role?: string | null
+          skills?: string[] | null
+          university?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_company?: string | null
+          current_job_title?: string | null
+          experience_years?: string | null
+          graduation_year?: number | null
+          id?: string | null
+          is_student?: boolean | null
+          location?: string | null
+          major?: string | null
+          not_employed?: boolean | null
+          onboarding_status?: string | null
+          preferred_course?: string | null
+          profile_role?: string | null
+          skills?: string[] | null
+          university?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
