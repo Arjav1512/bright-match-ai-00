@@ -74,11 +74,11 @@ export function usePeerUpCircles() {
             .eq("user_id", c.creator_id)
             .single();
 
-          const { data: studentProfile } = await supabase
-            .from("student_profiles")
+          const { data: studentProfile } = await (supabase as any)
+            .from("student_profiles_public")
             .select("university")
             .eq("user_id", c.creator_id)
-            .single();
+            .maybeSingle();
 
           // Get request count (for creator)
           let request_count = 0;
@@ -204,11 +204,11 @@ export function usePeerUpCircles() {
           .select("full_name, avatar_url")
           .eq("user_id", r.requester_id)
           .single();
-        const { data: sp } = await supabase
-          .from("student_profiles")
+        const { data: sp } = await (supabase as any)
+          .from("student_profiles_public")
           .select("major, graduation_year")
           .eq("user_id", r.requester_id)
-          .single();
+          .maybeSingle();
         return {
           ...r,
           requester_name: profile?.full_name || "Student",
@@ -268,11 +268,11 @@ export function usePeerUpCircles() {
           .select("full_name, avatar_url")
           .eq("user_id", uid)
           .single();
-        const { data: sp } = await supabase
-          .from("student_profiles")
+        const { data: sp } = await (supabase as any)
+          .from("student_profiles_public")
           .select("major, graduation_year")
           .eq("user_id", uid)
-          .single();
+          .maybeSingle();
         const participant = data.find((p: any) => p.user_id === uid);
         return {
           id: participant?.id || uid,

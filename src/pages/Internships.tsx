@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ProfileLink from "@/components/ProfileLink";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Clock, Building2, Search, Briefcase, IndianRupee, CalendarDays, BadgeCheck } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Skeleton } from "@/components/ui/skeleton";
 import { InternshipListSkeleton } from "@/components/skeletons";
 import { motion } from "framer-motion";
 
@@ -32,11 +31,16 @@ interface Internship {
   employer_profiles?: { company_name: string; logo_url: string; is_verified: boolean | null } | null;
 }
 
+const PAGE_SIZE = 20;
+
 const Internships = () => {
-  const { user, role } = useAuth();
+  const { user, role, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [internships, setInternships] = useState<Internship[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -44,47 +48,70 @@ const Internships = () => {
   const [durationFilter, setDurationFilter] = useState("all");
   const [studentSkills, setStudentSkills] = useState<string[]>([]);
 
+  // PERF-1: server-side pagination via PostgREST .range()
+  const fetchPage = useCallback(async (pageIndex: number, append: boolean) => {
+    if (append) setLoadingMore(true); else setLoading(true);
+
+    const from = pageIndex * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+
+    const { data } = await supabase
+      .from("internships")
+      .select("*")
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    const internshipsRaw = (data as any[]) || [];
+    setHasMore(internshipsRaw.length === PAGE_SIZE);
+
+    // PERF-2: batch-fetch employer info from public-safe view (SEC-1 compliant)
+    const employerIds = [...new Set(internshipsRaw.map((i) => i.employer_id))];
+    const employerMap: Record<string, any> = {};
+    if (employerIds.length > 0) {
+      const { data: profiles } = await (supabase as any)
+        .from("employer_profiles_public")
+        .select("user_id, company_name, logo_url, is_verified")
+        .in("user_id", employerIds);
+      if (profiles) {
+        for (const p of profiles) employerMap[p.user_id] = p;
+      }
+    }
+
+    const merged = internshipsRaw.map((i) => ({
+      ...i,
+      employer_profiles: employerMap[i.employer_id] || null,
+    }));
+
+    setInternships((prev) => (append ? [...prev, ...merged] : merged));
+    if (append) setLoadingMore(false); else setLoading(false);
+  }, []);
+
+  // REL-1: wait for auth to settle before initial fetch to avoid double-fetch
   useEffect(() => {
-    const fetchData = async () => {
-      // FIX (HIGH-11): Cap the initial load at 100 rows.
-      // Loading the entire dataset with thousands of rows would OOM the browser tab.
-      // Client-side filtering still works within this batch.
-      // TODO: replace with server-side filtering + cursor-based pagination.
-      const { data } = await supabase
-        .from("internships")
-        .select("*")
-        .eq("status", "published")
-        .order("created_at", { ascending: false })
-        .limit(100);
+    if (authLoading) return;
+    setPage(0);
+    fetchPage(0, false);
 
-      const internshipsRaw = (data as any[]) || [];
+    if (user && role === "student") {
+      supabase
+        .from("student_profiles")
+        .select("skills")
+        .eq("user_id", user.id)
+        .maybeSingle()
+        .then(({ data: sp }) => {
+          if (sp?.skills) setStudentSkills(sp.skills);
+        });
+    } else {
+      setStudentSkills([]);
+    }
+  }, [authLoading, user?.id, role, fetchPage]);
 
-      // Batch-fetch employer profiles
-      const employerIds = [...new Set(internshipsRaw.map((i) => i.employer_id))];
-      let employerMap: Record<string, any> = {};
-      if (employerIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from("employer_profiles")
-          .select("user_id, company_name, logo_url, is_verified")
-          .in("user_id", employerIds);
-        if (profiles) {
-          for (const p of profiles) employerMap[p.user_id] = p;
-        }
-      }
-
-      setInternships(internshipsRaw.map((i) => ({
-        ...i,
-        employer_profiles: employerMap[i.employer_id] || null,
-      })));
-
-      if (user && role === "student") {
-        const { data: sp } = await supabase.from("student_profiles").select("skills").eq("user_id", user.id).maybeSingle();
-        if (sp?.skills) setStudentSkills(sp.skills);
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, [user, role]);
+  const loadMore = () => {
+    const next = page + 1;
+    setPage(next);
+    fetchPage(next, true);
+  };
 
   const calcMatchScore = (required: string[]) => {
     if (!studentSkills.length || !required.length) return 0;
@@ -201,70 +228,77 @@ const Internships = () => {
                 <p className="mt-2 text-sm text-muted-foreground">Try adjusting your filters</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {filtered.map((intern, idx) => {
-                  const score = calcMatchScore(intern.skills_required);
-                  return (
-                    <motion.div
-                      key={intern.id}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.08, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    >
-                      <Link to={`/internships/${intern.id}`}>
-                        <div className="group card-depth p-6">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="min-w-0">
-                              <h3 className="font-display text-lg font-semibold group-hover:text-primary transition-colors truncate">
-                                {intern.title}
-                              </h3>
-                              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-                                <Building2 className="h-3.5 w-3.5 shrink-0" />
-                                <ProfileLink userId={intern.employer_id} type="employer">
-                                  {(intern as any).employer_profiles?.company_name || "Company"}
-                                </ProfileLink>
-                                {(intern as any).employer_profiles?.is_verified && (
-                                  <span className="inline-flex items-center gap-0.5 text-green-600" title="Verified Company">
-                                    <BadgeCheck className="h-3.5 w-3.5" />
-                                  </span>
+              <>
+                <div className="space-y-3">
+                  {filtered.map((intern, idx) => {
+                    const score = calcMatchScore(intern.skills_required);
+                    return (
+                      <motion.div
+                        key={intern.id}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: Math.min(idx, 8) * 0.05, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      >
+                        {/* REL-2: Card uses a relative wrapper; the Link is an absolute overlay,
+                            so the Apply button can sit alongside it without nested-anchor issues. */}
+                        <div className="group card-depth p-6 relative">
+                          <Link
+                            to={`/internships/${intern.id}`}
+                            className="absolute inset-0 z-0 rounded-[inherit]"
+                            aria-label={`View ${intern.title}`}
+                          />
+                          <div className="relative z-10 pointer-events-none">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="min-w-0">
+                                <h3 className="font-display text-lg font-semibold group-hover:text-primary transition-colors truncate">
+                                  {intern.title}
+                                </h3>
+                                <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground pointer-events-auto">
+                                  <Building2 className="h-3.5 w-3.5 shrink-0" />
+                                  <ProfileLink userId={intern.employer_id} type="employer">
+                                    {(intern as any).employer_profiles?.company_name || "Company"}
+                                  </ProfileLink>
+                                  {(intern as any).employer_profiles?.is_verified && (
+                                    <span className="inline-flex items-center gap-0.5 text-green-600" title="Verified Company" aria-label="Verified Company">
+                                      <BadgeCheck className="h-3.5 w-3.5" />
+                                    </span>
+                                  )}
+                                </p>
+                              </div>
+                              {studentSkills.length > 0 && score > 0 && (
+                                <Badge className={`shrink-0 font-medium border-0 text-white ${score >= 70 ? "brand-gradient shadow-md shadow-primary/20" : ""}`} variant={score >= 70 ? "default" : "secondary"}>
+                                  {score}% match
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{intern.description}</p>
+                            <div className="mt-4 flex flex-wrap items-center justify-between gap-y-2">
+                              <div className="flex flex-wrap gap-1.5">
+                                {intern.skills_required.slice(0, 4).map((s) => (
+                                  <span key={s} className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">{s}</span>
+                                ))}
+                                {intern.skills_required.length > 4 && (
+                                  <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs text-muted-foreground">+{intern.skills_required.length - 4}</span>
                                 )}
-                              </p>
-                            </div>
-                            {studentSkills.length > 0 && score > 0 && (
-                              <Badge className={`shrink-0 font-medium border-0 text-white ${score >= 70 ? "brand-gradient shadow-md shadow-primary/20" : ""}`} variant={score >= 70 ? "default" : "secondary"}>
-                                {score}% match
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{intern.description}</p>
-                          <div className="mt-4 flex flex-wrap items-center justify-between gap-y-2">
-                            <div className="flex flex-wrap gap-1.5">
-                              {intern.skills_required.slice(0, 4).map((s) => (
-                                <span key={s} className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">{s}</span>
-                              ))}
-                              {intern.skills_required.length > 4 && (
-                                <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs text-muted-foreground">+{intern.skills_required.length - 4}</span>
-                              )}
-                            </div>
-                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                              {intern.stipend_amount != null && intern.stipend_amount > 0 && (
-                                <span className="flex items-center gap-1 font-medium text-foreground"><IndianRupee className="h-3 w-3" />₹{intern.stipend_amount.toLocaleString("en-IN")}/mo</span>
-                              )}
-                              {intern.stipend_type === "unpaid" && <span className="text-muted-foreground">Unpaid</span>}
-                              {intern.duration_months && <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{intern.duration_months}mo</span>}
-                              {intern.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{intern.location}</span>}
-                              <span className="flex items-center gap-1 capitalize"><Clock className="h-3 w-3" />{intern.type}</span>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                {intern.stipend_amount != null && intern.stipend_amount > 0 && (
+                                  <span className="flex items-center gap-1 font-medium text-foreground"><IndianRupee className="h-3 w-3" />₹{intern.stipend_amount.toLocaleString("en-IN")}/mo</span>
+                                )}
+                                {intern.stipend_type === "unpaid" && <span className="text-muted-foreground">Unpaid</span>}
+                                {intern.duration_months && <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{intern.duration_months}mo</span>}
+                                {intern.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{intern.location}</span>}
+                                <span className="flex items-center gap-1 capitalize"><Clock className="h-3 w-3" />{intern.type}</span>
+                              </div>
                             </div>
                           </div>
-                          {/* Apply CTA — visible to guests and students; employers/admins don't see it */}
+                          {/* Apply CTA — sibling to Link, not nested */}
                           {(!user || role === "student") && (
-                            <div className="mt-4 flex justify-end">
+                            <div className="relative z-10 mt-4 flex justify-end">
                               <Button
                                 size="sm"
                                 className="rounded-full brand-gradient border-0 text-white shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
+                                onClick={() => {
                                   if (!user) {
                                     navigate(`/login?redirect=/internships/${intern.id}`);
                                   } else {
@@ -277,11 +311,25 @@ const Internships = () => {
                             </div>
                           )}
                         </div>
-                      </Link>
-                    </motion.div>
-                  );
-                })}
-              </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                {/* PERF-1: Load more pagination */}
+                {hasMore && (
+                  <div className="mt-8 flex justify-center">
+                    <Button
+                      variant="outline"
+                      onClick={loadMore}
+                      disabled={loadingMore}
+                      className="rounded-full px-8"
+                    >
+                      {loadingMore ? "Loading…" : "Load more"}
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
