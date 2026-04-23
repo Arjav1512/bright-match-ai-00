@@ -53,8 +53,9 @@ const InternshipDetail = () => {
         .maybeSingle();
 
       if (data) {
-        const { data: ep } = await supabase
-          .from("employer_profiles")
+        // SEC-1: read employer info from public-safe view
+        const { data: ep } = await (supabase as any)
+          .from("employer_profiles_public")
           .select("company_name, logo_url, industry, website, is_verified")
           .eq("user_id", data.employer_id)
           .maybeSingle();

@@ -43,8 +43,9 @@ const StudentDiscovery = () => {
   const { data: students = [], isLoading } = useQuery({
     queryKey: ["student-discovery"],
     queryFn: async () => {
-      const { data: studentProfiles } = await supabase
-        .from("student_profiles")
+      // SEC-2: use public-safe view (excludes phone/lat-lng/linkedin/resume)
+      const { data: studentProfiles } = await (supabase as any)
+        .from("student_profiles_public")
         .select("user_id, university, major, skills, location, graduation_year")
         .eq("onboarding_status", "completed")
         .limit(100);
@@ -73,10 +74,10 @@ const StudentDiscovery = () => {
   const { data: companies = [], isLoading: isLoadingCompanies } = useQuery({
     queryKey: ["company-discovery"],
     queryFn: async () => {
-      const { data: employerProfiles } = await supabase
-        .from("employer_profiles")
+      // SEC-1: use public-safe view (excludes GSTIN/PAN/CIN/HR & manager phones+emails)
+      const { data: employerProfiles } = await (supabase as any)
+        .from("employer_profiles_public")
         .select("user_id, company_name, industry, city, state, logo_url, company_size")
-        .eq("onboarding_status", "completed")
         .limit(100);
 
       return (employerProfiles ?? []) as CompanyCard[];
