@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ProfileLink from "@/components/ProfileLink";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,6 +34,7 @@ interface Internship {
 
 const Internships = () => {
   const { user, role } = useAuth();
+  const navigate = useNavigate();
   const [internships, setInternships] = useState<Internship[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -255,6 +256,26 @@ const Internships = () => {
                               <span className="flex items-center gap-1 capitalize"><Clock className="h-3 w-3" />{intern.type}</span>
                             </div>
                           </div>
+                          {/* Apply CTA — visible to guests and students; employers/admins don't see it */}
+                          {(!user || role === "student") && (
+                            <div className="mt-4 flex justify-end">
+                              <Button
+                                size="sm"
+                                className="rounded-full brand-gradient border-0 text-white shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  if (!user) {
+                                    navigate(`/login?redirect=/internships/${intern.id}`);
+                                  } else {
+                                    navigate(`/internships/${intern.id}`);
+                                  }
+                                }}
+                              >
+                                Apply
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </Link>
                     </motion.div>
