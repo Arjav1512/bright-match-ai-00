@@ -1,1 +1,10 @@
-[]
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "in.wroob.app",
+    "sha256_cert_fingerprints": [
+      "FC:FC:A7:71:F0:D2:7B:1D:C7:E0:13:C6:2A:38:3A:DB:F1:07:31:9F:DE:94:C6:06:F1:A3:23:2E:0D:97:4C:2C"
+    ]
+  }
+}]
