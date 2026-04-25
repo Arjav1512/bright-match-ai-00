@@ -1,5 +1,5 @@
 import { forwardRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,12 +16,8 @@ export const GoogleSignInButton = forwardRef<HTMLButtonElement, GoogleSignInButt
     const handleGoogleSignIn = async () => {
       setLoading(true);
       try {
-        const result = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            // Send the user to /dashboard after OAuth so onboarding checks run.
-            redirectTo: `${window.location.origin}/dashboard`,
-          },
+        const result = await lovable.auth.signInWithOAuth("google", {
+          redirect_uri: `${window.location.origin}/dashboard`,
         });
 
         if (result.error) {
