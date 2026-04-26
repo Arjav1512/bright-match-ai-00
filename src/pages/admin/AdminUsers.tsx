@@ -21,6 +21,8 @@ interface UserRow {
   full_name: string | null;
   created_at: string;
   role: AppRole | "unknown";
+  email: string | null;
+  phone: string | null;
 }
 
 interface PendingRoleChange {
@@ -39,24 +41,18 @@ const AdminUsers = () => {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    // ISSUE-07: Limit rows to prevent OOM on large user bases.
-    const [{ data: profiles }, { data: roles }] = await Promise.all([
-      supabase.from("profiles").select("user_id, full_name, created_at").order("created_at", { ascending: false }).limit(500),
-      supabase.from("user_roles").select("user_id, role").limit(500),
-    ]);
-
-    const roleMap = new Map((roles || []).map((r: any) => [r.user_id, r.role]));
-    const mapped: UserRow[] = (profiles || []).map((p: any) => ({
-      user_id: p.user_id,
-      full_name: p.full_name,
-      created_at: p.created_at,
-      role: (roleMap.get(p.user_id) as AppRole) || "unknown",
-    }));
-    setUsers(mapped);
+    const { data, error } = await supabase.functions.invoke("admin-list-users");
+    if (error || !data?.users) {
+      toast({ title: "Failed to load users", description: error?.message, variant: "destructive" });
+      setUsers([]);
+    } else {
+      setUsers(data.users as UserRow[]);
+    }
     setLoading(false);
-  }, []);
+  }, [toast]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
+
 
   // ISSUE-05: Confirm role change before applying.
   const confirmRoleChange = async () => {
@@ -93,12 +89,17 @@ const AdminUsers = () => {
     setPendingChange(null);
   };
 
-  const filtered = users.filter(
-    (u) =>
-      (u.full_name || "").toLowerCase().includes(search.toLowerCase()) ||
-      u.role.toLowerCase().includes(search.toLowerCase()) ||
-      u.user_id.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = users.filter((u) => {
+    const q = search.toLowerCase();
+    return (
+      (u.full_name || "").toLowerCase().includes(q) ||
+      u.role.toLowerCase().includes(q) ||
+      u.user_id.toLowerCase().includes(q) ||
+      (u.email || "").toLowerCase().includes(q) ||
+      (u.phone || "").toLowerCase().includes(q)
+    );
+  });
+
 
   const roleBadgeVariant = (role: string) => {
     switch (role) {
@@ -129,8 +130,8 @@ const AdminUsers = () => {
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="p-4 text-left font-medium">Name</th>
-                  {/* ISSUE-06: Show truncated user_id — email not accessible via anon key. */}
-                  <th className="p-4 text-left font-medium">User ID</th>
+                  <th className="p-4 text-left font-medium">Email</th>
+                  <th className="p-4 text-left font-medium">Phone</th>
                   <th className="p-4 text-left font-medium">Role</th>
                   <th className="p-4 text-left font-medium">Joined</th>
                   <th className="p-4 text-left font-medium">Change Role</th>
@@ -138,21 +139,16 @@ const AdminUsers = () => {
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No users found</td></tr>
+                  <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No users found</td></tr>
                 ) : (
                   filtered.map((u) => {
                     const isSelf = u.user_id === currentUser?.id;
                     return (
                       <tr key={u.user_id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                         <td className="p-4 font-medium">{u.full_name || "—"}</td>
-                        <td className="p-4">
-                          <span
-                            className="font-mono text-xs text-muted-foreground"
-                            title={u.user_id}
-                          >
-                            {u.user_id.slice(0, 8)}…
-                          </span>
-                        </td>
+                        <td className="p-4 text-muted-foreground text-xs break-all">{u.email || "—"}</td>
+                        <td className="p-4 text-muted-foreground text-xs">{u.phone || "—"}</td>
+
                         <td className="p-4"><Badge variant={roleBadgeVariant(u.role)}>{u.role}</Badge></td>
                         <td className="p-4 text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</td>
                         <td className="p-4">
