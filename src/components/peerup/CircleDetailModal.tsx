@@ -171,6 +171,12 @@ const CircleDetailModal = ({
           <p className="text-[11px] text-muted-foreground mb-0.5">Spot Location</p>
           <p className="text-sm font-medium">{circle.spot_location || circle.spot_name}</p>
         </div>
+        <div className="bg-muted/50 rounded-lg p-3 col-span-2">
+          <p className="text-[11px] text-muted-foreground mb-0.5 flex items-center gap-1">
+            <Clock className="h-3 w-3" /> Drop-in Time
+          </p>
+          <p className="text-sm font-medium">{formatDropInTime(circle.drop_in_time)}</p>
+        </div>
         <div className="bg-muted/50 rounded-lg p-3">
           <p className="text-[11px] text-muted-foreground mb-0.5">Fuel of the Session</p>
           <p className="text-sm font-medium">{circle.fuel_type}</p>
