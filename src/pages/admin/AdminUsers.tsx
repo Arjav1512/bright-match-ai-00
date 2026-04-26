@@ -89,12 +89,17 @@ const AdminUsers = () => {
     setPendingChange(null);
   };
 
-  const filtered = users.filter(
-    (u) =>
-      (u.full_name || "").toLowerCase().includes(search.toLowerCase()) ||
-      u.role.toLowerCase().includes(search.toLowerCase()) ||
-      u.user_id.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = users.filter((u) => {
+    const q = search.toLowerCase();
+    return (
+      (u.full_name || "").toLowerCase().includes(q) ||
+      u.role.toLowerCase().includes(q) ||
+      u.user_id.toLowerCase().includes(q) ||
+      (u.email || "").toLowerCase().includes(q) ||
+      (u.phone || "").toLowerCase().includes(q)
+    );
+  });
+
 
   const roleBadgeVariant = (role: string) => {
     switch (role) {
