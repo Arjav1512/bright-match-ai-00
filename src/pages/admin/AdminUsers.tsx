@@ -21,6 +21,8 @@ interface UserRow {
   full_name: string | null;
   created_at: string;
   role: AppRole | "unknown";
+  email: string | null;
+  phone: string | null;
 }
 
 interface PendingRoleChange {
@@ -39,24 +41,18 @@ const AdminUsers = () => {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    // ISSUE-07: Limit rows to prevent OOM on large user bases.
-    const [{ data: profiles }, { data: roles }] = await Promise.all([
-      supabase.from("profiles").select("user_id, full_name, created_at").order("created_at", { ascending: false }).limit(500),
-      supabase.from("user_roles").select("user_id, role").limit(500),
-    ]);
-
-    const roleMap = new Map((roles || []).map((r: any) => [r.user_id, r.role]));
-    const mapped: UserRow[] = (profiles || []).map((p: any) => ({
-      user_id: p.user_id,
-      full_name: p.full_name,
-      created_at: p.created_at,
-      role: (roleMap.get(p.user_id) as AppRole) || "unknown",
-    }));
-    setUsers(mapped);
+    const { data, error } = await supabase.functions.invoke("admin-list-users");
+    if (error || !data?.users) {
+      toast({ title: "Failed to load users", description: error?.message, variant: "destructive" });
+      setUsers([]);
+    } else {
+      setUsers(data.users as UserRow[]);
+    }
     setLoading(false);
-  }, []);
+  }, [toast]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
+
 
   // ISSUE-05: Confirm role change before applying.
   const confirmRoleChange = async () => {
