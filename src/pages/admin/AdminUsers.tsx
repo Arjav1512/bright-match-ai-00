@@ -130,8 +130,8 @@ const AdminUsers = () => {
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="p-4 text-left font-medium">Name</th>
-                  {/* ISSUE-06: Show truncated user_id — email not accessible via anon key. */}
-                  <th className="p-4 text-left font-medium">User ID</th>
+                  <th className="p-4 text-left font-medium">Email</th>
+                  <th className="p-4 text-left font-medium">Phone</th>
                   <th className="p-4 text-left font-medium">Role</th>
                   <th className="p-4 text-left font-medium">Joined</th>
                   <th className="p-4 text-left font-medium">Change Role</th>
@@ -139,21 +139,16 @@ const AdminUsers = () => {
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No users found</td></tr>
+                  <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No users found</td></tr>
                 ) : (
                   filtered.map((u) => {
                     const isSelf = u.user_id === currentUser?.id;
                     return (
                       <tr key={u.user_id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                         <td className="p-4 font-medium">{u.full_name || "—"}</td>
-                        <td className="p-4">
-                          <span
-                            className="font-mono text-xs text-muted-foreground"
-                            title={u.user_id}
-                          >
-                            {u.user_id.slice(0, 8)}…
-                          </span>
-                        </td>
+                        <td className="p-4 text-muted-foreground text-xs break-all">{u.email || "—"}</td>
+                        <td className="p-4 text-muted-foreground text-xs">{u.phone || "—"}</td>
+
                         <td className="p-4"><Badge variant={roleBadgeVariant(u.role)}>{u.role}</Badge></td>
                         <td className="p-4 text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</td>
                         <td className="p-4">
