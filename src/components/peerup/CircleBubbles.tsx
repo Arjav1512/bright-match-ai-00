@@ -60,40 +60,63 @@ const CircleBubbles = ({ circles, onSelect, onCreateNew }: CircleBubblesProps) =
   const otherCircles = circles.filter((c) => c.creator_id !== user?.id);
 
   return (
-    <div className="space-y-4">
-      {/* My Circles row */}
-      <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Your Circles</p>
-        <div className="flex items-center gap-5 overflow-x-auto pb-3 scrollbar-hide px-1">
+    <div className="space-y-6">
+      {/* Prominent Create Community CTA */}
+      <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 shadow-sm">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-start gap-3">
+            <div className="h-12 w-12 rounded-full brand-gradient flex items-center justify-center shrink-0">
+              <Plus className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-base leading-tight">Create a Community</h3>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Start a Wroob Circle and invite peers to join.
+              </p>
+            </div>
+          </div>
           <button
             onClick={onCreateNew}
-            className="flex flex-col items-center gap-1.5 min-w-[72px] group"
+            className="brand-gradient text-white text-sm font-medium px-5 py-2.5 rounded-full shadow-sm hover:opacity-90 transition-opacity"
           >
-            <div className="h-16 w-16 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center transition-colors group-hover:border-primary/50">
-              <Plus className="h-5 w-5 text-muted-foreground/50 group-hover:text-primary/70" />
-            </div>
-            <span className="text-[11px] text-muted-foreground font-medium">New</span>
+            + New Community
           </button>
-          {myCircles.map((circle, i) => (
-            <CircleBubble key={circle.id} circle={circle} index={i} onSelect={onSelect} />
-          ))}
-          {myCircles.length === 0 && (
-            <span className="text-xs text-muted-foreground/60 self-center">No circles yet</span>
-          )}
         </div>
+
+        {/* Your circles inline */}
+        {myCircles.length > 0 && (
+          <div className="mt-5 pt-4 border-t border-primary/10">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Your Circles</p>
+            <div className="flex items-center gap-5 overflow-x-auto pb-1 scrollbar-hide">
+              {myCircles.map((circle, i) => (
+                <CircleBubble key={circle.id} circle={circle} index={i} onSelect={onSelect} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Other Circles row */}
-      {otherCircles.length > 0 && (
-        <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Explore</p>
-          <div className="flex items-center gap-5 overflow-x-auto pb-3 scrollbar-hide px-1">
+      {/* Communities by other users */}
+      <div>
+        <div className="flex items-baseline justify-between mb-3">
+          <h3 className="font-semibold text-base">Explore Communities</h3>
+          <span className="text-xs text-muted-foreground">
+            {otherCircles.length} {otherCircles.length === 1 ? "circle" : "circles"}
+          </span>
+        </div>
+        {otherCircles.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-muted-foreground/20 py-10 text-center">
+            <p className="text-sm text-muted-foreground">No communities from others yet.</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">Be the first — create one above!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4">
             {otherCircles.map((circle, i) => (
               <CircleBubble key={circle.id} circle={circle} index={i + myCircles.length} onSelect={onSelect} />
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
