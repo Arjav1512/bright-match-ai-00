@@ -105,7 +105,7 @@ serve(async (req) => {
 
     if (error) {
       console.error("Feedback insert error:", error);
-      return new Response(JSON.stringify({ error: error.message }), {
+      return new Response(JSON.stringify({ error: "Internal server error" }), {
         status: 500,
         headers: { ...responseHeaders },
       });
@@ -126,7 +126,7 @@ serve(async (req) => {
     });
   } catch (err) {
     console.error("Feedback error:", err);
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : "Internal error" }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...responseHeaders },
     });

@@ -156,7 +156,8 @@ serve(async (req) => {
           }, { onConflict: "student_id,internship_id,company_id" });
 
         if (insertError) {
-          return new Response(JSON.stringify({ error: insertError.message }), {
+          console.error("student-reputation insert error:", insertError);
+          return new Response(JSON.stringify({ error: "Internal server error" }), {
             status: 500,
             headers: { ...responseHeaders },
           });
@@ -230,7 +231,7 @@ serve(async (req) => {
     });
   } catch (err) {
     console.error("Reputation error:", err);
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : "Internal error" }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...responseHeaders },
     });

@@ -267,7 +267,7 @@ serve(async (req) => {
     });
   } catch (err) {
     console.error("Skill test error:", err);
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : "Internal error" }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...responseHeaders },
     });
