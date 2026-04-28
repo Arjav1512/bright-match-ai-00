@@ -202,7 +202,8 @@ Deno.serve(async (req) => {
       { headers: { ...responseHeaders } }
     );
   } catch (err) {
-    return new Response(JSON.stringify({ error: (err as Error).message }), {
+    console.error("geo-group-assign error:", err);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...responseHeaders },
     });

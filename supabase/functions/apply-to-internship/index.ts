@@ -165,8 +165,9 @@ Deno.serve(async (req) => {
     );
 
     if (rpcError) {
+      console.error("apply-to-internship rpc error:", rpcError);
       return new Response(
-        JSON.stringify({ error: rpcError.message || "Internal server error" }),
+        JSON.stringify({ error: "Internal server error" }),
         { status: 500, headers: { ...responseHeaders } }
       );
     }
@@ -202,9 +203,9 @@ Deno.serve(async (req) => {
       }),
       { status: 200, headers: { ...responseHeaders } }
     );
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Internal server error";
-    return new Response(JSON.stringify({ error: message }), {
+  } catch (err) {
+    console.error("apply-to-internship error:", err);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...responseHeaders },
     });

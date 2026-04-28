@@ -133,13 +133,14 @@ Deno.serve(async (req) => {
     const resendData = await resendRes.json();
 
     if (!resendRes.ok) {
-      return new Response(JSON.stringify(resendData), {
-        status: resendRes.status,
+      console.error("Resend API error:", resendData);
+      return new Response(JSON.stringify({ error: "Email delivery failed" }), {
+        status: 502,
         headers: responseHeaders,
       });
     }
 
-    return new Response(JSON.stringify(resendData), {
+    return new Response(JSON.stringify({ success: true, id: resendData?.id }), {
       status: 200,
       headers: responseHeaders,
     });

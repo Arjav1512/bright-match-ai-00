@@ -94,9 +94,10 @@ Deno.serve(async (req) => {
       JSON.stringify({ success: true, message: "Admin account ready", email }),
       { headers: { ...responseHeaders } }
     );
-  } catch (error: any) {
+  } catch (error) {
+    console.error("seed-admin error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { ...responseHeaders } }
     );
   }

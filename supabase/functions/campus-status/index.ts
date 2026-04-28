@@ -318,8 +318,9 @@ Deno.serve(async (req) => {
       status: 405,
       headers: { ...responseHeaders },
     });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), {
+  } catch (err) {
+    console.error("campus-status error:", err);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...responseHeaders },
     });
