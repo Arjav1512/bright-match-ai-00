@@ -48,12 +48,13 @@ Deno.serve(async (req) => {
     const [{ data: profiles }, { data: roles }, { data: students }, { data: employers }] = await Promise.all([
       service.from("profiles").select("user_id, full_name, created_at").order("created_at", { ascending: false }).limit(500),
       service.from("user_roles").select("user_id, role").limit(1000),
-      service.from("student_profiles").select("user_id, phone_number"),
-      service.from("employer_profiles").select("user_id, hr_phone, manager_phone, head_office_mobile"),
+      service.from("student_profiles").select("user_id, phone_number, onboarding_status"),
+      service.from("employer_profiles").select("user_id, hr_phone, manager_phone, head_office_mobile, onboarding_status"),
     ]);
 
-    // Fetch auth users (paginated) to map emails
+    // Fetch auth users (paginated) to map emails and last_sign_in_at
     const emailMap = new Map<string, string>();
+    const lastSignInMap = new Map<string, string | null>();
     let page = 1;
     const perPage = 1000;
     while (true) {
@@ -61,6 +62,7 @@ Deno.serve(async (req) => {
       if (error || !list?.users?.length) break;
       for (const u of list.users) {
         if (u.email) emailMap.set(u.id, u.email);
+        lastSignInMap.set(u.id, (u as any).last_sign_in_at ?? null);
       }
       if (list.users.length < perPage) break;
       page++;
@@ -69,9 +71,11 @@ Deno.serve(async (req) => {
 
     const roleMap = new Map((roles || []).map((r: any) => [r.user_id, r.role]));
     const studentPhone = new Map((students || []).map((s: any) => [s.user_id, s.phone_number]));
+    const studentStatus = new Map((students || []).map((s: any) => [s.user_id, s.onboarding_status]));
     const employerPhone = new Map(
       (employers || []).map((e: any) => [e.user_id, e.hr_phone || e.manager_phone || e.head_office_mobile])
     );
+    const employerStatus = new Map((employers || []).map((e: any) => [e.user_id, e.onboarding_status]));
 
     const result = (profiles || []).map((p: any) => ({
       user_id: p.user_id,
@@ -80,6 +84,8 @@ Deno.serve(async (req) => {
       role: roleMap.get(p.user_id) || "unknown",
       email: emailMap.get(p.user_id) || null,
       phone: studentPhone.get(p.user_id) || employerPhone.get(p.user_id) || null,
+      onboarding_status: studentStatus.get(p.user_id) || employerStatus.get(p.user_id) || null,
+      last_sign_in_at: lastSignInMap.get(p.user_id) || null,
     }));
 
     return new Response(JSON.stringify({ users: result }), { status: 200, headers: responseHeaders });

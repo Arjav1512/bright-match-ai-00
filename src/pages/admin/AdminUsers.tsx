@@ -16,6 +16,9 @@ import { useToast } from "@/hooks/use-toast";
 import ProfileLink from "@/components/ProfileLink";
 
 type AppRole = "student" | "employer" | "admin";
+type RoleFilter = "all" | AppRole | "unknown";
+type StatusFilter = "all" | "completed" | "pending" | "unknown";
+type ActiveFilter = "all" | "24h" | "7d" | "30d" | "never";
 
 interface UserRow {
   user_id: string;
@@ -24,6 +27,8 @@ interface UserRow {
   role: AppRole | "unknown";
   email: string | null;
   phone: string | null;
+  onboarding_status: string | null;
+  last_sign_in_at: string | null;
 }
 
 interface PendingRoleChange {
@@ -37,6 +42,9 @@ const AdminUsers = () => {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
   const [pendingChange, setPendingChange] = useState<PendingRoleChange | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -92,14 +100,50 @@ const AdminUsers = () => {
 
   const filtered = users.filter((u) => {
     const q = search.toLowerCase();
-    return (
+    const matchesSearch =
       (u.full_name || "").toLowerCase().includes(q) ||
       u.role.toLowerCase().includes(q) ||
       u.user_id.toLowerCase().includes(q) ||
       (u.email || "").toLowerCase().includes(q) ||
-      (u.phone || "").toLowerCase().includes(q)
-    );
+      (u.phone || "").toLowerCase().includes(q);
+    if (!matchesSearch) return false;
+
+    if (roleFilter !== "all" && u.role !== roleFilter) return false;
+
+    if (statusFilter !== "all") {
+      const s = u.onboarding_status || "unknown";
+      if (statusFilter === "unknown" && u.onboarding_status) return false;
+      if (statusFilter !== "unknown" && s !== statusFilter) return false;
+    }
+
+    if (activeFilter !== "all") {
+      if (activeFilter === "never") {
+        if (u.last_sign_in_at) return false;
+      } else {
+        if (!u.last_sign_in_at) return false;
+        const ms = Date.now() - new Date(u.last_sign_in_at).getTime();
+        const limit =
+          activeFilter === "24h" ? 86400000 :
+          activeFilter === "7d" ? 7 * 86400000 :
+          30 * 86400000;
+        if (ms > limit) return false;
+      }
+    }
+    return true;
   });
+
+  const formatLastActive = (iso: string | null) => {
+    if (!iso) return "Never";
+    const ms = Date.now() - new Date(iso).getTime();
+    const days = Math.floor(ms / 86400000);
+    if (days === 0) {
+      const hrs = Math.floor(ms / 3600000);
+      if (hrs === 0) return "Just now";
+      return `${hrs}h ago`;
+    }
+    if (days < 30) return `${days}d ago`;
+    return new Date(iso).toLocaleDateString();
+  };
 
 
   const roleBadgeVariant = (role: string) => {
@@ -114,14 +158,58 @@ const AdminUsers = () => {
 
   return (
     <AdminLayout title="Users">
-      <div className="mb-6 relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search users..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search users..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as RoleFilter)}>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Role" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All roles</SelectItem>
+            <SelectItem value="student">Student</SelectItem>
+            <SelectItem value="employer">Employer</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="unknown">Unknown</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="completed">Onboarding completed</SelectItem>
+            <SelectItem value="pending">Onboarding pending</SelectItem>
+            <SelectItem value="unknown">No profile</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={activeFilter} onValueChange={(v) => setActiveFilter(v as ActiveFilter)}>
+          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Last active" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Any time</SelectItem>
+            <SelectItem value="24h">Last 24 hours</SelectItem>
+            <SelectItem value="7d">Last 7 days</SelectItem>
+            <SelectItem value="30d">Last 30 days</SelectItem>
+            <SelectItem value="never">Never signed in</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {(roleFilter !== "all" || statusFilter !== "all" || activeFilter !== "all" || search) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => { setSearch(""); setRoleFilter("all"); setStatusFilter("all"); setActiveFilter("all"); }}
+          >
+            Clear filters
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -134,13 +222,15 @@ const AdminUsers = () => {
                   <th className="p-4 text-left font-medium">Email</th>
                   <th className="p-4 text-left font-medium">Phone</th>
                   <th className="p-4 text-left font-medium">Role</th>
+                  <th className="p-4 text-left font-medium">Status</th>
+                  <th className="p-4 text-left font-medium">Last Active</th>
                   <th className="p-4 text-left font-medium">Joined</th>
                   <th className="p-4 text-left font-medium">Change Role</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No users found</td></tr>
+                  <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">No users found</td></tr>
                 ) : (
                   filtered.map((u) => {
                     const isSelf = u.user_id === currentUser?.id;
@@ -159,6 +249,16 @@ const AdminUsers = () => {
                         <td className="p-4 text-muted-foreground text-xs">{u.phone || "—"}</td>
 
                         <td className="p-4"><Badge variant={roleBadgeVariant(u.role)}>{u.role}</Badge></td>
+                        <td className="p-4">
+                          {u.onboarding_status ? (
+                            <Badge variant={u.onboarding_status === "completed" ? "default" : "outline"} className="text-xs">
+                              {u.onboarding_status}
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </td>
+                        <td className="p-4 text-muted-foreground text-xs">{formatLastActive(u.last_sign_in_at)}</td>
                         <td className="p-4 text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</td>
                         <td className="p-4">
                           {/* ISSUE-05: Admin cannot change their own role. */}
