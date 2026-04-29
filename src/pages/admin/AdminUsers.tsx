@@ -158,14 +158,58 @@ const AdminUsers = () => {
 
   return (
     <AdminLayout title="Users">
-      <div className="mb-6 relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search users..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search users..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as RoleFilter)}>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Role" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All roles</SelectItem>
+            <SelectItem value="student">Student</SelectItem>
+            <SelectItem value="employer">Employer</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="unknown">Unknown</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="completed">Onboarding completed</SelectItem>
+            <SelectItem value="pending">Onboarding pending</SelectItem>
+            <SelectItem value="unknown">No profile</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={activeFilter} onValueChange={(v) => setActiveFilter(v as ActiveFilter)}>
+          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Last active" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Any time</SelectItem>
+            <SelectItem value="24h">Last 24 hours</SelectItem>
+            <SelectItem value="7d">Last 7 days</SelectItem>
+            <SelectItem value="30d">Last 30 days</SelectItem>
+            <SelectItem value="never">Never signed in</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {(roleFilter !== "all" || statusFilter !== "all" || activeFilter !== "all" || search) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => { setSearch(""); setRoleFilter("all"); setStatusFilter("all"); setActiveFilter("all"); }}
+          >
+            Clear filters
+          </Button>
+        )}
       </div>
 
       <Card>
