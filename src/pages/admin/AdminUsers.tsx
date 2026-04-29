@@ -100,14 +100,50 @@ const AdminUsers = () => {
 
   const filtered = users.filter((u) => {
     const q = search.toLowerCase();
-    return (
+    const matchesSearch =
       (u.full_name || "").toLowerCase().includes(q) ||
       u.role.toLowerCase().includes(q) ||
       u.user_id.toLowerCase().includes(q) ||
       (u.email || "").toLowerCase().includes(q) ||
-      (u.phone || "").toLowerCase().includes(q)
-    );
+      (u.phone || "").toLowerCase().includes(q);
+    if (!matchesSearch) return false;
+
+    if (roleFilter !== "all" && u.role !== roleFilter) return false;
+
+    if (statusFilter !== "all") {
+      const s = u.onboarding_status || "unknown";
+      if (statusFilter === "unknown" && u.onboarding_status) return false;
+      if (statusFilter !== "unknown" && s !== statusFilter) return false;
+    }
+
+    if (activeFilter !== "all") {
+      if (activeFilter === "never") {
+        if (u.last_sign_in_at) return false;
+      } else {
+        if (!u.last_sign_in_at) return false;
+        const ms = Date.now() - new Date(u.last_sign_in_at).getTime();
+        const limit =
+          activeFilter === "24h" ? 86400000 :
+          activeFilter === "7d" ? 7 * 86400000 :
+          30 * 86400000;
+        if (ms > limit) return false;
+      }
+    }
+    return true;
   });
+
+  const formatLastActive = (iso: string | null) => {
+    if (!iso) return "Never";
+    const ms = Date.now() - new Date(iso).getTime();
+    const days = Math.floor(ms / 86400000);
+    if (days === 0) {
+      const hrs = Math.floor(ms / 3600000);
+      if (hrs === 0) return "Just now";
+      return `${hrs}h ago`;
+    }
+    if (days < 30) return `${days}d ago`;
+    return new Date(iso).toLocaleDateString();
+  };
 
 
   const roleBadgeVariant = (role: string) => {
