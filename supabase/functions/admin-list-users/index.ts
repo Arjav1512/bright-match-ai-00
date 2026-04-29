@@ -48,8 +48,8 @@ Deno.serve(async (req) => {
     const [{ data: profiles }, { data: roles }, { data: students }, { data: employers }] = await Promise.all([
       service.from("profiles").select("user_id, full_name, created_at").order("created_at", { ascending: false }).limit(500),
       service.from("user_roles").select("user_id, role").limit(1000),
-      service.from("student_profiles").select("user_id, phone_number"),
-      service.from("employer_profiles").select("user_id, hr_phone, manager_phone, head_office_mobile"),
+      service.from("student_profiles").select("user_id, phone_number, onboarding_status"),
+      service.from("employer_profiles").select("user_id, hr_phone, manager_phone, head_office_mobile, onboarding_status"),
     ]);
 
     // Fetch auth users (paginated) to map emails and last_sign_in_at
