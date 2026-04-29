@@ -222,13 +222,15 @@ const AdminUsers = () => {
                   <th className="p-4 text-left font-medium">Email</th>
                   <th className="p-4 text-left font-medium">Phone</th>
                   <th className="p-4 text-left font-medium">Role</th>
+                  <th className="p-4 text-left font-medium">Status</th>
+                  <th className="p-4 text-left font-medium">Last Active</th>
                   <th className="p-4 text-left font-medium">Joined</th>
                   <th className="p-4 text-left font-medium">Change Role</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No users found</td></tr>
+                  <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">No users found</td></tr>
                 ) : (
                   filtered.map((u) => {
                     const isSelf = u.user_id === currentUser?.id;
