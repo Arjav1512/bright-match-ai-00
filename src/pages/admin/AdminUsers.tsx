@@ -42,6 +42,9 @@ const AdminUsers = () => {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
   const [pendingChange, setPendingChange] = useState<PendingRoleChange | null>(null);
   const [saving, setSaving] = useState(false);
 
