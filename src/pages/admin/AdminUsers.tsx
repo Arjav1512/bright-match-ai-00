@@ -249,6 +249,16 @@ const AdminUsers = () => {
                         <td className="p-4 text-muted-foreground text-xs">{u.phone || "—"}</td>
 
                         <td className="p-4"><Badge variant={roleBadgeVariant(u.role)}>{u.role}</Badge></td>
+                        <td className="p-4">
+                          {u.onboarding_status ? (
+                            <Badge variant={u.onboarding_status === "completed" ? "default" : "outline"} className="text-xs">
+                              {u.onboarding_status}
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </td>
+                        <td className="p-4 text-muted-foreground text-xs">{formatLastActive(u.last_sign_in_at)}</td>
                         <td className="p-4 text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</td>
                         <td className="p-4">
                           {/* ISSUE-05: Admin cannot change their own role. */}
