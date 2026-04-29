@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ProfileLink from "@/components/ProfileLink";
 
 type AppRole = "student" | "employer" | "admin";
 
@@ -145,7 +146,15 @@ const AdminUsers = () => {
                     const isSelf = u.user_id === currentUser?.id;
                     return (
                       <tr key={u.user_id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                        <td className="p-4 font-medium">{u.full_name || "—"}</td>
+                        <td className="p-4 font-medium">
+                          {u.role === "student" || u.role === "employer" ? (
+                            <ProfileLink userId={u.user_id} type={u.role}>
+                              {u.full_name || "—"}
+                            </ProfileLink>
+                          ) : (
+                            u.full_name || "—"
+                          )}
+                        </td>
                         <td className="p-4 text-muted-foreground text-xs break-all">{u.email || "—"}</td>
                         <td className="p-4 text-muted-foreground text-xs">{u.phone || "—"}</td>
 
