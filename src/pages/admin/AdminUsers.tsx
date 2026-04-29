@@ -16,6 +16,9 @@ import { useToast } from "@/hooks/use-toast";
 import ProfileLink from "@/components/ProfileLink";
 
 type AppRole = "student" | "employer" | "admin";
+type RoleFilter = "all" | AppRole | "unknown";
+type StatusFilter = "all" | "completed" | "pending" | "unknown";
+type ActiveFilter = "all" | "24h" | "7d" | "30d" | "never";
 
 interface UserRow {
   user_id: string;
@@ -24,6 +27,8 @@ interface UserRow {
   role: AppRole | "unknown";
   email: string | null;
   phone: string | null;
+  onboarding_status: string | null;
+  last_sign_in_at: string | null;
 }
 
 interface PendingRoleChange {
