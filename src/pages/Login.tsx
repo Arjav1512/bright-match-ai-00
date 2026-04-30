@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,13 +26,34 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     const { error } = await signIn(email, password);
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      sessionStorage.setItem("wroob_just_logged_in", "true");
-      navigate(redirectTo);
+      return;
     }
+    sessionStorage.setItem("wroob_just_logged_in", "true");
+
+    // Resolve role immediately so admins go straight to /admin
+    // (avoids a flicker through /dashboard and any race with role hydration).
+    try {
+      const { data: { user: signedInUser } } = await supabase.auth.getUser();
+      if (signedInUser) {
+        const { data: roleRow } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", signedInUser.id)
+          .maybeSingle();
+        if (roleRow?.role === "admin") {
+          setLoading(false);
+          navigate("/admin");
+          return;
+        }
+      }
+    } catch {
+      // fall through to default redirect
+    }
+    setLoading(false);
+    navigate(redirectTo);
   };
 
   return (
