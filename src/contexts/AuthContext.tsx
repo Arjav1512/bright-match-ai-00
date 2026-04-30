@@ -66,15 +66,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // If we have cached data for this user and it's the initial load, use cache instantly
+    // If we have cached data for this user, use cache instantly (no loading flicker).
+    // Otherwise (e.g. fresh sign-in for a different user), we MUST set loading=true so
+    // ProtectedRoute waits for the role fetch instead of redirecting to /select-role
+    // while role is momentarily null. This race condition previously bounced admins
+    // (and other roles) to /select-role right after signing in.
     const cache = getCachedAuth();
-    if (isInitial && cache.userId === nextSession.user.id && cache.role) {
+    if (cache.userId === nextSession.user.id && cache.role) {
       setRole(cache.role);
       setProfile(cache.profile);
       setLoading(false);
       // Still refresh in background
-    } else if (!isInitial) {
-      // Don't set loading=true on subsequent auth changes to avoid flicker
+    } else {
+      // New user / no cached role — clear stale role and show loading until fetch resolves.
+      setRole(null);
+      setProfile(null);
+      setLoading(true);
     }
 
     try {
