@@ -90,10 +90,10 @@ const MyInternships = () => {
           <div className="space-y-4">
             {internships.map((intern) => (
               <Card key={intern.id} className="transition-all hover:shadow-md">
-                <CardContent className="flex items-center justify-between p-6">
-                  <div>
-                    <h3 className="font-semibold">{intern.title}</h3>
-                    <div className="mt-2 flex items-center gap-3">
+                <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold break-words">{intern.title}</h3>
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
                       <Badge variant="outline" className={statusColors[intern.status]}>{intern.status}</Badge>
                       <span className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Users className="h-3.5 w-3.5" />
@@ -101,17 +101,17 @@ const MyInternships = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" asChild>
+                  <div className="flex flex-wrap gap-2 sm:shrink-0">
+                    <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
                       <Link to={`/internships/${intern.id}/edit`}><Pencil className="h-3.5 w-3.5 mr-1" />Edit</Link>
                     </Button>
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
                       <Link to={`/internships/${intern.id}/applicants`}>View Applicants</Link>
                     </Button>
                     {intern.status !== "closed" && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm" disabled={closingId === intern.id}>
+                          <Button variant="destructive" size="sm" disabled={closingId === intern.id} className="flex-1 sm:flex-none">
                             <XCircle className="h-3.5 w-3.5 mr-1" />Close
                           </Button>
                         </AlertDialogTrigger>
