@@ -13,7 +13,7 @@ const ProfileLink = ({ userId, type, children, className = "" }: ProfileLinkProp
   return (
     <Link
       to={path}
-      className={`hover:underline hover:text-primary transition-colors cursor-pointer ${className}`}
+      className={`text-primary underline-offset-4 hover:underline transition-colors cursor-pointer ${className}`}
       onClick={(e) => e.stopPropagation()}
     >
       {children}
