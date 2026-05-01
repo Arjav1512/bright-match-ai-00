@@ -16,18 +16,21 @@ import { safeExternalUrl } from "@/lib/utils";
 const EmployerProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user, role } = useAuth();
+  const isAdmin = role === "admin";
 
   const { data, isLoading } = useQuery({
-    queryKey: ["public-employer-profile", userId],
+    queryKey: ["public-employer-profile", userId, isAdmin],
     queryFn: async () => {
       if (!userId) throw new Error("No user ID");
 
       const [{ data: employer }, { data: internships }] = await Promise.all([
-        // SEC-1: read from public-safe view; sensitive legal/contact fields are no longer
-        // exposed to non-owners. Owner-self editing still uses the base table.
-        (supabase as any).from("employer_profiles_public").select(
-          "user_id, company_name, logo_url, is_verified, industry, city, state, company_description, company_size, year_established, funding_stage, website, linkedin_profile"
-        ).eq("user_id", userId).maybeSingle(),
+        // Admins read the FULL employer_profiles row (legal info, HR/manager contacts, etc.).
+        // Other viewers read the public-safe view that excludes sensitive legal/contact fields.
+        isAdmin
+          ? supabase.from("employer_profiles").select("*").eq("user_id", userId).maybeSingle()
+          : (supabase as any).from("employer_profiles_public").select(
+              "user_id, company_name, logo_url, is_verified, industry, city, state, company_description, company_size, year_established, funding_stage, website, linkedin_profile"
+            ).eq("user_id", userId).maybeSingle(),
         supabase.from("internships").select("id, title, type, location, status, created_at").eq("employer_id", userId).eq("status", "published").order("created_at", { ascending: false }).limit(10),
       ]);
 
