@@ -5,9 +5,10 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Globe, Linkedin, ArrowLeft, MapPin, MessageCircle, Users, BadgeCheck, Calendar, Briefcase } from "lucide-react";
+import { Building2, Globe, Linkedin, ArrowLeft, MapPin, MessageCircle, Users, BadgeCheck, Calendar, Briefcase, Shield, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FollowButton from "@/components/FollowButton";
+import AdminField from "@/components/admin/AdminField";
 import { ProfileSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/AuthContext";
 import { safeExternalUrl } from "@/lib/utils";
@@ -15,18 +16,21 @@ import { safeExternalUrl } from "@/lib/utils";
 const EmployerProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user, role } = useAuth();
+  const isAdmin = role === "admin";
 
   const { data, isLoading } = useQuery({
-    queryKey: ["public-employer-profile", userId],
+    queryKey: ["public-employer-profile", userId, isAdmin],
     queryFn: async () => {
       if (!userId) throw new Error("No user ID");
 
       const [{ data: employer }, { data: internships }] = await Promise.all([
-        // SEC-1: read from public-safe view; sensitive legal/contact fields are no longer
-        // exposed to non-owners. Owner-self editing still uses the base table.
-        (supabase as any).from("employer_profiles_public").select(
-          "user_id, company_name, logo_url, is_verified, industry, city, state, company_description, company_size, year_established, funding_stage, website, linkedin_profile"
-        ).eq("user_id", userId).maybeSingle(),
+        // Admins read the FULL employer_profiles row (legal info, HR/manager contacts, etc.).
+        // Other viewers read the public-safe view that excludes sensitive legal/contact fields.
+        isAdmin
+          ? supabase.from("employer_profiles").select("*").eq("user_id", userId).maybeSingle()
+          : (supabase as any).from("employer_profiles_public").select(
+              "user_id, company_name, logo_url, is_verified, industry, city, state, company_description, company_size, year_established, funding_stage, website, linkedin_profile"
+            ).eq("user_id", userId).maybeSingle(),
         supabase.from("internships").select("id, title, type, location, status, created_at").eq("employer_id", userId).eq("status", "published").order("created_at", { ascending: false }).limit(10),
       ]);
 
@@ -186,6 +190,57 @@ const EmployerProfile = () => {
                       </div>
                     </Link>
                   ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Admin-only: complete submitted data */}
+            {isAdmin && ep && (
+              <Card className="border-primary/40">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-primary" /> Admin View — All Submitted Data
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <AdminField label="Onboarding Status" value={(ep as any).onboarding_status} />
+                  <AdminField label="Onboarding Step" value={(ep as any).onboarding_step} />
+                  <AdminField label="Onboarding Completed" value={(ep as any).onboarding_completed_at} />
+                  <AdminField label="Verified" value={ep.is_verified} />
+                  <AdminField label="Verification Method" value={(ep as any).verification_method} />
+                  <AdminField label="Verified At" value={(ep as any).verified_at} />
+                  <AdminField label="Verified Domain" value={(ep as any).verified_domain} />
+                  <AdminField label="Work Email Verified" value={(ep as any).work_email_verified} />
+                  <AdminField label="Company Name" value={ep.company_name} />
+                  <AdminField label="Company Domain" value={(ep as any).company_domain} />
+                  <AdminField label="Industry" value={ep.industry} />
+                  <AdminField label="Description" value={ep.company_description} />
+                  <AdminField label="Company Size" value={ep.company_size} />
+                  <AdminField label="Year Established" value={ep.year_established} />
+                  <AdminField label="Funding Stage" value={ep.funding_stage} />
+                  <AdminField label="Website" value={ep.website} />
+                  <AdminField label="LinkedIn" value={ep.linkedin_profile} />
+                  <AdminField label="Hiring Roles" value={(ep as any).hiring_roles?.length ? (ep as any).hiring_roles.join(", ") : null} />
+                  <AdminField label="GSTIN" value={(ep as any).gstin} />
+                  <AdminField label="GST Number" value={(ep as any).gst_number} />
+                  <AdminField label="PAN" value={(ep as any).pan_number} />
+                  <AdminField label="CIN" value={(ep as any).cin} />
+                  <AdminField label="Head Office Address" value={(ep as any).head_office_address} />
+                  <AdminField label="City" value={ep.city} />
+                  <AdminField label="State" value={ep.state} />
+                  <AdminField label="Pincode" value={(ep as any).pincode} />
+                  <AdminField label="Head Office Mobile" value={(ep as any).head_office_mobile} icon={<Phone className="h-3.5 w-3.5" />} />
+                  <AdminField label="Head Office Landline" value={(ep as any).head_office_landline} icon={<Phone className="h-3.5 w-3.5" />} />
+                  <AdminField label="HR Name" value={(ep as any).hr_contact_name} />
+                  <AdminField label="HR Designation" value={(ep as any).hr_designation} />
+                  <AdminField label="HR Email" value={(ep as any).hr_email} icon={<Mail className="h-3.5 w-3.5" />} />
+                  <AdminField label="HR Phone" value={(ep as any).hr_phone} icon={<Phone className="h-3.5 w-3.5" />} />
+                  <AdminField label="Manager Name" value={(ep as any).manager_contact_name} />
+                  <AdminField label="Manager Designation" value={(ep as any).manager_designation} />
+                  <AdminField label="Manager Email" value={(ep as any).manager_email} icon={<Mail className="h-3.5 w-3.5" />} />
+                  <AdminField label="Manager Phone" value={(ep as any).manager_phone} icon={<Phone className="h-3.5 w-3.5" />} />
+                  <AdminField label="Created" value={(ep as any).created_at} />
+                  <AdminField label="Updated" value={(ep as any).updated_at} />
                 </CardContent>
               </Card>
             )}

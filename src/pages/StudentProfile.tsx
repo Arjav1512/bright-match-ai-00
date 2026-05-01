@@ -5,29 +5,34 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, GraduationCap, Briefcase, Globe, Linkedin, ArrowLeft, MessageCircle } from "lucide-react";
+import { MapPin, GraduationCap, Briefcase, Globe, Linkedin, ArrowLeft, MessageCircle, Shield, Mail, Phone, FileText, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FollowButton from "@/components/FollowButton";
 import { ProfileSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/AuthContext";
 import { safeExternalUrl } from "@/lib/utils";
+import AdminField from "@/components/admin/AdminField";
 
 const StudentProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user, role } = useAuth();
 
+  const isAdmin = role === "admin";
+
   const { data, isLoading } = useQuery({
-    queryKey: ["public-student-profile", userId],
+    queryKey: ["public-student-profile", userId, isAdmin],
     queryFn: async () => {
       if (!userId) throw new Error("No user ID");
 
       const [{ data: profile }, { data: studentProfile }] = await Promise.all([
         supabase.from("profiles").select("user_id, full_name, avatar_url, bio").eq("user_id", userId).maybeSingle(),
-        // FIX (HIGH-9): Enumerate only public fields — excludes phone_number, resume_url,
-        // onboarding_* columns, and other private data from the network response.
-        supabase.from("student_profiles").select(
-          "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
-        ).eq("user_id", userId).maybeSingle(),
+        // Admins see ALL columns (including private fields like phone, resume, onboarding details).
+        // Other viewers only see public-safe columns.
+        isAdmin
+          ? supabase.from("student_profiles").select("*").eq("user_id", userId).maybeSingle()
+          : supabase.from("student_profiles").select(
+              "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
+            ).eq("user_id", userId).maybeSingle(),
       ]);
 
       return { profile, studentProfile };
@@ -186,6 +191,48 @@ const StudentProfile = () => {
                       <Globe className="h-4 w-4" /> Personal Website
                     </a>
                   )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Admin-only: complete submitted data */}
+            {isAdmin && sp && (
+              <Card className="border-primary/40">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-primary" /> Admin View — All Submitted Data
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <AdminField label="Onboarding Status" value={sp.onboarding_status} />
+                  <AdminField label="Onboarding Step" value={sp.onboarding_step} />
+                  <AdminField label="Onboarding Completed" value={sp.onboarding_completed_at} />
+                  <AdminField label="Phone" value={sp.phone_number} icon={<Phone className="h-3.5 w-3.5" />} />
+                  <AdminField label="University" value={sp.university} />
+                  <AdminField label="Major" value={sp.major} />
+                  <AdminField label="Graduation Year" value={sp.graduation_year} />
+                  <AdminField label="Course Role" value={sp.profile_role} />
+                  <AdminField label="Preferred Course" value={sp.preferred_course} />
+                  <AdminField label="Is Student" value={sp.is_student} />
+                  <AdminField label="Not Employed" value={sp.not_employed} />
+                  <AdminField label="Current Job Title" value={sp.current_job_title} />
+                  <AdminField label="Current Company" value={sp.current_company} />
+                  <AdminField label="Experience (months)" value={sp.experience_years} />
+                  <AdminField label="Location" value={sp.location} />
+                  <AdminField label="Latitude" value={sp.lat} />
+                  <AdminField label="Longitude" value={sp.lng} />
+                  <AdminField label="LinkedIn" value={sp.linkedin_url} />
+                  <AdminField label="Website" value={sp.website_url} />
+                  <AdminField label="Skills" value={sp.skills?.length ? sp.skills.join(", ") : null} />
+                  {sp.resume_url && (
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-muted-foreground">Resume:</span>
+                      <a href={sp.resume_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View resume</a>
+                    </div>
+                  )}
+                  <AdminField label="Created" value={sp.created_at} />
+                  <AdminField label="Updated" value={sp.updated_at} />
                 </CardContent>
               </Card>
             )}
