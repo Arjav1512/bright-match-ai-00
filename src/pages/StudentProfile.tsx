@@ -16,18 +16,22 @@ const StudentProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user, role } = useAuth();
 
+  const isAdmin = role === "admin";
+
   const { data, isLoading } = useQuery({
-    queryKey: ["public-student-profile", userId],
+    queryKey: ["public-student-profile", userId, isAdmin],
     queryFn: async () => {
       if (!userId) throw new Error("No user ID");
 
       const [{ data: profile }, { data: studentProfile }] = await Promise.all([
         supabase.from("profiles").select("user_id, full_name, avatar_url, bio").eq("user_id", userId).maybeSingle(),
-        // FIX (HIGH-9): Enumerate only public fields — excludes phone_number, resume_url,
-        // onboarding_* columns, and other private data from the network response.
-        supabase.from("student_profiles").select(
-          "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
-        ).eq("user_id", userId).maybeSingle(),
+        // Admins see ALL columns (including private fields like phone, resume, onboarding details).
+        // Other viewers only see public-safe columns.
+        isAdmin
+          ? supabase.from("student_profiles").select("*").eq("user_id", userId).maybeSingle()
+          : supabase.from("student_profiles").select(
+              "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
+            ).eq("user_id", userId).maybeSingle(),
       ]);
 
       return { profile, studentProfile };
