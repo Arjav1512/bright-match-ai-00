@@ -193,6 +193,48 @@ const StudentProfile = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Admin-only: complete submitted data */}
+            {isAdmin && sp && (
+              <Card className="border-primary/40">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-primary" /> Admin View — All Submitted Data
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <AdminField label="Onboarding Status" value={sp.onboarding_status} />
+                  <AdminField label="Onboarding Step" value={sp.onboarding_step} />
+                  <AdminField label="Onboarding Completed" value={sp.onboarding_completed_at} />
+                  <AdminField label="Phone" value={sp.phone_number} icon={<Phone className="h-3.5 w-3.5" />} />
+                  <AdminField label="University" value={sp.university} />
+                  <AdminField label="Major" value={sp.major} />
+                  <AdminField label="Graduation Year" value={sp.graduation_year} />
+                  <AdminField label="Course Role" value={sp.profile_role} />
+                  <AdminField label="Preferred Course" value={sp.preferred_course} />
+                  <AdminField label="Is Student" value={sp.is_student} />
+                  <AdminField label="Not Employed" value={sp.not_employed} />
+                  <AdminField label="Current Job Title" value={sp.current_job_title} />
+                  <AdminField label="Current Company" value={sp.current_company} />
+                  <AdminField label="Experience (months)" value={sp.experience_years} />
+                  <AdminField label="Location" value={sp.location} />
+                  <AdminField label="Latitude" value={sp.lat} />
+                  <AdminField label="Longitude" value={sp.lng} />
+                  <AdminField label="LinkedIn" value={sp.linkedin_url} />
+                  <AdminField label="Website" value={sp.website_url} />
+                  <AdminField label="Skills" value={sp.skills?.length ? sp.skills.join(", ") : null} />
+                  {sp.resume_url && (
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-muted-foreground">Resume:</span>
+                      <a href={sp.resume_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View resume</a>
+                    </div>
+                  )}
+                  <AdminField label="Created" value={sp.created_at} />
+                  <AdminField label="Updated" value={sp.updated_at} />
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
       </div>
