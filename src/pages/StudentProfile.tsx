@@ -11,6 +11,7 @@ import FollowButton from "@/components/FollowButton";
 import { ProfileSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/AuthContext";
 import { safeExternalUrl } from "@/lib/utils";
+import AdminField from "@/components/admin/AdminField";
 
 const StudentProfile = () => {
   const { userId } = useParams<{ userId: string }>();
