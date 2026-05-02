@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,11 +10,33 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
-  const { user, role, loading, signOut } = useAuth();
+  const { user, role, loading, signOut, refreshRole } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [recheckingRole, setRecheckingRole] = useState(false);
+  const [recheckedRole, setRecheckedRole] = useState<"student" | "employer" | "admin" | null | "unknown">("unknown");
 
-  if (loading) {
+  // If AuthContext says role is null but a user is signed in, double-check
+  // the DB before bouncing to /select-role. The cached null can be stale
+  // right after signup (trigger race) or after set_initial_role.
+  useEffect(() => {
+    let cancelled = false;
+    if (user && !loading && !role && location.pathname !== "/select-role") {
+      setRecheckingRole(true);
+      refreshRole().then((r) => {
+        if (cancelled) return;
+        setRecheckedRole(r ?? null);
+        setRecheckingRole(false);
+      });
+    } else {
+      setRecheckedRole("unknown");
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [user, loading, role, location.pathname, refreshRole]);
+
+  if (loading || recheckingRole) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -26,12 +49,23 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
 
   if (location.pathname === "/select-role") return <>{children}</>;
 
-  if (!role) return <Navigate to="/select-role" replace />;
+  // Only redirect to /select-role if BOTH the context AND a fresh DB lookup
+  // confirm there's no role assigned.
+  if (!role && recheckedRole === null) return <Navigate to="/select-role" replace />;
 
-  if (allowedRoles && !allowedRoles.includes(role)) {
-    // Special handling for admin routes: instead of silently redirecting (which is
-    // confusing when a student/employer session is active), explain the situation
-    // and let the user switch accounts.
+  // Use whichever role is available (context takes precedence; fall back to recheck).
+  const effectiveRole = role ?? (recheckedRole !== "unknown" ? recheckedRole : null);
+
+  if (!effectiveRole) {
+    // Still resolving — show spinner instead of redirecting.
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (allowedRoles && !allowedRoles.includes(effectiveRole)) {
     if (allowedRoles.includes("admin")) {
       return (
         <div className="flex min-h-[70vh] items-center justify-center p-6">
@@ -42,7 +76,7 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
             <div className="space-y-2">
               <h1 className="text-xl font-semibold">Admin access required</h1>
               <p className="text-sm text-muted-foreground">
-                You're signed in as a <span className="font-medium capitalize">{role}</span>. The admin panel is only available to admin accounts.
+                You're signed in as a <span className="font-medium capitalize">{effectiveRole}</span>. The admin panel is only available to admin accounts.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 justify-center">

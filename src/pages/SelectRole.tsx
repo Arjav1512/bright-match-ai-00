@@ -10,20 +10,36 @@ import { Button } from "@/components/ui/button";
 import wroobeLogo from "@/assets/wroob-logo.png";
 
 const SelectRole = () => {
-  const { user, role, loading } = useAuth();
+  const { user, role, loading, refreshRole } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selected, setSelected] = useState<"student" | "employer" | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [verifying, setVerifying] = useState(true);
 
-  // If user already has a role, skip this page entirely
+  // If user already has a role, skip this page entirely. Re-check the DB
+  // because AuthContext can hold a stale null right after signup before the
+  // role-assignment trigger or set_initial_role completes.
   useEffect(() => {
-    if (!loading && role) {
-      navigate("/dashboard", { replace: true });
+    if (loading) return;
+    if (!user) {
+      setVerifying(false);
+      return;
     }
-  }, [loading, role, navigate]);
+    if (role) {
+      navigate("/dashboard", { replace: true });
+      return;
+    }
+    refreshRole().then((r) => {
+      if (r) {
+        navigate("/dashboard", { replace: true });
+      } else {
+        setVerifying(false);
+      }
+    });
+  }, [loading, role, user, navigate, refreshRole]);
 
-  if (loading || role) {
+  if (loading || role || verifying) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />

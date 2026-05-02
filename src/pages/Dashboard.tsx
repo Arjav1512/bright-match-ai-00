@@ -77,9 +77,61 @@ const Dashboard = () => {
       }
 
       if (!role) {
-        setOnboardingRoute("/select-role");
-        setOnboardingCheck("needs");
-        return;
+        // AuthContext role can be momentarily stale (cached null from a brief
+        // window during signup before the handle_new_user trigger committed,
+        // or before set_initial_role ran). Re-check the DB directly before
+        // bouncing the user back to role selection — otherwise users who
+        // already have a role get sent to /select-role after onboarding.
+        const { data: roleRow } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        const dbRole = (roleRow as any)?.role as "student" | "employer" | "admin" | undefined;
+
+        if (!dbRole) {
+          setOnboardingRoute("/select-role");
+          setOnboardingCheck("needs");
+          return;
+        }
+
+        // Role exists in DB but not in context — force a full reload so
+        // AuthContext re-fetches the role and routes correctly.
+        if (dbRole === "student") {
+          const { data: sp } = await supabase
+            .from("student_profiles")
+            .select("onboarding_status, onboarding_step")
+            .eq("user_id", user.id)
+            .maybeSingle();
+          const d = sp as any;
+          if (d && d.onboarding_status !== "completed") {
+            const step = Math.min(Math.max((d.onboarding_step || 1) - 1, 0), STUDENT_STEP_ROUTES.length - 1);
+            window.location.href = STUDENT_STEP_ROUTES[step];
+            return;
+          }
+          window.location.href = "/internships";
+          return;
+        }
+        if (dbRole === "employer") {
+          const { data: ep } = await supabase
+            .from("employer_profiles")
+            .select("onboarding_status, onboarding_step")
+            .eq("user_id", user.id)
+            .maybeSingle();
+          const d = ep as any;
+          if (d && d.onboarding_status !== "completed") {
+            const step = Math.min(Math.max((d.onboarding_step || 1) - 1, 0), EMPLOYER_STEP_ROUTES.length - 1);
+            window.location.href = EMPLOYER_STEP_ROUTES[step];
+            return;
+          }
+          window.location.href = "/my-internships";
+          return;
+        }
+        if (dbRole === "admin") {
+          window.location.href = "/admin";
+          return;
+        }
       }
 
       setOnboardingCheck("done");
