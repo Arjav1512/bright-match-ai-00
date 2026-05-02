@@ -1233,6 +1233,16 @@ export type Database = {
       }
     }
     Functions: {
+      create_notification: {
+        Args: {
+          _link: string
+          _message: string
+          _title: string
+          _type: Database["public"]["Enums"]["notification_type"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
