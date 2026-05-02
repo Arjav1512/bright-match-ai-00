@@ -194,13 +194,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user, role]);
 
+  // Allow callers to force a fresh role lookup. Useful when a role was just
+  // assigned (signup trigger / set_initial_role) and the cached null in
+  // AuthContext would otherwise bounce the user back to /select-role.
+  const refreshRole = useCallback(async (): Promise<AppRole | null> => {
+    if (!user) return null;
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const newRole = ((data as any)?.role as AppRole | null) ?? null;
+    if (mountedRef.current) {
+      setRole(newRole);
+      setCachedAuth(user.id, newRole, profile);
+    }
+    return newRole;
+  }, [user, profile]);
+
   const updatePassword = async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password });
     return { error };
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, role, profile, loading, refreshProfile, signUp, signIn, signOut, resetPassword, updatePassword }}>
+    <AuthContext.Provider value={{ user, session, role, profile, loading, refreshProfile, refreshRole, signUp, signIn, signOut, resetPassword, updatePassword }}>
       {children}
     </AuthContext.Provider>
   );
