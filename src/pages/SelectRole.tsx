@@ -40,12 +40,6 @@ const SelectRole = () => {
   }, [loading, role, user, navigate, refreshRole]);
 
   if (loading || role || verifying) {
-    if (!loading && role) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [loading, role, navigate]);
-
-  if (loading || role) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
