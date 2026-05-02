@@ -63,22 +63,9 @@ export function useFollows(targetUserId: string) {
       } as any);
       if (error) throw error;
 
-      // Get follower's name for the notification
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      const followerName = profile?.full_name || "Someone";
-
-      await supabase.from("notifications").insert({
-        user_id: targetUserId,
-        type: "general" as const,
-        title: "New Follower",
-        message: `${followerName} started following you.`,
-        link: "/students",
-      });
+      // Notification is created automatically by the
+      // trg_notify_user_on_new_follow database trigger — no client insert
+      // needed (and client inserts on notifications are blocked by RLS).
     },
     onSuccess: invalidate,
   });
