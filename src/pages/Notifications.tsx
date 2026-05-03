@@ -18,10 +18,50 @@ const Notifications = () => {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("notifications").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).then(({ data }) => {
+    let active = true;
+
+    const fetchAll = async () => {
+      const { data } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      if (!active) return;
       setNotifications(data || []);
       setLoading(false);
-    });
+    };
+
+    fetchAll();
+
+    const channel = supabase
+      .channel(`notif-page-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          setNotifications((prev) => [payload.new as any, ...prev]);
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          setNotifications((prev) => prev.map((n) => (n.id === (payload.new as any).id ? (payload.new as any) : n)));
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          setNotifications((prev) => prev.filter((n) => n.id !== (payload.old as any).id));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      active = false;
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const markAllRead = async () => {
