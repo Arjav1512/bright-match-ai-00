@@ -13,8 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { COURSE_CATEGORIES, SCHOOL_NAMES } from "@/data/courseData";
 
-const TECHNOLOGIES = [
+// Fallback list used only when a student's school cannot be determined.
+const FALLBACK_INTERESTS = [
   "JavaScript", "TypeScript", "Python", "Java", "C++", "Go", "Rust", "Ruby",
   "React", "Vue", "Angular", "Node.js", "Django", "Flask", "Spring",
   "AWS", "GCP", "Azure", "Docker", "Kubernetes", "PostgreSQL", "MongoDB",
