@@ -13,8 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { COURSE_CATEGORIES, SCHOOL_NAMES } from "@/data/courseData";
 
-const TECHNOLOGIES = [
+// Fallback list used only when a student's school cannot be determined.
+const FALLBACK_INTERESTS = [
   "JavaScript", "TypeScript", "Python", "Java", "C++", "Go", "Rust", "Ruby",
   "React", "Vue", "Angular", "Node.js", "Django", "Flask", "Spring",
   "AWS", "GCP", "Azure", "Docker", "Kubernetes", "PostgreSQL", "MongoDB",
@@ -42,6 +44,7 @@ const OnboardingCulture = () => {
   const { toast } = useToast();
   const { updateStep } = useOnboardingStatus();
   const [loading, setLoading] = useState(false);
+  const [schoolCategory, setSchoolCategory] = useState<string>("");
 
   const INITIAL_CULTURE = {
     tech_interests: [] as string[],
@@ -71,6 +74,20 @@ const OnboardingCulture = () => {
             remote_importance: data.remote_importance || "",
           });
         }
+      });
+
+    // Load the student's selected school (derived from profile_role)
+    // so the interests dropdown is scoped to that school's courses.
+    supabase
+      .from("student_profiles")
+      .select("profile_role")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }: any) => {
+        const role = data?.profile_role || "";
+        if (!role) return;
+        const derived = SCHOOL_NAMES.find((s) => COURSE_CATEGORIES[s].includes(role)) || "";
+        setSchoolCategory(derived);
       });
   }, [user]);
 
@@ -133,30 +150,40 @@ const OnboardingCulture = () => {
     >
       <Card>
         <CardContent className="space-y-8 p-6 sm:p-8">
-          {/* Tech interests */}
-          <div className="space-y-3">
-            <Label className="font-semibold">
-              Which technologies are you <strong className="underline">most</strong> interested in working with?
-            </Label>
-            <p className="text-xs text-muted-foreground">Pick up to 5 that best match your interest</p>
-            <Select onValueChange={(v) => toggleTech("tech_interests", v)}>
-              <SelectTrigger className="w-full sm:w-72">
-                <SelectValue placeholder="Search and select technologies" />
-              </SelectTrigger>
-              <SelectContent>
-                {TECHNOLOGIES.filter((t) => !form.tech_interests.includes(t)).map((t) => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex flex-wrap gap-2">
-              {form.tech_interests.map((t) => (
-                <Badge key={t} variant="secondary" className="gap-1">
-                  {t} <X className="h-3 w-3 cursor-pointer" onClick={() => toggleTech("tech_interests", t)} />
-                </Badge>
-              ))}
-            </div>
-          </div>
+          {/* Interests — scoped to the student's selected school */}
+          {(() => {
+            const interestOptions = schoolCategory
+              ? COURSE_CATEGORIES[schoolCategory] || FALLBACK_INTERESTS
+              : FALLBACK_INTERESTS;
+            const isSchoolScoped = !!schoolCategory && !!COURSE_CATEGORIES[schoolCategory];
+            const labelText = isSchoolScoped
+              ? `Which areas in ${schoolCategory.replace(/^School of /i, "")} are you most interested in?`
+              : "Which areas are you most interested in working in?";
+            const placeholder = isSchoolScoped ? "Search and select areas of interest" : "Search and select interests";
+            return (
+              <div className="space-y-3">
+                <Label className="font-semibold">{labelText}</Label>
+                <p className="text-xs text-muted-foreground">Pick up to 5 that best match your interest</p>
+                <Select onValueChange={(v) => toggleTech("tech_interests", v)}>
+                  <SelectTrigger className="w-full sm:w-96">
+                    <SelectValue placeholder={placeholder} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {interestOptions.filter((t) => !form.tech_interests.includes(t)).map((t) => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="flex flex-wrap gap-2">
+                  {form.tech_interests.map((t) => (
+                    <Badge key={t} variant="secondary" className="gap-1">
+                      {t} <X className="h-3 w-3 cursor-pointer" onClick={() => toggleTech("tech_interests", t)} />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
 
           {/* Motivation */}
