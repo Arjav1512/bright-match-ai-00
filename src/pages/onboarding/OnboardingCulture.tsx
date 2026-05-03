@@ -44,6 +44,7 @@ const OnboardingCulture = () => {
   const { toast } = useToast();
   const { updateStep } = useOnboardingStatus();
   const [loading, setLoading] = useState(false);
+  const [schoolCategory, setSchoolCategory] = useState<string>("");
 
   const INITIAL_CULTURE = {
     tech_interests: [] as string[],
