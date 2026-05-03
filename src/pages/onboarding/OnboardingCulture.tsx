@@ -75,6 +75,20 @@ const OnboardingCulture = () => {
           });
         }
       });
+
+    // Load the student's selected school (derived from profile_role)
+    // so the interests dropdown is scoped to that school's courses.
+    supabase
+      .from("student_profiles")
+      .select("profile_role")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }: any) => {
+        const role = data?.profile_role || "";
+        if (!role) return;
+        const derived = SCHOOL_NAMES.find((s) => COURSE_CATEGORIES[s].includes(role)) || "";
+        setSchoolCategory(derived);
+      });
   }, [user]);
 
   // FIX (CRITICAL-1): Narrow type to "tech_interests" only.
