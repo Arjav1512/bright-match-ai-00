@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useUnreadGroupMessages } from "@/hooks/useUnreadGroupMessages";
+import { prefetchRoute } from "@/lib/prefetch";
 
 const Navbar = () => {
   const { user, role, profile, signOut } = useAuth();
@@ -33,6 +34,27 @@ const Navbar = () => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // After auth resolves, idle-prefetch the routes the current user is most
+  // likely to visit next. Keeps initial paint snappy while still warming the
+  // chunk cache so subsequent navigations are instant.
+  useEffect(() => {
+    if (!user || !role) return;
+    const targets =
+      role === "student"
+        ? ["/internships", "/my-applications", "/notifications", "/profile"]
+        : role === "employer"
+        ? ["/my-internships", "/post-internship", "/notifications", "/profile"]
+        : ["/admin", "/admin/users", "/admin/internships"];
+    const w = window as any;
+    const run = () => targets.forEach(prefetchRoute);
+    if (typeof w.requestIdleCallback === "function") {
+      const id = w.requestIdleCallback(run, { timeout: 2000 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const t = setTimeout(run, 1500);
+    return () => clearTimeout(t);
+  }, [user, role]);
 
   useEffect(() => {
     if (!user) return;
@@ -78,11 +100,18 @@ const Navbar = () => {
       isActive(path) ? "text-foreground" : "text-muted-foreground"
     );
 
+  // Prefetch the route's JS chunk on hover/focus so the click feels instant.
+  const prefetchProps = (path: string) => ({
+    onMouseEnter: () => prefetchRoute(path),
+    onFocus: () => prefetchRoute(path),
+    onTouchStart: () => prefetchRoute(path),
+  });
+
   const centerLinks = () => {
     if (!user || !role) {
       return (
         <>
-          <Link to="/internships" className={navLinkClass("/internships")} style={{ font: "var(--text-nav)" }}>
+          <Link to="/internships" {...prefetchProps("/internships")} className={navLinkClass("/internships")} style={{ font: "var(--text-nav)" }}>
             Discover
           </Link>
           <Link to="/signup?role=student" className={navLinkClass("/signup?role=student")} style={{ font: "var(--text-nav)" }}>
@@ -97,12 +126,12 @@ const Navbar = () => {
     if (role === "student") {
       return (
         <>
-          <Link to="/internships" className={navLinkClass("/internships")} style={{ font: "var(--text-nav)" }}>Discover</Link>
-          <Link to="/my-applications" className={navLinkClass("/my-applications")} style={{ font: "var(--text-nav)" }}>My Applications</Link>
-          <Link to="/skill-tests" className={navLinkClass("/skill-tests")} style={{ font: "var(--text-nav)" }}>Skill Tests</Link>
-          <Link to="/students" className={navLinkClass("/students")} style={{ font: "var(--text-nav)" }}>LinkUp</Link>
-          <Link to="/campus" className={navLinkClass("/campus")} style={{ font: "var(--text-nav)" }}>PeerUp</Link>
-          <Link to="/groups" onClick={markGroupsRead} className={cn("relative", navLinkClass("/groups"))} style={{ font: "var(--text-nav)" }}>
+          <Link to="/internships" {...prefetchProps("/internships")} className={navLinkClass("/internships")} style={{ font: "var(--text-nav)" }}>Discover</Link>
+          <Link to="/my-applications" {...prefetchProps("/my-applications")} className={navLinkClass("/my-applications")} style={{ font: "var(--text-nav)" }}>My Applications</Link>
+          <Link to="/skill-tests" {...prefetchProps("/skill-tests")} className={navLinkClass("/skill-tests")} style={{ font: "var(--text-nav)" }}>Skill Tests</Link>
+          <Link to="/students" {...prefetchProps("/students")} className={navLinkClass("/students")} style={{ font: "var(--text-nav)" }}>LinkUp</Link>
+          <Link to="/campus" {...prefetchProps("/campus")} className={navLinkClass("/campus")} style={{ font: "var(--text-nav)" }}>PeerUp</Link>
+          <Link to="/groups" {...prefetchProps("/groups")} onClick={markGroupsRead} className={cn("relative", navLinkClass("/groups"))} style={{ font: "var(--text-nav)" }}>
             Groups
             {unreadGroupCount > 0 && (
               <span className="absolute -right-4 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full brand-gradient text-white text-[9px] font-bold px-1">
@@ -116,9 +145,9 @@ const Navbar = () => {
     if (role === "employer") {
       return (
         <>
-          <Link to="/my-internships" className={navLinkClass("/my-internships")} style={{ font: "var(--text-nav)" }}>My Internships</Link>
-          <Link to="/post-internship" className={navLinkClass("/post-internship")} style={{ font: "var(--text-nav)" }}>Post Internship</Link>
-          <Link to="/groups" onClick={markGroupsRead} className={cn("relative", navLinkClass("/groups"))} style={{ font: "var(--text-nav)" }}>
+          <Link to="/my-internships" {...prefetchProps("/my-internships")} className={navLinkClass("/my-internships")} style={{ font: "var(--text-nav)" }}>My Internships</Link>
+          <Link to="/post-internship" {...prefetchProps("/post-internship")} className={navLinkClass("/post-internship")} style={{ font: "var(--text-nav)" }}>Post Internship</Link>
+          <Link to="/groups" {...prefetchProps("/groups")} onClick={markGroupsRead} className={cn("relative", navLinkClass("/groups"))} style={{ font: "var(--text-nav)" }}>
             Groups
             {unreadGroupCount > 0 && (
               <span className="absolute -right-4 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full brand-gradient text-white text-[9px] font-bold px-1">
@@ -131,7 +160,7 @@ const Navbar = () => {
     }
     if (role === "admin") {
       return (
-        <Link to="/admin" className={navLinkClass("/admin")} style={{ font: "var(--text-nav)" }}>Admin Panel</Link>
+        <Link to="/admin" {...prefetchProps("/admin")} className={navLinkClass("/admin")} style={{ font: "var(--text-nav)" }}>Admin Panel</Link>
       );
     }
     return null;
@@ -157,7 +186,7 @@ const Navbar = () => {
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <Button variant="ghost" size="icon" className="relative" onClick={() => navigate("/notifications")}>
+              <Button variant="ghost" size="icon" className="relative" onMouseEnter={() => prefetchRoute("/notifications")} onClick={() => navigate("/notifications")}>
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
                   <Badge className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full p-0 text-[9px] brand-gradient border-0 text-white">
