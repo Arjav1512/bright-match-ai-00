@@ -165,7 +165,7 @@ const Navbar = () => {
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <Button variant="ghost" size="icon" className="relative" onClick={() => navigate("/notifications")}>
+              <Button variant="ghost" size="icon" className="relative" onMouseEnter={() => prefetchRoute("/notifications")} onClick={() => navigate("/notifications")}>
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
                   <Badge className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full p-0 text-[9px] brand-gradient border-0 text-white">
