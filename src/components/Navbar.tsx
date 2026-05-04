@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useUnreadGroupMessages } from "@/hooks/useUnreadGroupMessages";
+import { prefetchRoute } from "@/lib/prefetch";
 
 const Navbar = () => {
   const { user, role, profile, signOut } = useAuth();
@@ -77,6 +78,13 @@ const Navbar = () => {
       "transition-colors duration-200 hover:text-[hsl(var(--nav-hover))] focus-visible:text-[hsl(var(--nav-hover))] focus-visible:outline-none",
       isActive(path) ? "text-foreground" : "text-muted-foreground"
     );
+
+  // Prefetch the route's JS chunk on hover/focus so the click feels instant.
+  const prefetchProps = (path: string) => ({
+    onMouseEnter: () => prefetchRoute(path),
+    onFocus: () => prefetchRoute(path),
+    onTouchStart: () => prefetchRoute(path),
+  });
 
   const centerLinks = () => {
     if (!user || !role) {
