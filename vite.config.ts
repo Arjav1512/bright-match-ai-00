@@ -26,6 +26,23 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     include: ["@tanstack/react-query"],
   },
+  build: {
+    // Split heavy vendor libs into long-cached chunks so navigation between
+    // routes doesn't repeatedly re-parse the same JS, and so per-route chunks
+    // stay small.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "supabase": ["@supabase/supabase-js"],
+          "query": ["@tanstack/react-query"],
+          "motion": ["framer-motion"],
+          "charts": ["recharts"],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1200,
+  },
   define: {
     "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(supabaseUrl),
     "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(supabasePublishableKey),

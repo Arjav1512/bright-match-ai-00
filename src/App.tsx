@@ -64,8 +64,12 @@ const EmployerOnboardingDone = lazy(() => import("./pages/employer-onboarding/Em
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Data stays fresh for 60s — prevents redundant refetches on every mount/focus
-      staleTime: 60 * 1000,
+      // Cached results stay fresh for 5 minutes and are kept in memory for 30 minutes,
+      // so navigating between tabs reuses data instantly instead of refetching.
+      staleTime: 5 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
       // Don't retry auth-gated queries that will keep failing while unauthenticated
       retry: (failureCount, error: any) => {
         if (error?.status === 401 || error?.status === 403) return false;
