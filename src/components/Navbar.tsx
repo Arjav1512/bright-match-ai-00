@@ -90,7 +90,7 @@ const Navbar = () => {
     if (!user || !role) {
       return (
         <>
-          <Link to="/internships" className={navLinkClass("/internships")} style={{ font: "var(--text-nav)" }}>
+          <Link to="/internships" {...prefetchProps("/internships")} className={navLinkClass("/internships")} style={{ font: "var(--text-nav)" }}>
             Discover
           </Link>
           <Link to="/signup?role=student" className={navLinkClass("/signup?role=student")} style={{ font: "var(--text-nav)" }}>
@@ -105,12 +105,12 @@ const Navbar = () => {
     if (role === "student") {
       return (
         <>
-          <Link to="/internships" className={navLinkClass("/internships")} style={{ font: "var(--text-nav)" }}>Discover</Link>
-          <Link to="/my-applications" className={navLinkClass("/my-applications")} style={{ font: "var(--text-nav)" }}>My Applications</Link>
-          <Link to="/skill-tests" className={navLinkClass("/skill-tests")} style={{ font: "var(--text-nav)" }}>Skill Tests</Link>
-          <Link to="/students" className={navLinkClass("/students")} style={{ font: "var(--text-nav)" }}>LinkUp</Link>
-          <Link to="/campus" className={navLinkClass("/campus")} style={{ font: "var(--text-nav)" }}>PeerUp</Link>
-          <Link to="/groups" onClick={markGroupsRead} className={cn("relative", navLinkClass("/groups"))} style={{ font: "var(--text-nav)" }}>
+          <Link to="/internships" {...prefetchProps("/internships")} className={navLinkClass("/internships")} style={{ font: "var(--text-nav)" }}>Discover</Link>
+          <Link to="/my-applications" {...prefetchProps("/my-applications")} className={navLinkClass("/my-applications")} style={{ font: "var(--text-nav)" }}>My Applications</Link>
+          <Link to="/skill-tests" {...prefetchProps("/skill-tests")} className={navLinkClass("/skill-tests")} style={{ font: "var(--text-nav)" }}>Skill Tests</Link>
+          <Link to="/students" {...prefetchProps("/students")} className={navLinkClass("/students")} style={{ font: "var(--text-nav)" }}>LinkUp</Link>
+          <Link to="/campus" {...prefetchProps("/campus")} className={navLinkClass("/campus")} style={{ font: "var(--text-nav)" }}>PeerUp</Link>
+          <Link to="/groups" {...prefetchProps("/groups")} onClick={markGroupsRead} className={cn("relative", navLinkClass("/groups"))} style={{ font: "var(--text-nav)" }}>
             Groups
             {unreadGroupCount > 0 && (
               <span className="absolute -right-4 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full brand-gradient text-white text-[9px] font-bold px-1">
@@ -124,9 +124,9 @@ const Navbar = () => {
     if (role === "employer") {
       return (
         <>
-          <Link to="/my-internships" className={navLinkClass("/my-internships")} style={{ font: "var(--text-nav)" }}>My Internships</Link>
-          <Link to="/post-internship" className={navLinkClass("/post-internship")} style={{ font: "var(--text-nav)" }}>Post Internship</Link>
-          <Link to="/groups" onClick={markGroupsRead} className={cn("relative", navLinkClass("/groups"))} style={{ font: "var(--text-nav)" }}>
+          <Link to="/my-internships" {...prefetchProps("/my-internships")} className={navLinkClass("/my-internships")} style={{ font: "var(--text-nav)" }}>My Internships</Link>
+          <Link to="/post-internship" {...prefetchProps("/post-internship")} className={navLinkClass("/post-internship")} style={{ font: "var(--text-nav)" }}>Post Internship</Link>
+          <Link to="/groups" {...prefetchProps("/groups")} onClick={markGroupsRead} className={cn("relative", navLinkClass("/groups"))} style={{ font: "var(--text-nav)" }}>
             Groups
             {unreadGroupCount > 0 && (
               <span className="absolute -right-4 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full brand-gradient text-white text-[9px] font-bold px-1">
@@ -139,7 +139,7 @@ const Navbar = () => {
     }
     if (role === "admin") {
       return (
-        <Link to="/admin" className={navLinkClass("/admin")} style={{ font: "var(--text-nav)" }}>Admin Panel</Link>
+        <Link to="/admin" {...prefetchProps("/admin")} className={navLinkClass("/admin")} style={{ font: "var(--text-nav)" }}>Admin Panel</Link>
       );
     }
     return null;
