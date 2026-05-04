@@ -35,6 +35,27 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // After auth resolves, idle-prefetch the routes the current user is most
+  // likely to visit next. Keeps initial paint snappy while still warming the
+  // chunk cache so subsequent navigations are instant.
+  useEffect(() => {
+    if (!user || !role) return;
+    const targets =
+      role === "student"
+        ? ["/internships", "/my-applications", "/notifications", "/profile"]
+        : role === "employer"
+        ? ["/my-internships", "/post-internship", "/notifications", "/profile"]
+        : ["/admin", "/admin/users", "/admin/internships"];
+    const w = window as any;
+    const run = () => targets.forEach(prefetchRoute);
+    if (typeof w.requestIdleCallback === "function") {
+      const id = w.requestIdleCallback(run, { timeout: 2000 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const t = setTimeout(run, 1500);
+    return () => clearTimeout(t);
+  }, [user, role]);
+
   useEffect(() => {
     if (!user) return;
     const fetchUnread = async () => {
