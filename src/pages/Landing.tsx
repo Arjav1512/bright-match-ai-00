@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MagnetizeButton } from "@/components/ui/magnetize-button";
+
 import { ArrowRight, Users, Search, CheckCircle, ArrowDown, Briefcase } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -141,13 +141,11 @@ const Landing = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.45, duration: 0.6 }}
             >
-              <MagnetizeButton className="animated-border rounded-full">
-                <Button size="lg" className="gap-2.5 rounded-full h-14 px-10 text-base brand-gradient border-0 text-white shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/35 transition-all duration-300 hover:-translate-y-1 active:scale-[0.97]" asChild>
-                  <Link to={user ? "/dashboard" : "/signup"}>
-                    {user ? "Go to Dashboard" : "Get Started Free"} <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </MagnetizeButton>
+              <Button size="lg" className="gap-2.5 rounded-full h-14 px-10 text-base brand-gradient border-0 text-white shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/35 transition-all duration-300 hover:-translate-y-1 active:scale-[0.97]" asChild>
+                <Link to={user ? "/dashboard" : "/signup"}>
+                  {user ? "Go to Dashboard" : "Get Started Free"} <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
               {!user && (
                 <Button size="lg" variant="outline" className="gap-2 rounded-full h-14 px-8 text-base border-border/60 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 hover:-translate-y-0.5" asChild>
                   <Link to="/internships">
@@ -320,13 +318,11 @@ const Landing = () => {
             <h2 style={{ font: "var(--text-section)", letterSpacing: "var(--letter-spacing-heading)" }}>Ready to get started?</h2>
             <p className="mt-4 text-muted-foreground" style={{ font: "var(--text-body)" }}>Join early users already on Wroob.</p>
             <div className="mt-8">
-              <MagnetizeButton className="animated-border rounded-full">
-                <Button size="lg" className="gap-2 rounded-full h-14 px-10 text-base brand-gradient border-0 text-white shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]" asChild>
-                <Link to={user ? "/dashboard" : "/signup"}>
-                    {user ? "Go to Dashboard" : "Get Started"} <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </MagnetizeButton>
+              <Button size="lg" className="gap-2 rounded-full h-14 px-10 text-base brand-gradient border-0 text-white shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97]" asChild>
+              <Link to={user ? "/dashboard" : "/signup"}>
+                  {user ? "Go to Dashboard" : "Get Started"} <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
