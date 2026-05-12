@@ -97,9 +97,11 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <SessionTimeoutWarning />
-          <LoginGreeting />
-          <ChatPopup />
+          <Suspense fallback={null}>
+            <SessionTimeoutWarning />
+            <LoginGreeting />
+            <ChatPopup />
+          </Suspense>
           <ErrorBoundary>
           <Suspense fallback={<PageLoader />}>
             <Routes>
