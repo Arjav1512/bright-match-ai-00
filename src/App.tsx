@@ -6,18 +6,23 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { SessionTimeoutWarning } from "@/components/SessionTimeoutWarning";
-import LoginGreeting from "@/components/LoginGreeting";
-import ChatPopup from "@/components/chat/ChatPopup";
 import { lazy, Suspense } from "react";
 
-// Eagerly loaded (landing/auth - first paint)
+// Eagerly loaded (landing - first paint)
 import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 
+// Auth-overlay components — only needed once a user is signed in. Lazy-loading
+// them shaves a meaningful chunk off first paint for landing/auth visitors.
+const SessionTimeoutWarning = lazy(() =>
+  import("@/components/SessionTimeoutWarning").then((m) => ({ default: m.SessionTimeoutWarning }))
+);
+const LoginGreeting = lazy(() => import("@/components/LoginGreeting"));
+const ChatPopup = lazy(() => import("@/components/chat/ChatPopup"));
+
 // Lazy loaded routes
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
