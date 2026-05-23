@@ -22,7 +22,7 @@ const EmployerOnboardingLayout = ({ currentStep, children }: EmployerOnboardingL
       {/* Dark sidebar */}
       <aside className="hidden md:flex w-72 flex-col bg-foreground text-background p-8">
         <Link to="/" className="mb-12">
-          <img src={wroobeLogo} alt="Wroob" className="h-14 brightness-0 invert" />
+          <img src={wroobeLogo} alt="Wroob" width="139" height="56" className="h-14 brightness-0 invert" />
         </Link>
 
         <nav className="space-y-5">
