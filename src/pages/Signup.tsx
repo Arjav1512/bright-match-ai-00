@@ -10,6 +10,7 @@ import { GraduationCap, Building2 } from "lucide-react";
 import wroobeLogo from "@/assets/wroob-logo.png";
 import { cn } from "@/lib/utils";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import SEO from "@/components/SEO";
 
 const Signup = () => {
   const [searchParams] = useSearchParams();
