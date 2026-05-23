@@ -46,6 +46,7 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Wroob — Find Your Perfect Internship" description="Skills-based internship matching for students and companies. Discover internships, build your reputation, and connect with innovative employers." path="/" />
       <ScrollProgress />
       <Navbar />
       <main>
