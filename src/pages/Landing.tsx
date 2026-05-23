@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import SEO from "@/components/SEO";
 
 import { ArrowRight, Users, Search, CheckCircle, ArrowDown, Briefcase } from "lucide-react";
 import Navbar from "@/components/Navbar";
