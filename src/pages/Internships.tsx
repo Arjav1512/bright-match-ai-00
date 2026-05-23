@@ -136,6 +136,7 @@ const Internships = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Browse Internships — Wroob" description="Discover skills-matched internships across India. Filter by role, location, stipend, and duration to find opportunities tailored to your skills." path="/internships" />
       <Navbar />
       <div className="container py-10">
         <div className="flex flex-col gap-8 lg:flex-row">
