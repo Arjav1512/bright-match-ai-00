@@ -166,6 +166,7 @@ const InternshipDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title={`${internship.title} — Internship on Wroob`} description={(internship.description || `Apply for ${internship.title} on Wroob.`).slice(0, 155)} path={`/internships/${internship.id}`} type="article" />
       <Navbar />
       <div className="container max-w-3xl py-10">
         <Button variant="ghost" size="sm" className="mb-8 gap-1.5 text-muted-foreground" onClick={() => navigate(-1)}>
