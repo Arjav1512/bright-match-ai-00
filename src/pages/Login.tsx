@@ -59,10 +59,11 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <SEO title="Log in to Wroob" description="Sign in to your Wroob account to access internships, applications, and your student or employer dashboard." path="/login" />
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link to="/">
-            <img src={wroobeLogo} alt="Wroob" className="h-14 mx-auto" />
+            <img src={wroobeLogo} alt="Wroob" width="139" height="56" className="h-14 mx-auto" />
           </Link>
         </div>
         <Card>
