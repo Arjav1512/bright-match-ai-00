@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { CalendarDays, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
