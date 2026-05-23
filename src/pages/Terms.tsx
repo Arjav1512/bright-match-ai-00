@@ -1,9 +1,11 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 
 const Terms = () => (
   <div className="min-h-screen bg-background">
+    <SEO title="Terms of Service — Wroob" description="Read the terms of service governing your use of Wroob's skills-based internship platform for students and employers." path="/terms" />
     <Navbar />
     <section className="py-20">
       <div className="container">
