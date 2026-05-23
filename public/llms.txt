@@ -1,0 +1,20 @@
+# Wroob
+
+> Skills-based internship matching platform connecting ambitious students with innovative companies in India.
+
+Wroob helps students discover internships, build a verified reputation score, and join hyperlocal campus communities. Employers post roles, review skill-matched candidates, and hire trusted interns.
+
+## Pages
+
+- [Home](/): Overview of the platform and how it works.
+- [About](/about): Mission, team, and what Wroob is building.
+- [Internships](/internships): Browse all open internship listings.
+- [Blog](/blog): Articles on careers, internships, and student life.
+- [Help](/help): Frequently asked questions and support.
+- [Sign up](/signup): Create a student or employer account.
+- [Login](/login): Sign in to an existing account.
+
+## Optional
+
+- [Terms](/terms): Terms of service.
+- [Privacy](/privacy): Privacy policy.
