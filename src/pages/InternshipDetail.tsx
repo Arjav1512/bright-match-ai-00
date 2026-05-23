@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { InternshipDetailSkeleton } from "@/components/skeletons";
 import { InternshipCapBar } from "@/components/InternshipCapBar";
 import ProfileLink from "@/components/ProfileLink";
+import SEO from "@/components/SEO";
 import {
   MapPin, Clock, Building2, Calendar, ArrowLeft, CheckCircle, ExternalLink,
   IndianRupee, Briefcase, GraduationCap, FileText, FlaskConical, Users, BadgeCheck,
