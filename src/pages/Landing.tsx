@@ -47,6 +47,7 @@ const Landing = () => {
     <div className="min-h-screen bg-background">
       <ScrollProgress />
       <Navbar />
+      <main>
 
       {/* Hero */}
       <section ref={heroRef} className="relative overflow-hidden pt-20 pb-24 md:pt-32 md:pb-36 min-h-[90vh] flex flex-col justify-center">
@@ -327,6 +328,7 @@ const Landing = () => {
           </div>
         </div>
       </motion.section>
+      </main>
 
       <Footer />
     </div>
