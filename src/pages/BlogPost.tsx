@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { ArrowLeft, CalendarDays } from "lucide-react";
 import { POSTS } from "./Blog";
