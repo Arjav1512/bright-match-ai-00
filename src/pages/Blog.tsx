@@ -16,6 +16,7 @@ export const POSTS = [
 
 const Blog = () => (
   <div className="min-h-screen bg-background">
+    <SEO title="Wroob Blog — Internship tips, careers & industry insights" description="Career guides, internship advice, and industry trends for students and employers from the Wroob team." path="/blog" />
     <Navbar />
     <section className="py-20">
       <div className="container">
