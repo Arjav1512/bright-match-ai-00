@@ -29,6 +29,7 @@ const BlogPost = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title={`${post.title} — Wroob Blog`} description={post.excerpt} path={`/blog/${post.slug}`} type="article" />
       <Navbar />
       <article className="py-20">
         <div className="container mx-auto max-w-2xl">
