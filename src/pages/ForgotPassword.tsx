@@ -33,7 +33,7 @@ const ForgotPassword = () => {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link to="/">
-            <img src={wroobeLogo} alt="Wroob" className="h-14 mx-auto" />
+            <img src={wroobeLogo} alt="Wroob" width="139" height="56" className="h-14 mx-auto" />
           </Link>
         </div>
         <Card>

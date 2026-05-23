@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import { Target, Users, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -11,6 +12,7 @@ const VALUES = [
 
 const About = () => (
   <div className="min-h-screen bg-background">
+    <SEO title="About Wroob — Skills-based internship platform" description="Learn about Wroob's mission to connect ambitious students with innovative companies through skills-based internship matching across India." path="/about" />
     <Navbar />
     <section className="py-20">
       <div className="container">

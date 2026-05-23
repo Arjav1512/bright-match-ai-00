@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import SEO from "@/components/SEO";
 
 import { ArrowRight, Users, Search, CheckCircle, ArrowDown, Briefcase } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -45,6 +46,7 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Wroob — Find Your Perfect Internship" description="Skills-based internship matching for students and companies. Discover internships, build your reputation, and connect with innovative employers." path="/" />
       <ScrollProgress />
       <Navbar />
       <main>

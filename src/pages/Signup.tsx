@@ -10,6 +10,7 @@ import { GraduationCap, Building2 } from "lucide-react";
 import wroobeLogo from "@/assets/wroob-logo.png";
 import { cn } from "@/lib/utils";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import SEO from "@/components/SEO";
 
 const Signup = () => {
   const [searchParams] = useSearchParams();
@@ -46,10 +47,11 @@ const Signup = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <SEO title="Sign up for Wroob — Free student & employer accounts" description="Create your free Wroob account to discover skills-matched internships or hire ambitious students through skills-based matching." path="/signup" />
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link to="/">
-            <img src={wroobeLogo} alt="Wroob" className="h-14 mx-auto" />
+            <img src={wroobeLogo} alt="Wroob" width="139" height="56" className="h-14 mx-auto" />
           </Link>
         </div>
         <Card>

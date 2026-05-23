@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -34,6 +35,7 @@ const Help = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Help Center — Wroob support & FAQs" description="Find answers to common questions about Wroob accounts, internship matching, applications, and reach our team for support." path="/help" />
       <Navbar />
       <section className="py-20">
         <div className="container">

@@ -1,9 +1,11 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 
 const Privacy = () => (
   <div className="min-h-screen bg-background">
+    <SEO title="Privacy Policy — Wroob" description="How Wroob collects, uses, and protects the personal information of students and employers on our internship matching platform." path="/privacy" />
     <Navbar />
     <section className="py-20">
       <div className="container">

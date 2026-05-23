@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { ArrowLeft, CalendarDays } from "lucide-react";
 import { POSTS } from "./Blog";
@@ -28,6 +29,7 @@ const BlogPost = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title={`${post.title} — Wroob Blog`} description={post.excerpt} path={`/blog/${post.slug}`} type="article" />
       <Navbar />
       <article className="py-20">
         <div className="container mx-auto max-w-2xl">

@@ -174,7 +174,7 @@ const Navbar = () => {
       <div className="container flex h-16 items-center justify-between">
         {/* Left: Logo */}
         <Link to="/" className="shrink-0">
-          <img src={wroobeLogo} alt="Wroob" className="h-10" width="120" height="40" decoding="async" fetchPriority="high" />
+          <img src={wroobeLogo} alt="Wroob" className="h-10" width="99" height="40" decoding="async" fetchPriority="high" />
         </Link>
 
         {/* Center: Nav links */}

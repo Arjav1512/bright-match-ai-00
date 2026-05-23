@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { CalendarDays, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -15,6 +16,7 @@ export const POSTS = [
 
 const Blog = () => (
   <div className="min-h-screen bg-background">
+    <SEO title="Wroob Blog — Internship tips, careers & industry insights" description="Career guides, internship advice, and industry trends for students and employers from the Wroob team." path="/blog" />
     <Navbar />
     <section className="py-20">
       <div className="container">
