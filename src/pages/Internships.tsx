@@ -12,6 +12,7 @@ import { MapPin, Clock, Building2, Search, Briefcase, IndianRupee, CalendarDays,
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { InternshipListSkeleton } from "@/components/skeletons";
+import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 
 interface Internship {
