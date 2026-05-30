@@ -164,9 +164,40 @@ const InternshipDetail = () => {
     </div>
   );
 
+  const jobJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: internship.title,
+    description: internship.description || `Apply for ${internship.title} on Wroob.`,
+    datePosted: internship.created_at,
+    ...(internship.deadline ? { validThrough: internship.deadline } : {}),
+    employmentType: internship.type === "remote" ? "INTERN" : "INTERN",
+    hiringOrganization: {
+      "@type": "Organization",
+      name: internship.employer_profiles?.company_name || "Company",
+      ...(internship.employer_profiles?.website ? { sameAs: internship.employer_profiles.website } : {}),
+      ...(internship.employer_profiles?.logo_url ? { logo: internship.employer_profiles.logo_url } : {}),
+    },
+    jobLocation: internship.location
+      ? { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: internship.location, addressCountry: "IN" } }
+      : undefined,
+    ...(internship.type === "remote" ? { jobLocationType: "TELECOMMUTE", applicantLocationRequirements: { "@type": "Country", name: "India" } } : {}),
+    ...(internship.stipend_type === "paid" && internship.stipend_amount
+      ? {
+          baseSalary: {
+            "@type": "MonetaryAmount",
+            currency: "INR",
+            value: { "@type": "QuantitativeValue", value: internship.stipend_amount, unitText: "MONTH" },
+          },
+        }
+      : {}),
+    industry: internship.industry || internship.employer_profiles?.industry,
+    directApply: true,
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <SEO title={`${internship.title} — Internship on Wroob`} description={(internship.description || `Apply for ${internship.title} on Wroob.`).slice(0, 155)} path={`/internships/${internship.id}`} type="article" />
+      <SEO title={`${internship.title} — Internship on Wroob`} description={(internship.description || `Apply for ${internship.title} on Wroob.`).slice(0, 155)} path={`/internships/${internship.id}`} type="article" jsonLd={jobJsonLd} />
       <Navbar />
       <div className="container max-w-3xl py-10">
         <Button variant="ghost" size="sm" className="mb-8 gap-1.5 text-muted-foreground" onClick={() => navigate(-1)}>
