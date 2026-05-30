@@ -9,4 +9,9 @@
   <url><loc>https://wroob.in/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://wroob.in/login</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://wroob.in/signup</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://wroob.in/forgot-password</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://wroob.in/reset-password</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://wroob.in/select-role</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://wroob.in/dashboard</loc><changefreq>weekly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://wroob.in/profile</loc><changefreq>weekly</changefreq><priority>0.4</priority></url>
 </urlset>
