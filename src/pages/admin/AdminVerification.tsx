@@ -45,10 +45,9 @@ const AdminVerification = () => {
 
   const fetchEmployers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("employer_profiles")
-      .select("id, user_id, company_name, gstin, pan_number, linkedin_profile, cin, is_verified, industry, city, onboarding_status")
-      .order("created_at", { ascending: false });
+    // Sensitive cols (gstin, pan_number, cin) are not granted to authenticated;
+    // an admin-only SECURITY DEFINER RPC returns them after verifying has_role().
+    const { data, error } = await (supabase as any).rpc("admin_list_employers_for_verification");
 
     if (error) {
       toast({ title: "Error loading employers", description: error.message, variant: "destructive" });
