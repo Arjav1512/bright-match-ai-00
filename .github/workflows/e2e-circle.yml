@@ -30,27 +30,8 @@ jobs:
 
       - name: Reset local Supabase (fresh DB + migrations)
         run: |
-          set -euo pipefail
           supabase start
-          PGURL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
-
-          # Drop and recreate the public schema only (leave auth/storage intact).
-          psql "$PGURL" -v ON_ERROR_STOP=1 <<'SQL'
-          DROP SCHEMA IF EXISTS public CASCADE;
-          CREATE SCHEMA public;
-          GRANT ALL ON SCHEMA public TO postgres;
-          GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
-          SQL
-
-          # Pre-create tables that exist in production but were created
-          # out-of-band (not in migration history). See file header for context.
-          psql "$PGURL" -v ON_ERROR_STOP=1 -f supabase/tests/pre_migration_patch.sql
-
-          # Apply migrations in lexicographic order.
-          for f in $(ls supabase/migrations/*.sql | sort); do
-            echo "Applying $f"
-            psql "$PGURL" -v ON_ERROR_STOP=1 -f "$f"
-          done
+          supabase db reset --no-seed
 
 
       - name: Seed deterministic test data
