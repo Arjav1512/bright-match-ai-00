@@ -90,6 +90,21 @@ Deno.serve(async (req) => {
     });
   }
 
+  // SECURITY: Campus statuses are a student-only feature. Enforce role on every method
+  // (POST already re-checks, but GET/DELETE go through service-role client which bypasses RLS).
+  const { data: callerRole } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (callerRole?.role !== "student") {
+    return new Response(
+      JSON.stringify({ error: "Students only" }),
+      { status: 403, headers: { ...responseHeaders } }
+    );
+  }
+
   // ── Rate Limit Check (atomic) ─────────────────────────────────────────
   const { data: rlAllowed, error: rlError } = await supabaseAdmin.rpc(
     "check_and_increment_rate_limit",
