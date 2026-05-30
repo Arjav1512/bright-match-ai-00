@@ -1,124 +1,107 @@
+# Fix schema drift: missing `recommendation_cache` table
 
+## Root cause confirmed
 
-# Fix Backend Issues:<lov-plan>
+- `public.recommendation_cache` exists in production but no migration creates it.
+- The only reference is `supabase/migrations/20260316133257_…sql` line 30, which runs `CREATE INDEX … ON public.recommendation_cache(...)`.
+- On `supabase db reset --no-seed` (used by `.github/workflows/e2e-circle.yml`), that index statement aborts the reset with `relation "public.recommendation_cache" does not exist`, blocking every later migration and the E2E test.
 
-# Fix Backend Issues: Internships Not Internships Not Displaying + Displaying + Group Members Recursion
+## Production schema captured
 
-## Problems Group Members Recursion
+Columns (from `information_schema`):
+- `id uuid PK default gen_random_uuid()`
+- `student_id uuid NOT NULL`
+- `internship_id uuid NOT NULL`
+- `match_score numeric NOT NULL default 0`
+- `skill_match_score numeric default 0`
+- `interest_alignment_score numeric default 0`
+- `location_match_score numeric default 0`
+- `explanation text`
+- `created_at timestamptz NOT NULL default now()`
+- `expires_at timestamptz NOT NULL default now() + interval '24h'`
 
-## Problems Identified Identified
+Constraints/indexes:
+- PK on `id`
+- UNIQUE `(student_id, internship_id)`
+- INDEX `idx_recommendation_cache_student (student_id, expires_at)` ← created by the existing 03-16 migration
 
-From the network
+RLS policy in prod:
+- `Students can view own recommendations` — `SELECT` to `authenticated` using `auth.uid() = student_id`
 
-From the network requests requests, there are **, there are **two critical backendtwo critical backend issues**:
+No FKs in prod (matches the rest of the schema where `internships`/`auth.users` are referenced loosely).
 
-### Issue issues**:
+## Fix
 
-### Issue 1: Internships not 1: Internships not loading for loading for students (400 students (400 error)
-The query error)
-The query tries to join `internships` to tries to join `internships` to `employer_profiles` using `!internships_employer_id_fkey`, but that foreign key points to `auth.users`, not `employer_profiles`. PostgREST cannot resolve this join, so `employer_profiles` using `!internships_employer_id_fkey`, but that foreign key points to `auth.users`, not `employer_profiles`. PostgREST cannot resolve this join, so every intern every internship listing pageship listing page returns a 400 error.
+### 1. New migration: `supabase/migrations/20260316133256_create_recommendation_cache.sql`
 
-Affected pages: Internships listing, Internship Detail, My Applications.
+Timestamp is one second **before** `20260316133257_…` so the table exists before the index is created. This is the only safe way to make a fresh `db reset` linear; renaming the existing 03-16 file would break prod's `schema_migrations` history.
 
-### Issue 2: Group members infinite recursion (500 error, polling every returns a 400 error.
+Contents (mirrors production exactly, plus required GRANTs):
 
-Affected pages: Internships listing, Internship Detail, My Applications.
-
-### Issue 2: Group members infinite recursion (500 error, polling every 30s 30s)
-The `group_members` SELECT policy checks)
-The `group_members` SELECT policy checks "is the current "is the current user a member of this group?" by user a member of this group?" by querying ` querying `group_members` itselfgroup_members` itself, creating infinite, creating infinite recursion. This fires recursion. This fires repeatedly repeatedly on polling on polling intervals.
-
----
-
-## Fix intervals.
-
----
-
-## Fix Plan
-
-### Step Plan
-
-### Step 1: Fix 1: Fix group_members R group_members RLS (databaseLS (database migration)
-- Create migration)
-- Create a ` a `SECURITY DEFINER` function `is_group_member(SECURITY DEFINER` function `is_group_member(groupgroup_id, user_id)` that checks membership_id, user_id)` that checks membership without triggering R without triggering RLS.LS.
-- Drop the existing recursive
-- Drop the existing recursive SELECT SELECT policy on ` policy on `group_members`.
-- Create a new SELECTgroup_members`.
-- Create a new SELECT policy using the security definer function. policy using the security definer function.
-- Also fix
-- Also fix the `groups` table SELECT the `groups` table SELECT policy which policy which has the same recurs has the same recursion pattern (ion pattern (it queriesit queries `group_members` which triggers `group_members` which triggers the recursive policy). the recursive policy).
-- Fix
-- Fix `group `group_messages` SELECT_messages` SELECT and INSERT policies similarly and INSERT policies similarly.
-
-### Step 2: Fix internship.
-
-### Step 2: Fix internship queries (frontend queries (frontend code changes code changes)
-Since the)
-Since the FK `internships_employer_id_f FK `internships_employer_id_fkey` points to `auth.users`key` points to `auth.users` (not `employer_profiles`), (not `employer_profiles`), the Post the PostgREST join hint isgREST join hint is invalid. The invalid. The fix is to change fix is to change the query pattern the query pattern in in 3 files to 3 files to fetch employer data fetch employer data separately (same separately (same pattern pattern already used already used in `AdminInternships. in `AdminInternships.tsx`):
-
--tsx`):
-
-- **` **`src/pages/Internships.tsx`**:src/pages/Internships.tsx`**: Fetch internships, Fetch internships, then batch- then batch-fetch employer profiles by `fetch employer profiles by `user_id INuser_id IN (...)`, (...)`, merge client-side.
-- **`src/pages/InternshipDetail.tsx`**: Fetch internship, then fetch employer profile by `user_id = employer merge client-side.
-- **`src/pages/InternshipDetail.tsx`**: Fetch internship, then fetch employer profile by `user_id = employer_id`.
-- **`src/pages/MyApplications.tsx`**: Fetch applications with internships_id`.
-- **`src/pages/MyApplications.tsx`**: Fetch applications with internships, then fetch employer profiles separately, then fetch employer profiles separately.
-
-### Step 3: Verify no other broken joins
-Search for any other `!internships_employer_id_f.
-
-### Step 3: Verify no other broken joins
-Search for any other `!internships_employer_id_fkey` or similar broken FK hints and fix them.
-
----
-
-## Technicalkey` or similar broken FK hints and fix them.
-
----
-
-## Technical Details
-
-**Security Details
-
-**Security def definer function for group membershipiner function for group membership:**
 ```sql
-CREATE:**
-```sql
-CREATE OR REPLACE FUNCTION public OR REPLACE FUNCTION public.is_group_member(_group_id uuid.is_group_member(_group_id uuid, _user_id uuid), _user_id uuid)
-RETURNS boolean
-LANGUAGE
-RETURNS boolean
-LANGUAGE sql sql STABLE STABLE SECURITY DEFINER
-SET search_path = SECURITY DEFINER
-SET search_path = public
-AS $$ public
-AS $$
-  SELECT EXISTS
-  SELECT EXISTS (
-    SELECT 1 FROM public (
-    SELECT 1 FROM public.group_members
-    WHERE group_id = _group_id AND.group_members
-    WHERE group_id = _group_id AND user_id = _user_id
-  ) user_id = _user_id
-  )
-$$;
+CREATE TABLE IF NOT EXISTS public.recommendation_cache (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id uuid NOT NULL,
+  internship_id uuid NOT NULL,
+  match_score numeric NOT NULL DEFAULT 0,
+  skill_match_score numeric DEFAULT 0,
+  interest_alignment_score numeric DEFAULT 0,
+  location_match_score numeric DEFAULT 0,
+  explanation text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  expires_at timestamptz NOT NULL DEFAULT (now() + interval '24 hours'),
+  UNIQUE (student_id, internship_id)
+);
+
+GRANT SELECT ON public.recommendation_cache TO authenticated;
+GRANT ALL    ON public.recommendation_cache TO service_role;
+
+ALTER TABLE public.recommendation_cache ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  CREATE POLICY "Students can view own recommendations"
+    ON public.recommendation_cache FOR SELECT
+    TO authenticated
+    USING (auth.uid() = student_id);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 ```
 
-**Replacement
-$$;
+Writes are done only by the `ai-recommendations` edge function with the service role, so no `INSERT/UPDATE/DELETE` policies are needed (matches prod).
+
+### 2. No changes to existing migrations
+
+`20260316133257_…sql` keeps its `CREATE INDEX IF NOT EXISTS …` — it now runs against an existing table on fresh DBs and is a no-op in prod.
+
+### 3. Verification on a fresh DB
+
+Run locally what CI runs:
+
+```bash
+supabase db reset --no-seed
+supabase db lint
 ```
 
-**Replacement RLS policies RLS policies:**
--:**
-- `group_members` SELECT `group_members` SELECT: `: `USING (publicUSING (public.is_group_member(group_id, auth.is_group_member(group_id, auth.uid()))`
-- `groups.uid()))`
-- `groups` SELECT: `USING (public.is_group_member(id` SELECT: `USING (public.is_group_member(id, auth.uid()))`
-- `group_messages` SELECT/, auth.uid()))`
-- `group_messages` SELECT/INSERT: use `INSERT: use `is_group_member`is_group_member` instead instead of subquery
+Confirm:
+- Reset completes without `relation "public.recommendation_cache" does not exist`.
+- `\d public.recommendation_cache` matches the prod columns/indexes/policy listed above.
+- The E2E workflow `.github/workflows/e2e-circle.yml` then proceeds past seeding.
 
-**Query of subquery
+## Additional drift scan (reported, not fixed unless you approve)
 
-**Query pattern change ( pattern change (Internships.tsx example):**Internships.tsx example):**
-Fetch internships first, collect unique `employer_id`s, batch-fetch from `employer_profiles` by `user_id`, merge into
-Fetch internships first, collect unique `employer_id`s, batch-fetch from `employer_profiles` by `user_id`, merge into results client results client-side.-side.
+I diffed every public-schema relation in prod against the migrations directory:
 
+| Relation | In migrations? | Notes |
+|---|---|---|
+| `recommendation_cache` | ❌ table missing | Fixed by this plan |
+| `employer_profiles_public` | ✅ (view, created in `20260423185626_…` and refined later) | OK |
+| `student_profiles_public` | ✅ (view, same chain) | OK |
+| All other 27 tables | ✅ | OK |
+
+So `recommendation_cache` is the only table-level drift. The two `_public` relations are views, fully covered by migrations.
+
+Separately, `20260316133257_…sql` declares `recommendation_feedback.internship_id … REFERENCES public.internships(id) ON DELETE CASCADE`, but prod has no FK on that column (the whole project deliberately avoids FKs to `internships`/`auth.users`). On a fresh DB the FK will be created and behave more strictly than prod. **Not in scope for this fix** — flagging so you can decide whether to drop the FK in a follow-up migration to keep CI and prod identical.
+
+## Files
+
+- **New**: `supabase/migrations/20260316133256_create_recommendation_cache.sql` — creates the missing table with prod-matching columns, unique constraint, GRANTs, RLS, and the student-view policy. Required so the immediately-following `CREATE INDEX` migration (and every later migration / the CI reset) succeeds on a fresh database.
