@@ -1236,6 +1236,23 @@ export type Database = {
       }
     }
     Functions: {
+      admin_list_employers_for_verification: {
+        Args: never
+        Returns: {
+          cin: string
+          city: string
+          company_name: string
+          created_at: string
+          gstin: string
+          id: string
+          industry: string
+          is_verified: boolean
+          linkedin_profile: string
+          onboarding_status: string
+          pan_number: string
+          user_id: string
+        }[]
+      }
       cleanup_old_closed_internships: { Args: never; Returns: number }
       create_notification: {
         Args: {
