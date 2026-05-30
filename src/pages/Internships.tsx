@@ -254,9 +254,9 @@ const Internships = () => {
                             <div className="flex items-start justify-between gap-4">
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <h3 className="font-display text-lg font-semibold group-hover:text-primary transition-colors truncate">
+                                  <h2 className="font-display text-lg font-semibold group-hover:text-primary transition-colors truncate">
                                     {intern.title}
-                                  </h3>
+                                  </h2>
                                   <Badge
                                     variant="outline"
                                     className={
