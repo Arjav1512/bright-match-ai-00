@@ -26,6 +26,7 @@ interface Internship {
   industry: string;
   employer_id: string;
   created_at: string;
+  status: string;
   stipend_type: string | null;
   stipend_amount: number | null;
   duration_months: number | null;
@@ -252,9 +253,22 @@ const Internships = () => {
                           <div className="relative z-10 pointer-events-none">
                             <div className="flex items-start justify-between gap-4">
                               <div className="min-w-0">
-                                <h3 className="font-display text-lg font-semibold group-hover:text-primary transition-colors truncate">
-                                  {intern.title}
-                                </h3>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h3 className="font-display text-lg font-semibold group-hover:text-primary transition-colors truncate">
+                                    {intern.title}
+                                  </h3>
+                                  <Badge
+                                    variant="outline"
+                                    className={
+                                      intern.status === "closed"
+                                        ? "border-destructive/30 bg-destructive/10 text-destructive text-[10px] uppercase tracking-wide"
+                                        : "border-success/30 bg-success/10 text-success text-[10px] uppercase tracking-wide"
+                                    }
+                                  >
+                                    <span className={`mr-1 inline-block h-1.5 w-1.5 rounded-full ${intern.status === "closed" ? "bg-destructive" : "bg-success animate-pulse"}`} />
+                                    {intern.status === "closed" ? "Closed" : "Live"}
+                                  </Badge>
+                                </div>
                                 <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground pointer-events-auto">
                                   <Building2 className="h-3.5 w-3.5 shrink-0" />
                                   <ProfileLink userId={intern.employer_id} type="employer">
