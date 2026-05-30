@@ -34,21 +34,59 @@ const Login = () => {
     }
     sessionStorage.setItem("wroob_just_logged_in", "true");
 
-    // Resolve role immediately so admins go straight to /admin
-    // (avoids a flicker through /dashboard and any race with role hydration).
+    // Resolve role + onboarding status immediately so returning users land on
+    // their dashboard directly — never on /select-role, even on race conditions.
     try {
       const { data: { user: signedInUser } } = await supabase.auth.getUser();
       if (signedInUser) {
+        // Honour an explicit redirect target first (e.g. came from /internships/:id).
+        if (rawRedirect.startsWith("/") && rawRedirect !== "/dashboard") {
+          setLoading(false);
+          navigate(redirectTo);
+          return;
+        }
+
         const { data: roleRow } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", signedInUser.id)
           .maybeSingle();
-        if (roleRow?.role === "admin") {
+        const userRole = (roleRow as any)?.role as "student" | "employer" | "admin" | undefined;
+
+        if (userRole === "admin") {
           setLoading(false);
           navigate("/admin");
           return;
         }
+        if (userRole === "student") {
+          const { data: sp } = await supabase
+            .from("student_profiles")
+            .select("onboarding_status, onboarding_step")
+            .eq("user_id", signedInUser.id)
+            .maybeSingle();
+          setLoading(false);
+          if (sp && (sp as any).onboarding_status !== "completed") {
+            navigate("/dashboard");
+          } else {
+            navigate("/internships");
+          }
+          return;
+        }
+        if (userRole === "employer") {
+          const { data: ep } = await supabase
+            .from("employer_profiles")
+            .select("onboarding_status, onboarding_step")
+            .eq("user_id", signedInUser.id)
+            .maybeSingle();
+          setLoading(false);
+          if (ep && (ep as any).onboarding_status !== "completed") {
+            navigate("/dashboard");
+          } else {
+            navigate("/my-internships");
+          }
+          return;
+        }
+        // No role yet (e.g. social signup mid-flow) — Dashboard will route.
       }
     } catch {
       // fall through to default redirect

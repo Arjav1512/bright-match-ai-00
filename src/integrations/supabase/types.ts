@@ -465,6 +465,7 @@ export type Database = {
           app_cap: number
           application_count: number
           benefits: string[] | null
+          closed_at: string | null
           created_at: string
           day_to_day_tasks: string | null
           deadline: string | null
@@ -500,6 +501,7 @@ export type Database = {
           app_cap?: number
           application_count?: number
           benefits?: string[] | null
+          closed_at?: string | null
           created_at?: string
           day_to_day_tasks?: string | null
           deadline?: string | null
@@ -535,6 +537,7 @@ export type Database = {
           app_cap?: number
           application_count?: number
           benefits?: string[] | null
+          closed_at?: string | null
           created_at?: string
           day_to_day_tasks?: string | null
           deadline?: string | null
@@ -1233,6 +1236,7 @@ export type Database = {
       }
     }
     Functions: {
+      cleanup_old_closed_internships: { Args: never; Returns: number }
       create_notification: {
         Args: {
           _link: string
