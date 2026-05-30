@@ -33,9 +33,19 @@ const Help = () => {
     }, 1000);
   };
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <SEO title="Help Center — Wroob support & FAQs" description="Find answers to common questions about Wroob accounts, internship matching, applications, and reach our team for support." path="/help" />
+      <SEO title="Help Center — Wroob support & FAQs" description="Find answers to common questions about Wroob accounts, internship matching, applications, and reach our team for support." path="/help" jsonLd={faqJsonLd} />
       <Navbar />
       <section className="py-20">
         <div className="container">
