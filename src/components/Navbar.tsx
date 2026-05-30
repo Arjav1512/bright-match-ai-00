@@ -174,7 +174,7 @@ const Navbar = () => {
       <div className="container flex h-16 items-center justify-between">
         {/* Left: Logo */}
         <Link to="/" className="shrink-0">
-          <img src={wroobeLogo} alt="Wroob" className="h-10" width="99" height="40" decoding="async" fetchPriority="high" />
+          <img src={wroobeLogo} alt="Wroob Logo" className="h-10" width="99" height="40" decoding="async" fetchPriority="high" />
         </Link>
 
         {/* Center: Nav links */}
@@ -186,7 +186,7 @@ const Navbar = () => {
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <Button variant="ghost" size="icon" className="relative" onMouseEnter={() => prefetchRoute("/notifications")} onClick={() => navigate("/notifications")}>
+              <Button variant="ghost" size="icon" className="relative" aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"} onMouseEnter={() => prefetchRoute("/notifications")} onClick={() => navigate("/notifications")}>
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
                   <Badge className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full p-0 text-[9px] brand-gradient border-0 text-white">
@@ -205,7 +205,7 @@ const Navbar = () => {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full" aria-label="Open profile menu">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={profile?.avatar_url} />
                       <AvatarFallback className="brand-gradient text-white text-xs">{getInitials()}</AvatarFallback>
@@ -238,7 +238,7 @@ const Navbar = () => {
               <Button size="sm" className="brand-gradient border-0 text-white shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200" onClick={() => navigate("/signup")}>Sign Up</Button>
             </div>
           )}
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
+          <Button variant="ghost" size="icon" className="md:hidden" aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>

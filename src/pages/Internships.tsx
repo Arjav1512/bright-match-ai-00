@@ -227,7 +227,7 @@ const Internships = () => {
             ) : filtered.length === 0 ? (
               <div className="py-20 text-center">
                 <Briefcase className="mx-auto h-12 w-12 text-muted-foreground/30" />
-                <h3 className="mt-4 font-display text-xl font-semibold">No internships found</h3>
+                <h2 className="mt-4 font-display text-xl font-semibold">No internships found</h2>
                 <p className="mt-2 text-sm text-muted-foreground">Try adjusting your filters</p>
               </div>
             ) : (
