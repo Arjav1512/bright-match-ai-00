@@ -1253,6 +1253,29 @@ export type Database = {
           user_id: string
         }[]
       }
+      apply_to_internship_atomic: {
+        Args: {
+          p_cover_letter: string
+          p_internship_id: string
+          p_student_id: string
+        }
+        Returns: {
+          app_cap: number
+          application_count: number
+          error_code: string
+          error_message: string
+          success: boolean
+        }[]
+      }
+      check_and_increment_rate_limit: {
+        Args: {
+          p_function_name: string
+          p_max_requests: number
+          p_user_id: string
+          p_window_ms: number
+        }
+        Returns: boolean
+      }
       cleanup_old_closed_internships: { Args: never; Returns: number }
       create_notification: {
         Args: {
