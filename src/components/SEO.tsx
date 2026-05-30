@@ -6,13 +6,15 @@ interface SEOProps {
   path?: string;
   type?: "website" | "article";
   image?: string;
+  jsonLd?: object | object[];
 }
 
 const SITE_URL = "https://wroob.in";
 
-const SEO = ({ title, description, path = "/", type = "website", image }: SEOProps) => {
+const SEO = ({ title, description, path = "/", type = "website", image, jsonLd }: SEOProps) => {
   const url = `${SITE_URL}${path}`;
   const ogImage = image || `${SITE_URL}/og-image.png`;
+  const schemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   return (
     <Helmet>
       <title>{title}</title>
@@ -26,6 +28,9 @@ const SEO = ({ title, description, path = "/", type = "website", image }: SEOPro
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
+      {schemas.map((schema, i) => (
+        <script key={i} type="application/ld+json">{JSON.stringify(schema)}</script>
+      ))}
     </Helmet>
   );
 };

@@ -27,9 +27,25 @@ const BlogPost = () => {
     );
   }
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: new Date(post.date).toISOString(),
+    author: { "@type": "Organization", name: "Wroob" },
+    publisher: {
+      "@type": "Organization",
+      name: "Wroob",
+      logo: { "@type": "ImageObject", url: "https://wroob.in/favicon.png" },
+    },
+    mainEntityOfPage: `https://wroob.in/blog/${post.slug}`,
+    articleSection: post.category,
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <SEO title={`${post.title} — Wroob Blog`} description={post.excerpt} path={`/blog/${post.slug}`} type="article" />
+      <SEO title={`${post.title} — Wroob Blog`} description={post.excerpt} path={`/blog/${post.slug}`} type="article" jsonLd={articleJsonLd} />
       <Navbar />
       <article className="py-20">
         <div className="container mx-auto max-w-2xl">
