@@ -52,6 +52,15 @@ Deno.serve(async (req) => {
 
     if (existing) {
       userId = existing.id;
+      // Always re-sync the admin password to the value stored in env so the
+      // seeded credentials are guaranteed to work even if the password was
+      // changed manually or the user was created with a different one.
+      const { error: updErr } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+        password,
+        email_confirm: true,
+        user_metadata: { full_name: "Admin User", role: "admin" },
+      });
+      if (updErr) throw updErr;
     } else {
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email,
