@@ -183,7 +183,20 @@ const InternshipDetail = () => {
           <div>
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h1 className="font-display text-3xl font-bold md:text-4xl">{internship.title}</h1>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h1 className="font-display text-3xl font-bold md:text-4xl">{internship.title}</h1>
+                  <Badge
+                    variant="outline"
+                    className={
+                      isClosed
+                        ? "border-destructive/30 bg-destructive/10 text-destructive uppercase tracking-wide"
+                        : "border-success/30 bg-success/10 text-success uppercase tracking-wide"
+                    }
+                  >
+                    <span className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${isClosed ? "bg-destructive" : "bg-success animate-pulse"}`} />
+                    {isClosed ? "Closed" : "Live"}
+                  </Badge>
+                </div>
                 <div className="mt-3 flex items-center gap-2 text-muted-foreground">
                   <Building2 className="h-4 w-4" />
                   <ProfileLink userId={internship.employer_id} type="employer" className="font-medium">
