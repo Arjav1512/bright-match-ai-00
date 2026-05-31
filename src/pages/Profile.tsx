@@ -259,8 +259,15 @@ const Profile = () => {
       }
     }
 
-    setLoading(false);
+    // Suppress draft flushes so a stale localStorage draft can't shadow the
+    // freshly persisted DB values on the next mount.
+    suppressDraftFlush.current = true;
     clearDraft(user.id);
+    // Re-hydrate from DB so what the user sees is exactly what was persisted.
+    await loadFromDb(user.id, role, false);
+    await refreshAuthProfile();
+    suppressDraftFlush.current = false;
+    setLoading(false);
     toast({ title: "Profile updated!" });
     if (role === "student") recalcReputation();
   };
