@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import ProfileLink from "@/components/ProfileLink";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +50,15 @@ const Internships = () => {
   const [stipendRange, setStipendRange] = useState<[number]>([0]);
   const [durationFilter, setDurationFilter] = useState("all");
   const [studentSkills, setStudentSkills] = useState<string[]>([]);
+
+  // FIX (S-1): Block students from browsing internships until onboarding is
+  // complete. Mirrors the employer-side guard. Non-students are unaffected.
+  const { needsOnboarding, loading: onboardingLoading } = useOnboardingStatus();
+  useEffect(() => {
+    if (role === "student" && !onboardingLoading && needsOnboarding) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [role, needsOnboarding, onboardingLoading, navigate]);
 
   // PERF-1: server-side pagination via PostgREST .range()
   const fetchPage = useCallback(async (pageIndex: number, append: boolean) => {

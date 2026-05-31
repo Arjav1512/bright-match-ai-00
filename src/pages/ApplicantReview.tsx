@@ -52,12 +52,32 @@ const ApplicantReview = () => {
 
       setInternship(intern);
 
+      // FIX (E-5): `applications` has no FK to profiles/student_profiles, so the
+      // embedded-resource hint join returns no rows. Fetch applications first
+      // and merge profile/student data client-side.
       const { data: apps } = await supabase
         .from("applications")
-        .select("*, profiles:profiles!applications_student_id_fkey(full_name, avatar_url), student_profiles:student_profiles!applications_student_id_fkey(skills, university, resume_url, reputation_score)")
+        .select("*")
         .eq("internship_id", id!)
         .order("applied_at", { ascending: false });
-      const appsData = apps || [];
+      const baseApps = apps || [];
+      const studentIds = Array.from(new Set(baseApps.map((a: any) => a.student_id)));
+
+      let profilesById: Record<string, any> = {};
+      let studentProfilesById: Record<string, any> = {};
+      if (studentIds.length > 0) {
+        const [{ data: profs }, { data: sps }] = await Promise.all([
+          supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", studentIds),
+          supabase.from("student_profiles").select("user_id, skills, university, resume_url, reputation_score").in("user_id", studentIds),
+        ]);
+        profilesById = Object.fromEntries((profs || []).map((p: any) => [p.user_id, p]));
+        studentProfilesById = Object.fromEntries((sps || []).map((s: any) => [s.user_id, s]));
+      }
+      const appsData = baseApps.map((a: any) => ({
+        ...a,
+        profiles: profilesById[a.student_id] || null,
+        student_profiles: studentProfilesById[a.student_id] || null,
+      }));
       setApplicants(appsData);
 
       // Generate 1-hour signed URLs for each applicant's resume.

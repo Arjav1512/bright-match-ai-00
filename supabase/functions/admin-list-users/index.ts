@@ -1,21 +1,41 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") ?? "https://wroob.in";
+// FIX (A-1): Reflect origin for whitelisted hosts (production + Lovable preview
+// sandboxes) instead of a single hardcoded value. Without this, preview/dev
+// frontends fail CORS preflight and the Admin Users page is unusable.
+const STATIC_ALLOWED = new Set<string>([
+  Deno.env.get("ALLOWED_ORIGIN") ?? "https://wroob.in",
+  "https://wroob.in",
+  "https://wroob.lovable.app",
+]);
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": allowedOrigin,
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+function resolveAllowedOrigin(req: Request): string {
+  const origin = req.headers.get("Origin") ?? "";
+  if (STATIC_ALLOWED.has(origin)) return origin;
+  // Lovable preview sandboxes (per-project subdomains)
+  if (/^https:\/\/[a-z0-9-]+\.lovable\.app$/i.test(origin)) return origin;
+  if (/^https:\/\/[a-z0-9-]+\.lovableproject\.com$/i.test(origin)) return origin;
+  return Deno.env.get("ALLOWED_ORIGIN") ?? "https://wroob.in";
+}
 
-const responseHeaders = {
-  ...corsHeaders,
-  "X-Content-Type-Options": "nosniff",
-  "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Content-Type": "application/json",
-};
+function buildCorsHeaders(req: Request) {
+  return {
+    "Access-Control-Allow-Origin": resolveAllowedOrigin(req),
+    "Vary": "Origin",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  };
+}
 
 Deno.serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
+  const responseHeaders = {
+    ...corsHeaders,
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Content-Type": "application/json",
+  };
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

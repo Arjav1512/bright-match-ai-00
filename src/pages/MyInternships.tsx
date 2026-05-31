@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEmployerOnboardingStatus } from "@/hooks/useEmployerOnboardingStatus";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,6 +35,15 @@ const MyInternships = () => {
   const [internships, setInternships] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [closingId, setClosingId] = useState<string | null>(null);
+
+  // FIX (E-1): Mirror the PostInternship guard — block direct deep-links to
+  // /my-internships when the employer hasn't completed onboarding.
+  const { needsOnboarding, loading: onboardingLoading } = useEmployerOnboardingStatus();
+  useEffect(() => {
+    if (!onboardingLoading && needsOnboarding) {
+      navigate("/employer/onboarding/company", { replace: true });
+    }
+  }, [needsOnboarding, onboardingLoading, navigate]);
 
   useEffect(() => {
     if (!user) return;

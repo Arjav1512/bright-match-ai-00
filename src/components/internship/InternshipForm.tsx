@@ -180,7 +180,10 @@ const InternshipForm = ({ initialData, onSubmit, loading, submitLabel = "Publish
     if (!form.roles_responsibilities.trim()) return "Roles & Responsibilities are required";
     if ((form.type === "onsite" || form.type === "hybrid") && !form.location.trim())
       return "Location is required for On-site/Hybrid internships";
-    if (!form.deadline) return "Last date to apply is required";
+    // FIX (E-4): Trim before checking — the native date input can occasionally
+    // emit whitespace-only values when cleared, which previously bypassed the
+    // empty check and stored NULL while still blocking publish elsewhere.
+    if (!form.deadline || !form.deadline.trim()) return "Last date to apply is required";
     return null;
   };
 
