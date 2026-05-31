@@ -1186,6 +1186,7 @@ export type Database = {
           graduation_year: number | null
           id: string | null
           is_student: boolean | null
+          linkedin_url: string | null
           location: string | null
           major: string | null
           not_employed: boolean | null
@@ -1195,6 +1196,7 @@ export type Database = {
           skills: string[] | null
           university: string | null
           user_id: string | null
+          website_url: string | null
         }
         Insert: {
           created_at?: string | null
@@ -1204,6 +1206,7 @@ export type Database = {
           graduation_year?: number | null
           id?: string | null
           is_student?: boolean | null
+          linkedin_url?: string | null
           location?: string | null
           major?: string | null
           not_employed?: boolean | null
@@ -1213,6 +1216,7 @@ export type Database = {
           skills?: string[] | null
           university?: string | null
           user_id?: string | null
+          website_url?: string | null
         }
         Update: {
           created_at?: string | null
@@ -1222,6 +1226,7 @@ export type Database = {
           graduation_year?: number | null
           id?: string | null
           is_student?: boolean | null
+          linkedin_url?: string | null
           location?: string | null
           major?: string | null
           not_employed?: boolean | null
@@ -1231,6 +1236,7 @@ export type Database = {
           skills?: string[] | null
           university?: string | null
           user_id?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
