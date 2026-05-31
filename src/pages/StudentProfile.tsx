@@ -27,10 +27,11 @@ const StudentProfile = () => {
       const [{ data: profile }, { data: studentProfile }] = await Promise.all([
         supabase.from("profiles").select("user_id, full_name, avatar_url, bio").eq("user_id", userId).maybeSingle(),
         // Admins see ALL columns (including private fields like phone, resume, onboarding details).
-        // Other viewers only see public-safe columns.
+        // Other viewers only get safe public columns via the student_profiles_public view,
+        // which never exposes phone_number / coordinates / resume_url.
         isAdmin
           ? supabase.from("student_profiles").select("*").eq("user_id", userId).maybeSingle()
-          : supabase.from("student_profiles").select(
+          : supabase.from("student_profiles_public" as any).select(
               "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
             ).eq("user_id", userId).maybeSingle(),
       ]);
