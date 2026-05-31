@@ -88,6 +88,7 @@ const Profile = () => {
   const initialFetchDone = useRef(false);
   const currentUserId = useRef<string | null>(null);
   const dbFetchDone = useRef(false);
+  const suppressDraftFlush = useRef(false);
   const profileRef = useRef(profile);
   const studentProfileRef = useRef(studentProfile);
   const employerProfileRef = useRef(employerProfile);
@@ -98,6 +99,7 @@ const Profile = () => {
   // Persist draft to localStorage on every form change
   useEffect(() => {
     if (!user || !dbFetchDone.current) return;
+    if (suppressDraftFlush.current) return;
     saveDraft(user.id, { profile, studentProfile, employerProfile });
   }, [profile, studentProfile, employerProfile, user]);
 
@@ -105,6 +107,7 @@ const Profile = () => {
   useEffect(() => {
     if (!user) return;
     const flush = () => {
+      if (suppressDraftFlush.current) return;
       if (dbFetchDone.current) {
         saveDraft(user.id, {
           profile: profileRef.current,
@@ -124,6 +127,57 @@ const Profile = () => {
     };
   }, [user]);
 
+  const loadFromDb = async (uid: string, currentRole: string | null, applyDraft: boolean) => {
+    const draft = applyDraft ? loadDraft(uid) : null;
+
+    const { data: p } = await supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle();
+    const dbProfile = p
+      ? { full_name: p.full_name || "", bio: p.bio || "", avatar_url: p.avatar_url || "" }
+      : { full_name: "", bio: "", avatar_url: "" };
+    setProfile(draft?.profile ? { ...dbProfile, ...draft.profile } : dbProfile);
+
+    if (currentRole === "student") {
+      const { data: sp } = await supabase.from("student_profiles").select("*").eq("user_id", uid).maybeSingle();
+      if (sp) {
+        const d = sp as any;
+        const savedRole = d.profile_role || "";
+        const derivedCategory = savedRole ? SCHOOL_NAMES.find((s) => COURSE_CATEGORIES[s].includes(savedRole)) || "" : "";
+        const dbStudent = {
+          university: d.university || "", skills: d.skills || [], resume_url: d.resume_url || "",
+          school_category: derivedCategory, profile_role: savedRole, phone_number: d.phone_number || "",
+          location: d.location || "", experience_years: d.experience_years || "",
+          is_student: d.is_student ?? true,
+          current_job_title: d.current_job_title || "", current_company: d.current_company || "",
+          not_employed: d.not_employed ?? false,
+          linkedin_url: d.linkedin_url || "", website_url: d.website_url || "",
+          preferred_course: d.preferred_course || "",
+        };
+        setStudentProfile(draft?.studentProfile ? { ...dbStudent, ...draft.studentProfile } : dbStudent);
+      }
+    } else if (currentRole === "employer") {
+      const { data: ep } = await supabase.from("employer_profiles").select("*").eq("user_id", uid).maybeSingle();
+      if (ep) {
+        const d = ep as any;
+        const dbEmployer = {
+          company_name: d.company_name || "", industry: d.industry || "",
+          company_size: d.company_size || "", website: d.website || "",
+          company_description: d.company_description || "",
+          year_established: d.year_established ? String(d.year_established) : "",
+          logo_url: d.logo_url || "",
+          head_office_address: d.head_office_address || "",
+          city: d.city || "", state: d.state || "", pincode: d.pincode || "",
+          head_office_landline: d.head_office_landline || "",
+          head_office_mobile: d.head_office_mobile || "",
+          hr_contact_name: d.hr_contact_name || "", hr_designation: d.hr_designation || "",
+          hr_email: d.hr_email || "", hr_phone: d.hr_phone || "",
+          gstin: d.gstin || "", pan_number: d.pan_number || "",
+          cin: d.cin || "", linkedin_profile: d.linkedin_profile || "",
+        };
+        setEmployerProfile(draft?.employerProfile ? { ...dbEmployer, ...draft.employerProfile } : dbEmployer);
+      }
+    }
+  };
+
   useEffect(() => {
     if (!user || !role) return;
     if (initialFetchDone.current && currentUserId.current === user.id) return;
@@ -131,55 +185,7 @@ const Profile = () => {
     initialFetchDone.current = true;
 
     const fetchData = async () => {
-      const draft = loadDraft(user.id);
-
-      const { data: p } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
-      if (p) {
-        const dbProfile = { full_name: p.full_name || "", bio: p.bio || "", avatar_url: p.avatar_url || "" };
-        setProfile(draft?.profile ? { ...dbProfile, ...draft.profile } : dbProfile);
-      }
-
-      if (role === "student") {
-        const { data: sp } = await supabase.from("student_profiles").select("*").eq("user_id", user.id).maybeSingle();
-        if (sp) {
-          const d = sp as any;
-          const savedRole = d.profile_role || "";
-          const derivedCategory = savedRole ? SCHOOL_NAMES.find((s) => COURSE_CATEGORIES[s].includes(savedRole)) || "" : "";
-          const dbStudent = {
-            university: d.university || "", skills: d.skills || [], resume_url: d.resume_url || "",
-            school_category: derivedCategory, profile_role: savedRole, phone_number: d.phone_number || "",
-            location: d.location || "", experience_years: d.experience_years || "",
-            is_student: d.is_student ?? true,
-            current_job_title: d.current_job_title || "", current_company: d.current_company || "",
-            not_employed: d.not_employed ?? false,
-            linkedin_url: d.linkedin_url || "", website_url: d.website_url || "",
-            preferred_course: d.preferred_course || "",
-          };
-          setStudentProfile(draft?.studentProfile ? { ...dbStudent, ...draft.studentProfile } : dbStudent);
-        }
-      } else if (role === "employer") {
-        const { data: ep } = await supabase.from("employer_profiles").select("*").eq("user_id", user.id).maybeSingle();
-        if (ep) {
-          const d = ep as any;
-          const dbEmployer = {
-            company_name: d.company_name || "", industry: d.industry || "",
-            company_size: d.company_size || "", website: d.website || "",
-            company_description: d.company_description || "",
-            year_established: d.year_established ? String(d.year_established) : "",
-            logo_url: d.logo_url || "",
-            head_office_address: d.head_office_address || "",
-            city: d.city || "", state: d.state || "", pincode: d.pincode || "",
-            head_office_landline: d.head_office_landline || "",
-            head_office_mobile: d.head_office_mobile || "",
-            hr_contact_name: d.hr_contact_name || "", hr_designation: d.hr_designation || "",
-            hr_email: d.hr_email || "", hr_phone: d.hr_phone || "",
-            gstin: d.gstin || "", pan_number: d.pan_number || "",
-            cin: d.cin || "", linkedin_profile: d.linkedin_profile || "",
-          };
-          setEmployerProfile(draft?.employerProfile ? { ...dbEmployer, ...draft.employerProfile } : dbEmployer);
-        }
-      }
-
+      await loadFromDb(user.id, role, true);
       dbFetchDone.current = true;
 
       const { data: skills } = await supabase.from("skills").select("name, category").order("category").order("name");
