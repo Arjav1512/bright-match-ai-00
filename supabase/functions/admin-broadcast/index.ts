@@ -6,13 +6,30 @@ const broadcastSchema = z.object({
   message: z.string().min(1, "Message is required").max(2000),
 });
 
-const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") ?? "https://wroob.in";
+// FIX (A-1): Reflect origin for whitelisted hosts (production + Lovable preview
+// sandboxes) instead of a single hardcoded value.
+const STATIC_ALLOWED = new Set<string>([
+  Deno.env.get("ALLOWED_ORIGIN") ?? "https://wroob.in",
+  "https://wroob.in",
+  "https://wroob.lovable.app",
+]);
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": allowedOrigin,
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+function resolveAllowedOrigin(req: Request): string {
+  const origin = req.headers.get("Origin") ?? "";
+  if (STATIC_ALLOWED.has(origin)) return origin;
+  if (/^https:\/\/[a-z0-9-]+\.lovable\.app$/i.test(origin)) return origin;
+  if (/^https:\/\/[a-z0-9-]+\.lovableproject\.com$/i.test(origin)) return origin;
+  return Deno.env.get("ALLOWED_ORIGIN") ?? "https://wroob.in";
+}
+
+function buildCorsHeaders(req: Request) {
+  return {
+    "Access-Control-Allow-Origin": resolveAllowedOrigin(req),
+    "Vary": "Origin",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  };
+}
 
 const securityHeaders = {
   "X-Frame-Options": "DENY",
@@ -21,13 +38,14 @@ const securityHeaders = {
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
 };
 
-const responseHeaders = {
-  ...corsHeaders,
-  ...securityHeaders,
-  "Content-Type": "application/json",
-};
-
 Deno.serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
+  const responseHeaders = {
+    ...corsHeaders,
+    ...securityHeaders,
+    "Content-Type": "application/json",
+  };
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
