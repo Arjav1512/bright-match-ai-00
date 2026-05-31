@@ -36,6 +36,15 @@ const MyInternships = () => {
   const [loading, setLoading] = useState(true);
   const [closingId, setClosingId] = useState<string | null>(null);
 
+  // FIX (E-1): Mirror the PostInternship guard — block direct deep-links to
+  // /my-internships when the employer hasn't completed onboarding.
+  const { needsOnboarding, loading: onboardingLoading } = useEmployerOnboardingStatus();
+  useEffect(() => {
+    if (!onboardingLoading && needsOnboarding) {
+      navigate("/employer/onboarding/company", { replace: true });
+    }
+  }, [needsOnboarding, onboardingLoading, navigate]);
+
   useEffect(() => {
     if (!user) return;
     const fetch = async () => {
