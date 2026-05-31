@@ -113,8 +113,12 @@ const AdminVerification = () => {
   });
 
   const verifiedCount = employers.filter((e) => e.is_verified).length;
-  // ISSUE-02: pendingCount = onboarding complete and not verified.
-  const pendingCount = employers.filter((e) => !e.is_verified && e.onboarding_status === "completed").length;
+  // FIX (A-2): Counter now matches what the admin actually sees on screen —
+  // every unverified company shows up in the list (regardless of onboarding
+  // progress), so the "Pending Review" total counts the same set. The verify
+  // button is still gated by `canVerify` so onboarding-incomplete entries
+  // cannot be granted the badge.
+  const pendingCount = employers.filter((e) => !e.is_verified).length;
 
   return (
     <AdminLayout title="Company Verification">
