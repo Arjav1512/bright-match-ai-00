@@ -104,11 +104,11 @@ const AdminVerification = () => {
       e.company_name?.toLowerCase().includes(search.toLowerCase()) ||
       e.gstin?.toLowerCase().includes(search.toLowerCase()) ||
       e.pan_number?.toLowerCase().includes(search.toLowerCase());
-    // ISSUE-02: "pending" = onboarding complete but not yet verified.
+    // FIX (A-2): "pending" filter mirrors the counter — any unverified entry.
     const matchesFilter =
       filter === "all" ||
       (filter === "verified" && e.is_verified) ||
-      (filter === "pending" && !e.is_verified && e.onboarding_status === "completed");
+      (filter === "pending" && !e.is_verified);
     return matchesSearch && matchesFilter;
   });
 
