@@ -1,0 +1,1 @@
+ALTER VIEW public.student_profiles_public SET (security_invoker = true);
