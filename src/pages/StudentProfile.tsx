@@ -18,18 +18,18 @@ const StudentProfile = () => {
   const { user, role } = useAuth();
 
   const isAdmin = role === "admin";
+  const isOwner = !!user && user.id === userId;
+  // Owner or admin reads the full table; everyone else reads the safe public view.
+  const useFullTable = isAdmin || isOwner;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["public-student-profile", userId, isAdmin],
+    queryKey: ["public-student-profile", userId, useFullTable],
     queryFn: async () => {
       if (!userId) throw new Error("No user ID");
 
       const [{ data: profile }, { data: studentProfile }] = await Promise.all([
         supabase.from("profiles").select("user_id, full_name, avatar_url, bio").eq("user_id", userId).maybeSingle(),
-        // Admins see ALL columns (including private fields like phone, resume, onboarding details).
-        // Other viewers only get safe public columns via the student_profiles_public view,
-        // which never exposes phone_number / coordinates / resume_url.
-        isAdmin
+        useFullTable
           ? supabase.from("student_profiles").select("*").eq("user_id", userId).maybeSingle()
           : supabase.from("student_profiles_public" as any).select(
               "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
@@ -39,6 +39,8 @@ const StudentProfile = () => {
       return { profile, studentProfile };
     },
     enabled: !!userId,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const profile = data?.profile;
