@@ -211,7 +211,10 @@ const Profile = () => {
     initialFetchDone.current = true;
 
     const fetchData = async () => {
-      await loadFromDb(user.id, role, true);
+      // Profile pages must hydrate from the database, not local drafts, because
+      // failed/partial API reads can leave newer empty drafts that hide saved data.
+      clearDraft(user.id);
+      await loadFromDb(user.id, role, false);
       dbFetchDone.current = true;
 
       const { data: skills } = await supabase.from("skills").select("name, category").order("category").order("name");
