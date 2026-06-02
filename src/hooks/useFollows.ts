@@ -74,8 +74,12 @@ export function useFollows(targetUserId: string) {
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["follow-outgoing", user?.id, targetUserId] });
     queryClient.invalidateQueries({ queryKey: ["follow-incoming", user?.id, targetUserId] });
+    queryClient.invalidateQueries({ queryKey: ["followerCount", user?.id] });
+    queryClient.invalidateQueries({ queryKey: ["followingCount", user?.id] });
     queryClient.invalidateQueries({ queryKey: ["followerCount", targetUserId] });
     queryClient.invalidateQueries({ queryKey: ["followingCount", targetUserId] });
+    queryClient.invalidateQueries({ queryKey: ["followersList", user?.id] });
+    queryClient.invalidateQueries({ queryKey: ["followingList", user?.id] });
     queryClient.invalidateQueries({ queryKey: ["followersList", targetUserId] });
     queryClient.invalidateQueries({ queryKey: ["followingList", targetUserId] });
   };
@@ -104,12 +108,17 @@ export function useFollows(targetUserId: string) {
   const cancelOrUnfollow = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Not logged in");
-      const { error } = await supabase
+      const rowId = outgoing?.id ?? incoming?.id;
+      if (!rowId) throw new Error("No connection found");
+
+      const { data, error } = await supabase
         .from("follows")
         .delete()
-        .eq("follower_id", user.id)
-        .eq("following_id", targetUserId);
+        .eq("id", rowId)
+        .select("id")
+        .maybeSingle();
       if (error) throw error;
+      if (!data) throw new Error("Connection was not removed");
     },
     onSuccess: invalidate,
   });
