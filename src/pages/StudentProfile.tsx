@@ -15,30 +15,48 @@ import AdminField from "@/components/admin/AdminField";
 
 const StudentProfile = () => {
   const { userId } = useParams<{ userId: string }>();
-  const { user, role } = useAuth();
+  const { user, role, loading: authLoading } = useAuth();
 
   const isAdmin = role === "admin";
   const isOwner = !!user && user.id === userId;
-  // Owner or admin reads the full table; everyone else reads the safe public view.
-  const useFullTable = isAdmin || isOwner;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["public-student-profile", userId, useFullTable],
+    queryKey: ["public-student-profile", userId, role, user?.id],
     queryFn: async () => {
       if (!userId) throw new Error("No user ID");
 
-      const [{ data: profile }, { data: studentProfile }] = await Promise.all([
-        supabase.from("profiles").select("user_id, full_name, avatar_url, bio").eq("user_id", userId).maybeSingle(),
-        useFullTable
-          ? supabase.from("student_profiles").select("*").eq("user_id", userId).maybeSingle()
-          : supabase.from("student_profiles_public" as any).select(
-              "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
-            ).eq("user_id", userId).maybeSingle(),
-      ]);
+      const profilePromise = supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url, bio")
+        .eq("user_id", userId)
+        .maybeSingle();
 
+      // Always try the full table first — RLS allows owners, admins, and
+      // employers-with-applications. Fall through to the safe public view
+      // (which only exposes onboarding-completed rows) when RLS denies.
+      const { data: full } = await supabase
+        .from("student_profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      let studentProfile: any = full;
+      if (!studentProfile) {
+        const { data: pub } = await (supabase as any)
+          .from("student_profiles_public")
+          .select(
+            "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
+          )
+          .eq("user_id", userId)
+          .maybeSingle();
+        studentProfile = pub;
+      }
+
+      const { data: profile } = await profilePromise;
       return { profile, studentProfile };
     },
-    enabled: !!userId,
+    // Wait for auth to resolve so admin/owner detection is accurate.
+    enabled: !!userId && !authLoading,
     staleTime: 0,
     refetchOnMount: "always",
   });
@@ -122,7 +140,7 @@ const StudentProfile = () => {
             </Card>
 
             {/* Academic details */}
-            {sp && (
+            {sp && (sp.university || sp.major || sp.profile_role || sp.preferred_course || sp.experience_years || sp.graduation_year || sp.location || ((isOwner || isAdmin) && sp.phone_number)) && (
               <Card>
                 <CardHeader><CardTitle className="text-lg">Student Details</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
@@ -130,6 +148,11 @@ const StudentProfile = () => {
                     <div className="flex items-center gap-2 text-sm">
                       <GraduationCap className="h-4 w-4 text-muted-foreground" />
                       <span>{sp.university}</span>
+                    </div>
+                  )}
+                  {sp.major && (
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Major:</span> {sp.major}
                     </div>
                   )}
                   {sp.profile_role && (
@@ -142,9 +165,26 @@ const StudentProfile = () => {
                       <span className="text-muted-foreground">Preferred Course:</span> {sp.preferred_course}
                     </div>
                   )}
+                  {sp.graduation_year && (
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Graduation Year:</span> {sp.graduation_year}
+                    </div>
+                  )}
                   {sp.experience_years && (
                     <div className="text-sm">
                       <span className="text-muted-foreground">Experience:</span> {sp.experience_years} months
+                    </div>
+                  )}
+                  {sp.location && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span>{sp.location}</span>
+                    </div>
+                  )}
+                  {(isOwner || isAdmin) && sp.phone_number && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span>{sp.phone_number}</span>
                     </div>
                   )}
                 </CardContent>
