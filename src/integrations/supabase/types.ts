@@ -1021,6 +1021,8 @@ export type Database = {
       }
       student_profiles: {
         Row: {
+          company_feedback_score: number
+          completed_internships: number
           created_at: string
           current_company: string | null
           current_job_title: string | null
@@ -1041,7 +1043,10 @@ export type Database = {
           phone_number: string | null
           preferred_course: string | null
           profile_role: string | null
+          profile_strength_score: number
+          reputation_score: number
           resume_url: string | null
+          skill_test_score: number
           skills: string[] | null
           university: string | null
           updated_at: string
@@ -1049,6 +1054,8 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
+          company_feedback_score?: number
+          completed_internships?: number
           created_at?: string
           current_company?: string | null
           current_job_title?: string | null
@@ -1069,7 +1076,10 @@ export type Database = {
           phone_number?: string | null
           preferred_course?: string | null
           profile_role?: string | null
+          profile_strength_score?: number
+          reputation_score?: number
           resume_url?: string | null
+          skill_test_score?: number
           skills?: string[] | null
           university?: string | null
           updated_at?: string
@@ -1077,6 +1087,8 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
+          company_feedback_score?: number
+          completed_internships?: number
           created_at?: string
           current_company?: string | null
           current_job_title?: string | null
@@ -1097,7 +1109,10 @@ export type Database = {
           phone_number?: string | null
           preferred_course?: string | null
           profile_role?: string | null
+          profile_strength_score?: number
+          reputation_score?: number
           resume_url?: string | null
+          skill_test_score?: number
           skills?: string[] | null
           university?: string | null
           updated_at?: string
