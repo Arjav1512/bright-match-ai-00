@@ -5,13 +5,20 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, GraduationCap, Briefcase, Globe, Linkedin, ArrowLeft, MessageCircle, Shield, Mail, Phone, FileText, Calendar } from "lucide-react";
+import { MapPin, Briefcase, Globe, Linkedin, ArrowLeft, MessageCircle, Shield, Phone, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FollowButton from "@/components/FollowButton";
 import { ProfileSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/AuthContext";
 import { safeExternalUrl } from "@/lib/utils";
 import AdminField from "@/components/admin/AdminField";
+
+const hasDisplayValue = (value: unknown) => {
+  if (value === null || value === undefined) return false;
+  if (typeof value === "string") return value.trim() !== "";
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+};
 
 const StudentProfile = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -63,6 +70,33 @@ const StudentProfile = () => {
 
   const profile = data?.profile;
   const sp = data?.studentProfile as any;
+
+  const studentDetailFields = sp
+    ? [
+        { label: "University", value: sp.university },
+        { label: "Major", value: sp.major },
+        { label: "Course", value: sp.profile_role },
+        { label: "Preferred Course", value: sp.preferred_course },
+        { label: "Graduation Year", value: sp.graduation_year },
+        { label: "Experience (months)", value: sp.experience_years },
+        { label: "Location", value: sp.location },
+        { label: "Skills", value: sp.skills?.length ? sp.skills.join(", ") : null },
+        { label: "Current Job Title", value: sp.current_job_title },
+        { label: "Current Company", value: sp.current_company },
+        { label: "Not Employed", value: sp.not_employed },
+        { label: "LinkedIn", value: sp.linkedin_url },
+        { label: "Website", value: sp.website_url },
+        ...((isOwner || isAdmin)
+          ? [
+              { label: "Phone", value: sp.phone_number },
+              { label: "Resume", value: sp.resume_url },
+              { label: "Onboarding Status", value: sp.onboarding_status },
+            ]
+          : []),
+      ]
+    : [];
+
+  const hasStudentDetails = studentDetailFields.some((field) => hasDisplayValue(field.value));
 
   const getInitials = () => {
     const name = profile?.full_name || "";
@@ -139,54 +173,14 @@ const StudentProfile = () => {
               </CardContent>
             </Card>
 
-            {/* Academic details */}
-            {sp && (sp.university || sp.major || sp.profile_role || sp.preferred_course || sp.experience_years || sp.graduation_year || sp.location || ((isOwner || isAdmin) && sp.phone_number)) && (
+            {/* Student details */}
+            {sp && hasStudentDetails && (
               <Card>
                 <CardHeader><CardTitle className="text-lg">Student Details</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
-                  {sp.university && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                      <span>{sp.university}</span>
-                    </div>
-                  )}
-                  {sp.major && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Major:</span> {sp.major}
-                    </div>
-                  )}
-                  {sp.profile_role && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Course:</span> {sp.profile_role}
-                    </div>
-                  )}
-                  {sp.preferred_course && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Preferred Course:</span> {sp.preferred_course}
-                    </div>
-                  )}
-                  {sp.graduation_year && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Graduation Year:</span> {sp.graduation_year}
-                    </div>
-                  )}
-                  {sp.experience_years && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Experience:</span> {sp.experience_years} months
-                    </div>
-                  )}
-                  {sp.location && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span>{sp.location}</span>
-                    </div>
-                  )}
-                  {(isOwner || isAdmin) && sp.phone_number && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span>{sp.phone_number}</span>
-                    </div>
-                  )}
+                  {studentDetailFields.map((field) => (
+                    <AdminField key={field.label} label={field.label} value={field.value} />
+                  ))}
                 </CardContent>
               </Card>
             )}

@@ -5,13 +5,20 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Globe, Linkedin, ArrowLeft, MapPin, MessageCircle, Users, BadgeCheck, Calendar, Briefcase, Shield, Mail, Phone } from "lucide-react";
+import { Globe, Linkedin, ArrowLeft, MapPin, MessageCircle, BadgeCheck, Shield, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FollowButton from "@/components/FollowButton";
 import AdminField from "@/components/admin/AdminField";
 import { ProfileSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/AuthContext";
 import { safeExternalUrl } from "@/lib/utils";
+
+const hasDisplayValue = (value: unknown) => {
+  if (value === null || value === undefined) return false;
+  if (typeof value === "string") return value.trim() !== "";
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+};
 
 const EmployerProfile = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -63,6 +70,47 @@ const EmployerProfile = () => {
 
   const ep = data?.employer;
   const internships = data?.internships || [];
+
+  const companyDetailFields = ep
+    ? [
+        { label: "Company Name", value: ep.company_name },
+        { label: "Industry", value: ep.industry },
+        { label: "Description", value: ep.company_description },
+        { label: "Company Size", value: ep.company_size },
+        { label: "Year Established", value: ep.year_established },
+        { label: "Funding Stage", value: ep.funding_stage },
+        { label: "City", value: ep.city },
+        { label: "State", value: ep.state },
+        { label: "Website", value: ep.website },
+        { label: "LinkedIn", value: ep.linkedin_profile },
+        { label: "Hiring Roles", value: (ep as any).hiring_roles?.length ? (ep as any).hiring_roles.join(", ") : null },
+        { label: "Verified", value: ep.is_verified },
+        ...((isOwner || isAdmin)
+          ? [
+              { label: "Company Domain", value: (ep as any).company_domain },
+              { label: "Head Office Address", value: (ep as any).head_office_address },
+              { label: "Pincode", value: (ep as any).pincode },
+              { label: "Head Office Mobile", value: (ep as any).head_office_mobile },
+              { label: "Head Office Landline", value: (ep as any).head_office_landline },
+              { label: "HR Name", value: (ep as any).hr_contact_name },
+              { label: "HR Designation", value: (ep as any).hr_designation },
+              { label: "HR Email", value: (ep as any).hr_email },
+              { label: "HR Phone", value: (ep as any).hr_phone },
+              { label: "Manager Name", value: (ep as any).manager_contact_name },
+              { label: "Manager Designation", value: (ep as any).manager_designation },
+              { label: "Manager Email", value: (ep as any).manager_email },
+              { label: "Manager Phone", value: (ep as any).manager_phone },
+              { label: "GSTIN", value: (ep as any).gstin },
+              { label: "GST Number", value: (ep as any).gst_number },
+              { label: "PAN", value: (ep as any).pan_number },
+              { label: "CIN", value: (ep as any).cin },
+              { label: "Onboarding Status", value: (ep as any).onboarding_status },
+            ]
+          : []),
+      ]
+    : [];
+
+  const hasCompanyDetails = companyDetailFields.some((field) => hasDisplayValue(field.value));
 
   const getInitials = () => {
     const name = ep?.company_name || "";
@@ -150,29 +198,16 @@ const EmployerProfile = () => {
             </Card>
 
             {/* Company Details */}
-            <Card>
-              <CardHeader><CardTitle className="text-lg">Company Details</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                {ep.company_size && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span>Company Size: {ep.company_size}</span>
-                  </div>
-                )}
-                {ep.year_established && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>Established: {ep.year_established}</span>
-                  </div>
-                )}
-                {ep.funding_stage && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Briefcase className="h-4 w-4 text-muted-foreground" />
-                    <span>Funding: {ep.funding_stage}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {hasCompanyDetails && (
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Company Details</CardTitle></CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  {companyDetailFields.map((field) => (
+                    <AdminField key={field.label} label={field.label} value={field.value} />
+                  ))}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Links */}
             {(ep.website || ep.linkedin_profile) && (
