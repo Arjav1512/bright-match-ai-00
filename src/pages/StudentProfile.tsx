@@ -15,30 +15,48 @@ import AdminField from "@/components/admin/AdminField";
 
 const StudentProfile = () => {
   const { userId } = useParams<{ userId: string }>();
-  const { user, role } = useAuth();
+  const { user, role, loading: authLoading } = useAuth();
 
   const isAdmin = role === "admin";
   const isOwner = !!user && user.id === userId;
-  // Owner or admin reads the full table; everyone else reads the safe public view.
-  const useFullTable = isAdmin || isOwner;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["public-student-profile", userId, useFullTable],
+    queryKey: ["public-student-profile", userId, role, user?.id],
     queryFn: async () => {
       if (!userId) throw new Error("No user ID");
 
-      const [{ data: profile }, { data: studentProfile }] = await Promise.all([
-        supabase.from("profiles").select("user_id, full_name, avatar_url, bio").eq("user_id", userId).maybeSingle(),
-        useFullTable
-          ? supabase.from("student_profiles").select("*").eq("user_id", userId).maybeSingle()
-          : supabase.from("student_profiles_public" as any).select(
-              "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
-            ).eq("user_id", userId).maybeSingle(),
-      ]);
+      const profilePromise = supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url, bio")
+        .eq("user_id", userId)
+        .maybeSingle();
 
+      // Always try the full table first — RLS allows owners, admins, and
+      // employers-with-applications. Fall through to the safe public view
+      // (which only exposes onboarding-completed rows) when RLS denies.
+      const { data: full } = await supabase
+        .from("student_profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      let studentProfile: any = full;
+      if (!studentProfile) {
+        const { data: pub } = await (supabase as any)
+          .from("student_profiles_public")
+          .select(
+            "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
+          )
+          .eq("user_id", userId)
+          .maybeSingle();
+        studentProfile = pub;
+      }
+
+      const { data: profile } = await profilePromise;
       return { profile, studentProfile };
     },
-    enabled: !!userId,
+    // Wait for auth to resolve so admin/owner detection is accurate.
+    enabled: !!userId && !authLoading,
     staleTime: 0,
     refetchOnMount: "always",
   });
