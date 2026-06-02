@@ -48,7 +48,7 @@ const FollowStats = ({ userId }: { userId: string }) => {
 const DRAFT_KEY = "wroob_profile_draft";
 
 const saveDraft = (userId: string, data: Record<string, any>) => {
-  try { localStorage.setItem(`${DRAFT_KEY}_${userId}`, JSON.stringify(data)); } catch {}
+  try { localStorage.setItem(`${DRAFT_KEY}_${userId}`, JSON.stringify({ ...data, __savedAt: Date.now() })); } catch {}
 };
 
 const loadDraft = (userId: string): Record<string, any> | null => {
@@ -130,18 +130,36 @@ const Profile = () => {
   }, [user]);
 
   const loadFromDb = async (uid: string, currentRole: string | null, applyDraft: boolean) => {
-    const draft = applyDraft ? loadDraft(uid) : null;
+    const rawDraft = applyDraft ? loadDraft(uid) : null;
 
     const { data: p } = await supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle();
+    const profileUpdatedAt = p?.updated_at ? new Date(p.updated_at).getTime() : 0;
+    let studentUpdatedAt = 0;
+    let employerUpdatedAt = 0;
+    let draft: Record<string, any> | null = null;
+
+    const applyFreshDraft = (latestDbUpdatedAt: number) => {
+      if (!rawDraft) return null;
+      // Legacy drafts had no timestamp and can shadow real DB values forever.
+      // Ignore and clear them once the database can be read successfully.
+      if (typeof rawDraft.__savedAt !== "number") {
+        clearDraft(uid);
+        return null;
+      }
+      return rawDraft.__savedAt > latestDbUpdatedAt ? rawDraft : null;
+    };
+
     const dbProfile = p
       ? { full_name: p.full_name || "", bio: p.bio || "", avatar_url: p.avatar_url || "" }
       : { full_name: "", bio: "", avatar_url: "" };
-    setProfile(draft?.profile ? { ...dbProfile, ...draft.profile } : dbProfile);
 
     if (currentRole === "student") {
       const { data: sp } = await supabase.from("student_profiles").select("*").eq("user_id", uid).maybeSingle();
       if (sp) {
         const d = sp as any;
+        studentUpdatedAt = d.updated_at ? new Date(d.updated_at).getTime() : 0;
+        draft = applyFreshDraft(Math.max(profileUpdatedAt, studentUpdatedAt));
+        setProfile(draft?.profile ? { ...dbProfile, ...draft.profile } : dbProfile);
         const savedRole = d.profile_role || "";
         const derivedCategory = savedRole ? SCHOOL_NAMES.find((s) => COURSE_CATEGORIES[s].includes(savedRole)) || "" : "";
         const dbStudent = {
@@ -160,6 +178,9 @@ const Profile = () => {
       const { data: ep } = await supabase.from("employer_profiles").select("*").eq("user_id", uid).maybeSingle();
       if (ep) {
         const d = ep as any;
+        employerUpdatedAt = d.updated_at ? new Date(d.updated_at).getTime() : 0;
+        draft = applyFreshDraft(Math.max(profileUpdatedAt, employerUpdatedAt));
+        setProfile(draft?.profile ? { ...dbProfile, ...draft.profile } : dbProfile);
         const dbEmployer = {
           company_name: d.company_name || "", industry: d.industry || "",
           company_size: d.company_size || "", website: d.website || "",
@@ -177,6 +198,9 @@ const Profile = () => {
         };
         setEmployerProfile(draft?.employerProfile ? { ...dbEmployer, ...draft.employerProfile } : dbEmployer);
       }
+    } else {
+      draft = applyFreshDraft(profileUpdatedAt);
+      setProfile(draft?.profile ? { ...dbProfile, ...draft.profile } : dbProfile);
     }
   };
 
