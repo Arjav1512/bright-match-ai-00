@@ -140,7 +140,7 @@ const StudentProfile = () => {
             </Card>
 
             {/* Academic details */}
-            {sp && (
+            {sp && (sp.university || sp.major || sp.profile_role || sp.preferred_course || sp.experience_years || sp.graduation_year || sp.location || ((isOwner || isAdmin) && sp.phone_number)) && (
               <Card>
                 <CardHeader><CardTitle className="text-lg">Student Details</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
@@ -148,6 +148,11 @@ const StudentProfile = () => {
                     <div className="flex items-center gap-2 text-sm">
                       <GraduationCap className="h-4 w-4 text-muted-foreground" />
                       <span>{sp.university}</span>
+                    </div>
+                  )}
+                  {sp.major && (
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Major:</span> {sp.major}
                     </div>
                   )}
                   {sp.profile_role && (
@@ -160,9 +165,26 @@ const StudentProfile = () => {
                       <span className="text-muted-foreground">Preferred Course:</span> {sp.preferred_course}
                     </div>
                   )}
+                  {sp.graduation_year && (
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Graduation Year:</span> {sp.graduation_year}
+                    </div>
+                  )}
                   {sp.experience_years && (
                     <div className="text-sm">
                       <span className="text-muted-foreground">Experience:</span> {sp.experience_years} months
+                    </div>
+                  )}
+                  {sp.location && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span>{sp.location}</span>
+                    </div>
+                  )}
+                  {(isOwner || isAdmin) && sp.phone_number && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span>{sp.phone_number}</span>
                     </div>
                   )}
                 </CardContent>
