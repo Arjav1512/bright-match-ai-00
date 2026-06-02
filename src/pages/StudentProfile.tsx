@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, GraduationCap, Briefcase, Globe, Linkedin, ArrowLeft, MessageCircle, Shield, Mail, Phone, FileText, Calendar } from "lucide-react";
+import { MapPin, Briefcase, Globe, Linkedin, ArrowLeft, MessageCircle, Shield, Phone, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FollowButton from "@/components/FollowButton";
 import { ProfileSkeleton } from "@/components/skeletons";
