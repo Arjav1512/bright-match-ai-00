@@ -65,6 +65,7 @@ const clearDraft = (userId: string) => {
 const Profile = () => {
   const { user, role, refreshProfile: refreshAuthProfile } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState({ full_name: "", bio: "", avatar_url: "" });
   const [studentProfile, setStudentProfile] = useState({
