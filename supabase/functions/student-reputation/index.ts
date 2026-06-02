@@ -196,6 +196,35 @@ serve(async (req) => {
     if (req.method === "GET") {
       const studentId = url.searchParams.get("student_id") || user.id;
 
+      // Authorization: self, admin, or employer with an application from this student
+      if (studentId !== user.id) {
+        const { data: isAdmin } = await serviceClient
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        let authorized = !!isAdmin;
+        if (!authorized) {
+          const { data: appRow } = await serviceClient
+            .from("applications")
+            .select("id, internships!inner(employer_id)")
+            .eq("student_id", studentId)
+            .eq("internships.employer_id", user.id)
+            .limit(1)
+            .maybeSingle();
+          authorized = !!appRow;
+        }
+
+        if (!authorized) {
+          return new Response(JSON.stringify({ error: "Forbidden" }), {
+            status: 403,
+            headers: { ...responseHeaders },
+          });
+        }
+      }
+
       const { data: sp, error } = await serviceClient
         .from("student_profiles")
         .select("reputation_score, completed_internships, skill_test_score, company_feedback_score, profile_strength_score")
