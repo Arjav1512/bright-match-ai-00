@@ -268,6 +268,11 @@ const Profile = () => {
     // Re-hydrate from DB so what the user sees is exactly what was persisted.
     await loadFromDb(user.id, role, false);
     await refreshAuthProfile();
+    // Invalidate any cached public profile views so the saved data shows up
+    // immediately when the user navigates to /student/:id or /employer/:id.
+    queryClient.invalidateQueries({ queryKey: ["public-student-profile", user.id] });
+    queryClient.invalidateQueries({ queryKey: ["public-student-profile"] });
+    queryClient.invalidateQueries({ queryKey: ["employer-profile", user.id] });
     suppressDraftFlush.current = false;
     setLoading(false);
     toast({ title: "Profile updated!" });
