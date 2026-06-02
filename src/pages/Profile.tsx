@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
@@ -64,6 +65,7 @@ const clearDraft = (userId: string) => {
 const Profile = () => {
   const { user, role, refreshProfile: refreshAuthProfile } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState({ full_name: "", bio: "", avatar_url: "" });
   const [studentProfile, setStudentProfile] = useState({
@@ -266,6 +268,11 @@ const Profile = () => {
     // Re-hydrate from DB so what the user sees is exactly what was persisted.
     await loadFromDb(user.id, role, false);
     await refreshAuthProfile();
+    // Invalidate any cached public profile views so the saved data shows up
+    // immediately when the user navigates to /student/:id or /employer/:id.
+    queryClient.invalidateQueries({ queryKey: ["public-student-profile", user.id] });
+    queryClient.invalidateQueries({ queryKey: ["public-student-profile"] });
+    queryClient.invalidateQueries({ queryKey: ["employer-profile", user.id] });
     suppressDraftFlush.current = false;
     setLoading(false);
     toast({ title: "Profile updated!" });
