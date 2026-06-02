@@ -106,6 +106,20 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // --- Role check: students only ---
+    const { data: roleRow } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user_id)
+      .eq("role", "student")
+      .maybeSingle();
+    if (!roleRow) {
+      return new Response(JSON.stringify({ error: "Students only" }), {
+        status: 403,
+        headers: { ...responseHeaders },
+      });
+    }
+
     // ── Rate Limit Check (atomic) ─────────────────────────────────────────
     const { data: rlAllowed, error: rlError } = await supabase.rpc(
       "check_and_increment_rate_limit",
