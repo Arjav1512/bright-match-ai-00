@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Globe, Linkedin, ArrowLeft, MapPin, MessageCircle, Users, BadgeCheck, Calendar, Briefcase, Shield, Mail, Phone } from "lucide-react";
+import { Globe, Linkedin, ArrowLeft, MapPin, MessageCircle, BadgeCheck, Shield, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FollowButton from "@/components/FollowButton";
 import AdminField from "@/components/admin/AdminField";
