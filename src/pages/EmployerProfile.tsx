@@ -15,28 +15,50 @@ import { safeExternalUrl } from "@/lib/utils";
 
 const EmployerProfile = () => {
   const { userId } = useParams<{ userId: string }>();
-  const { user, role } = useAuth();
+  const { user, role, loading: authLoading } = useAuth();
   const isAdmin = role === "admin";
+  const isOwner = !!user && user.id === userId;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["public-employer-profile", userId, isAdmin],
+    queryKey: ["public-employer-profile", userId, role, user?.id],
     queryFn: async () => {
       if (!userId) throw new Error("No user ID");
 
-      const [{ data: employer }, { data: internships }] = await Promise.all([
-        // Admins read the FULL employer_profiles row (legal info, HR/manager contacts, etc.).
-        // Other viewers read the public-safe view that excludes sensitive legal/contact fields.
-        isAdmin
-          ? supabase.from("employer_profiles").select("*").eq("user_id", userId).maybeSingle()
-          : (supabase as any).from("employer_profiles_public").select(
-              "user_id, company_name, logo_url, is_verified, industry, city, state, company_description, company_size, year_established, funding_stage, website, linkedin_profile"
-            ).eq("user_id", userId).maybeSingle(),
-        supabase.from("internships").select("id, title, type, location, status, created_at").eq("employer_id", userId).eq("status", "published").order("created_at", { ascending: false }).limit(10),
-      ]);
+      // Always try the full table first. RLS allows:
+      //  - the owner ("Employer can read own profile")
+      //  - admins ("Admins can read employer profiles")
+      //  - any authenticated user ("Discovery: read public columns of employer profiles")
+      // Fall back to the public view if RLS denies for any reason.
+      let { data: employer } = await supabase
+        .from("employer_profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (!employer) {
+        const { data: pub } = await (supabase as any)
+          .from("employer_profiles_public")
+          .select(
+            "user_id, company_name, logo_url, is_verified, industry, city, state, company_description, company_size, year_established, funding_stage, website, linkedin_profile"
+          )
+          .eq("user_id", userId)
+          .maybeSingle();
+        employer = pub;
+      }
+
+      const { data: internships } = await supabase
+        .from("internships")
+        .select("id, title, type, location, status, created_at")
+        .eq("employer_id", userId)
+        .eq("status", "published")
+        .order("created_at", { ascending: false })
+        .limit(10);
 
       return { employer, internships: internships || [] };
     },
-    enabled: !!userId,
+    enabled: !!userId && !authLoading,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const ep = data?.employer;
