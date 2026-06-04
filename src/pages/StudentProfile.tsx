@@ -263,4 +263,57 @@ const StudentProfile = () => {
   );
 };
 
+const MessageActionButton = ({
+  targetUserId,
+  viewerRole,
+  partnerName,
+  partnerAvatar,
+}: {
+  targetUserId: string;
+  viewerRole: string | null;
+  partnerName: string;
+  partnerAvatar: string | null;
+}) => {
+  // Employers can always DM students. Students can only DM connected peers.
+  const { state } = useFollows(targetUserId);
+  const isStudentViewer = viewerRole === "student";
+  const connected = state === "accepted";
+  const disabled = isStudentViewer && !connected;
+
+  const label = !isStudentViewer
+    ? "Message"
+    : connected
+      ? "Message"
+      : state === "pending_outgoing"
+        ? "Request sent"
+        : state === "pending_incoming"
+          ? "Accept to message"
+          : "Connect to message";
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      disabled={disabled}
+      title={disabled ? "You must be connected to message this student" : undefined}
+      onClick={() => {
+        if (disabled) return;
+        window.dispatchEvent(
+          new CustomEvent("open-dm", {
+            detail: {
+              partnerId: targetUserId,
+              partnerName,
+              partnerAvatar,
+              partnerRole: "student",
+            },
+          })
+        );
+      }}
+    >
+      <MessageCircle className="h-4 w-4 mr-1" />
+      {label}
+    </Button>
+  );
+};
+
 export default StudentProfile;
