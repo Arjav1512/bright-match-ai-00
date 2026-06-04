@@ -252,12 +252,13 @@ export function useChatMessages(partnerId: string | null) {
 
   const sendMessage = useCallback(
     async (text: string) => {
-      if (!partnerId || !user) return;
-      await supabase.from("direct_messages").insert({
+      if (!partnerId || !user) return { error: "Not signed in" as string | null };
+      const { error } = await supabase.from("direct_messages").insert({
         sender_id: user.id,
         receiver_id: partnerId,
         text,
       });
+      return { error: error?.message ?? null };
     },
     [partnerId, user]
   );
