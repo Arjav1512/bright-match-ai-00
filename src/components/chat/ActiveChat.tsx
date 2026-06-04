@@ -32,8 +32,17 @@ const ActiveChat = ({ partnerId, partnerName, partnerAvatar, partnerRole, onBack
   const handleSend = async () => {
     if (!text.trim()) return;
     setSending(true);
-    await sendMessage(text.trim());
-    setText("");
+    const res = await sendMessage(text.trim());
+    if (res?.error) {
+      const { toast } = await import("sonner");
+      toast.error(
+        /row-level security|policy/i.test(res.error)
+          ? "You must be connected to message this student."
+          : "Failed to send message."
+      );
+    } else {
+      setText("");
+    }
     setSending(false);
   };
 
