@@ -12,6 +12,7 @@ import { ProfileSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/AuthContext";
 import { safeExternalUrl } from "@/lib/utils";
 import AdminField from "@/components/admin/AdminField";
+import { useFollows } from "@/hooks/useFollows";
 
 const hasDisplayValue = (value: unknown) => {
   if (value === null || value === undefined) return false;
