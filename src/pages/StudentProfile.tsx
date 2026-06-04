@@ -12,6 +12,7 @@ import { ProfileSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/AuthContext";
 import { safeExternalUrl } from "@/lib/utils";
 import AdminField from "@/components/admin/AdminField";
+import { useFollows } from "@/hooks/useFollows";
 
 const hasDisplayValue = (value: unknown) => {
   if (value === null || value === undefined) return false;
@@ -141,30 +142,12 @@ const StudentProfile = () => {
                       <div className="mt-3 flex items-center gap-2">
                         <FollowButton targetUserId={userId!} />
                         {(role === "student" || role === "employer") && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              // Dispatch custom event to open chat with this student.
-                              // FIX (HIGH-employer-dm): Allow employers to initiate DMs
-                              // from a student profile page — previously gated to students only.
-                              window.dispatchEvent(
-                                new CustomEvent("open-dm", {
-                                  detail: {
-                                    partnerId: userId,
-                                    partnerName: profile.full_name || "Student",
-                                    partnerAvatar: profile.avatar_url,
-                                    // FIX (HIGH-chat-route): Dispatch site always dispatches
-                                    // from a student profile page, so role is always "student".
-                                    partnerRole: "student",
-                                  },
-                                })
-                              );
-                            }}
-                          >
-                            <MessageCircle className="h-4 w-4 mr-1" />
-                            Message
-                          </Button>
+                          <MessageActionButton
+                            targetUserId={userId!}
+                            viewerRole={role}
+                            partnerName={profile.full_name || "Student"}
+                            partnerAvatar={profile.avatar_url}
+                          />
                         )}
                       </div>
                     )}
@@ -277,6 +260,59 @@ const StudentProfile = () => {
         )}
       </div>
     </div>
+  );
+};
+
+const MessageActionButton = ({
+  targetUserId,
+  viewerRole,
+  partnerName,
+  partnerAvatar,
+}: {
+  targetUserId: string;
+  viewerRole: string | null;
+  partnerName: string;
+  partnerAvatar: string | null;
+}) => {
+  // Employers can always DM students. Students can only DM connected peers.
+  const { state } = useFollows(targetUserId);
+  const isStudentViewer = viewerRole === "student";
+  const connected = state === "accepted";
+  const disabled = isStudentViewer && !connected;
+
+  const label = !isStudentViewer
+    ? "Message"
+    : connected
+      ? "Message"
+      : state === "pending_outgoing"
+        ? "Request sent"
+        : state === "pending_incoming"
+          ? "Accept to message"
+          : "Connect to message";
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      disabled={disabled}
+      title={disabled ? "You must be connected to message this student" : undefined}
+      onClick={() => {
+        if (disabled) return;
+        window.dispatchEvent(
+          new CustomEvent("open-dm", {
+            detail: {
+              partnerId: targetUserId,
+              partnerName,
+              partnerAvatar,
+              partnerRole: "student",
+            },
+          })
+        );
+      }}
+    >
+      <MessageCircle className="h-4 w-4 mr-1" />
+      {label}
+    </Button>
   );
 };
 

@@ -1291,6 +1291,7 @@ export type Database = {
           success: boolean
         }[]
       }
+      are_connected: { Args: { _a: string; _b: string }; Returns: boolean }
       check_and_increment_rate_limit: {
         Args: {
           p_function_name: string
