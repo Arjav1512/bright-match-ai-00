@@ -39,7 +39,7 @@ const MyApplications = () => {
       let employerMap: Record<string, any> = {};
       if (employerIds.length > 0) {
         const { data: profiles } = await supabase
-          .from("employer_profiles")
+          .from("employer_profiles_public")
           .select("user_id, company_name")
           .in("user_id", employerIds);
         if (profiles) {
