@@ -1159,40 +1159,6 @@ export type Database = {
           website: string | null
           year_established: number | null
         }
-        Insert: {
-          city?: string | null
-          company_description?: string | null
-          company_name?: string | null
-          company_size?: string | null
-          created_at?: string | null
-          funding_stage?: string | null
-          id?: string | null
-          industry?: string | null
-          is_verified?: boolean | null
-          linkedin_profile?: string | null
-          logo_url?: string | null
-          state?: string | null
-          user_id?: string | null
-          website?: string | null
-          year_established?: number | null
-        }
-        Update: {
-          city?: string | null
-          company_description?: string | null
-          company_name?: string | null
-          company_size?: string | null
-          created_at?: string | null
-          funding_stage?: string | null
-          id?: string | null
-          industry?: string | null
-          is_verified?: boolean | null
-          linkedin_profile?: string | null
-          logo_url?: string | null
-          state?: string | null
-          user_id?: string | null
-          website?: string | null
-          year_established?: number | null
-        }
         Relationships: []
       }
       student_profiles_public: {
@@ -1204,7 +1170,6 @@ export type Database = {
           graduation_year: number | null
           id: string | null
           is_student: boolean | null
-          linkedin_url: string | null
           location: string | null
           major: string | null
           not_employed: boolean | null
@@ -1214,47 +1179,6 @@ export type Database = {
           skills: string[] | null
           university: string | null
           user_id: string | null
-          website_url: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          current_company?: string | null
-          current_job_title?: string | null
-          experience_years?: string | null
-          graduation_year?: number | null
-          id?: string | null
-          is_student?: boolean | null
-          linkedin_url?: string | null
-          location?: string | null
-          major?: string | null
-          not_employed?: boolean | null
-          onboarding_status?: string | null
-          preferred_course?: string | null
-          profile_role?: string | null
-          skills?: string[] | null
-          university?: string | null
-          user_id?: string | null
-          website_url?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          current_company?: string | null
-          current_job_title?: string | null
-          experience_years?: string | null
-          graduation_year?: number | null
-          id?: string | null
-          is_student?: boolean | null
-          linkedin_url?: string | null
-          location?: string | null
-          major?: string | null
-          not_employed?: boolean | null
-          onboarding_status?: string | null
-          preferred_course?: string | null
-          profile_role?: string | null
-          skills?: string[] | null
-          university?: string | null
-          user_id?: string | null
-          website_url?: string | null
         }
         Relationships: []
       }
@@ -1322,6 +1246,47 @@ export type Database = {
       is_group_member: {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
+      }
+      list_employer_profiles_public: {
+        Args: never
+        Returns: {
+          city: string
+          company_description: string
+          company_name: string
+          company_size: string
+          created_at: string
+          funding_stage: string
+          id: string
+          industry: string
+          is_verified: boolean
+          linkedin_profile: string
+          logo_url: string
+          state: string
+          user_id: string
+          website: string
+          year_established: number
+        }[]
+      }
+      list_student_profiles_public: {
+        Args: never
+        Returns: {
+          created_at: string
+          current_company: string
+          current_job_title: string
+          experience_years: string
+          graduation_year: number
+          id: string
+          is_student: boolean
+          location: string
+          major: string
+          not_employed: boolean
+          onboarding_status: string
+          preferred_course: string
+          profile_role: string
+          skills: string[]
+          university: string
+          user_id: string
+        }[]
       }
       set_initial_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
