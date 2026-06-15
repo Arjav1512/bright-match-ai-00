@@ -1236,6 +1236,29 @@ export type Database = {
         }
         Returns: undefined
       }
+      get_applicant_profiles_for_employer: {
+        Args: { p_internship_id: string }
+        Returns: {
+          company_feedback_score: number
+          completed_internships: number
+          current_company: string
+          current_job_title: string
+          experience_years: string
+          graduation_year: number
+          linkedin_url: string
+          location: string
+          major: string
+          preferred_course: string
+          profile_strength_score: number
+          reputation_score: number
+          resume_url: string
+          skill_test_score: number
+          skills: string[]
+          university: string
+          user_id: string
+          website_url: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
