@@ -47,7 +47,7 @@ const Signup = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <SEO title="Sign up for Wroob — Free student & employer accounts" description="Create your free Wroob account to discover skills-matched internships or hire ambitious students through skills-based matching." path="/signup" />
+      <SEO title="Sign up for Wroob — Free student & employer accounts" description="Create your free Wroob account to discover skills-matched internships or hire ambitious students through skills-based matching." path="/signup" noIndex />
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link to="/">

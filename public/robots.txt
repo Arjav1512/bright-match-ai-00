@@ -12,5 +12,25 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /my-applications
+Disallow: /my-internships
+Disallow: /post-internship
+Disallow: /notifications
+Disallow: /groups
+Disallow: /students
+Disallow: /skill-tests
+Disallow: /campus
+Disallow: /student/
+Disallow: /employer/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /onboarding/
+Disallow: /select-role
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /login
+Disallow: /signup
 
 Sitemap: https://wroob.in/sitemap.xml
