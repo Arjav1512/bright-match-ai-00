@@ -8,6 +8,7 @@ import { GraduationCap, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import wroobeLogo from "@/assets/wroob-logo.png";
+import SEO from "@/components/SEO";
 
 const SelectRole = () => {
   const { user, role, loading, refreshRole } = useAuth();
@@ -74,6 +75,7 @@ const SelectRole = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <SEO title="Choose your Wroob role" description="Select whether you're joining Wroob as a student or an employer." path="/select-role" noIndex />
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <img src={wroobeLogo} alt="Wroob" width="139" height="56" className="mx-auto h-14" />

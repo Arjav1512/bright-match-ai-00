@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import wroobeLogo from "@/assets/wroob-logo.png";
+import SEO from "@/components/SEO";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -35,6 +36,7 @@ const ResetPassword = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <SEO title="Set a new Wroob password" description="Set a new password for your Wroob account." path="/reset-password" noIndex />
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link to="/">

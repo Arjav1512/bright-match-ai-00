@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
 import wroobeLogo from "@/assets/wroob-logo.png";
+import SEO from "@/components/SEO";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -30,6 +31,7 @@ const ForgotPassword = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <SEO title="Reset your Wroob password" description="Request a password reset link for your Wroob account." path="/forgot-password" noIndex />
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link to="/">
