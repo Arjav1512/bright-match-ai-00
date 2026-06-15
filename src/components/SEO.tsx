@@ -7,11 +7,12 @@ interface SEOProps {
   type?: "website" | "article";
   image?: string;
   jsonLd?: object | object[];
+  noIndex?: boolean;
 }
 
 const SITE_URL = "https://wroob.in";
 
-const SEO = ({ title, description, path = "/", type = "website", image, jsonLd }: SEOProps) => {
+const SEO = ({ title, description, path = "/", type = "website", image, jsonLd, noIndex }: SEOProps) => {
   const url = `${SITE_URL}${path}`;
   const ogImage = image || `${SITE_URL}/og-image.png`;
   const schemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
@@ -20,6 +21,7 @@ const SEO = ({ title, description, path = "/", type = "website", image, jsonLd }
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
+      {noIndex && <meta name="robots" content="noindex,nofollow" />}
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
