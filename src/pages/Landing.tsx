@@ -307,7 +307,17 @@ const Landing = () => {
       </motion.section>
 
       {/* Why Choose Wroob */}
+      {/* Internship categories (SEO + discovery) */}
+      <LandingCategories />
+
+      {/* Value props for students / employers / campuses */}
+      <LandingValueProps />
+
+      {/* Why Choose Wroob */}
       <WhyChooseWroobSection />
+
+      {/* FAQ */}
+      <LandingFAQ />
 
       {/* Social proof */}
       <motion.section

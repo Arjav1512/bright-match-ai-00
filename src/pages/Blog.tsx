@@ -14,10 +14,35 @@ export const POSTS = [
   { slug: "from-intern-to-full-time-success-stories", title: "From Intern to Full-Time: Success Stories", excerpt: "Real stories from students who turned their Wroob internships into full-time offers.", date: "Jan 15, 2026", category: "Stories", content: "Meet three students who parlayed their Wroob internships into full-time positions. Priya started as a marketing intern at a startup and is now leading their content strategy. Arjun's engineering internship turned into a junior developer role within three months. And Sneha's design internship led to a full-time UX position at a growing fintech company. Their secret? Going above and beyond, building relationships, and treating every task as a learning opportunity." },
 ];
 
+const blogJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "Wroob Blog",
+    url: "https://wroob.in/blog",
+    blogPost: POSTS.map((p) => ({
+      "@type": "BlogPosting",
+      headline: p.title,
+      url: `https://wroob.in/blog/${p.slug}`,
+      datePublished: new Date(p.date).toISOString(),
+      articleSection: p.category,
+    })),
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://wroob.in/" },
+      { "@type": "ListItem", position: 2, name: "Blog", item: "https://wroob.in/blog" },
+    ],
+  },
+];
+
 const Blog = () => (
   <div className="min-h-screen bg-background">
-    <SEO title="Wroob Blog — Internship tips, careers & industry insights" description="Career guides, internship advice, and industry trends for students and employers from the Wroob team." path="/blog" />
+    <SEO title="Wroob Blog — Internship tips, careers & industry insights" description="Career guides, internship advice, and industry trends for students and employers from the Wroob team." path="/blog" jsonLd={blogJsonLd} />
     <Navbar />
+
     <section className="py-20">
       <div className="container">
         <motion.div className="mx-auto max-w-2xl text-center" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
