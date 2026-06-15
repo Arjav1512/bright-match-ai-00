@@ -7,9 +7,13 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
 import WhyChooseWroobSection from "@/components/landing/WhyChooseWroobSection";
+import LandingCategories, { LANDING_CATEGORIES } from "@/components/landing/LandingCategories";
+import LandingValueProps from "@/components/landing/LandingValueProps";
+import LandingFAQ, { LANDING_FAQS } from "@/components/landing/LandingFAQ";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+
 
 const FLOATING_TAGS = [
   { label: "Frontend", top: "10%", left: "4%", delay: 0, scale: 1.02, showOnMobile: true },
@@ -44,12 +48,41 @@ const Landing = () => {
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.96]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.3]);
 
+  const landingJsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: LANDING_FAQS.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "Popular internship categories on Wroob",
+      itemListElement: LANDING_CATEGORIES.map((c, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: c.label,
+        url: `https://wroob.in/internships?category=${c.slug}`,
+      })),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
-      <SEO title="Wroob — Find Your Perfect Internship" description="Skills-based internship matching for students and companies. Discover internships, build your reputation, and connect with innovative employers." path="/" />
+      <SEO
+        title="Wroob — Find Internships in India, Build Skills & Grow Your Career"
+        description="India's skills-based internship platform. Discover remote and on-site internships, build a verified reputation, and connect with innovative employers — free for students."
+        path="/"
+        jsonLd={landingJsonLd}
+      />
       <ScrollProgress />
       <Navbar />
       <main>
+
 
       {/* Hero */}
       <section ref={heroRef} className="relative overflow-hidden pt-20 pb-24 md:pt-32 md:pb-36 min-h-[90vh] flex flex-col justify-center">
@@ -122,20 +155,21 @@ const Landing = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1 }}
             >
-              Find Your Perfect
+              Find Internships in India,
               <br />
-              <span className="brand-gradient-text">Internship</span>
+              <span className="brand-gradient-text">Build Skills & Grow Your Career</span>
             </motion.h1>
 
             <motion.p
               className="mx-auto mt-6 md:mt-8 text-muted-foreground"
-              style={{ font: "var(--text-body)", maxWidth: "480px", fontSize: "clamp(15px, 1.8vw, 18px)", lineHeight: "1.7" }}
+              style={{ font: "var(--text-body)", maxWidth: "560px", fontSize: "clamp(15px, 1.8vw, 18px)", lineHeight: "1.7" }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
             >
-              Where ambitious students and innovative companies connect through skills-based matching.
+              Wroob is India's skills-based internship platform — discover remote and on-site internships, build a verified reputation, and connect with innovative employers. Free for students.
             </motion.p>
+
 
             {/* Hero CTAs */}
             <motion.div
