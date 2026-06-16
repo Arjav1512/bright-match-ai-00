@@ -20,7 +20,6 @@ export type Database = {
           cover_letter: string | null
           id: string
           internship_id: string
-          resume_url: string | null
           status: Database["public"]["Enums"]["application_status"]
           student_id: string
           updated_at: string
@@ -30,7 +29,6 @@ export type Database = {
           cover_letter?: string | null
           id?: string
           internship_id: string
-          resume_url?: string | null
           status?: Database["public"]["Enums"]["application_status"]
           student_id: string
           updated_at?: string
@@ -40,7 +38,6 @@ export type Database = {
           cover_letter?: string | null
           id?: string
           internship_id?: string
-          resume_url?: string | null
           status?: Database["public"]["Enums"]["application_status"]
           student_id?: string
           updated_at?: string

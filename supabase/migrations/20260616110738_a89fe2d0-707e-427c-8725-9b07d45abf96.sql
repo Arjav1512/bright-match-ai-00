@@ -1,0 +1,1 @@
+ALTER TABLE public.applications DROP COLUMN IF EXISTS resume_url;
