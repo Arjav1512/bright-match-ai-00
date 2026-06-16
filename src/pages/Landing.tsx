@@ -65,12 +65,13 @@ const Landing = () => {
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, enableParallax ? 0.96 : 1]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, enableParallax ? 0.3 : 1]);
 
-  // On mobile or for reduced-motion users, render fewer floating tags and
-  // skip the infinite y-bobbing animation that drove >1s of style recalc.
-  const visibleTags = isMobile
-    ? FLOATING_TAGS.filter((t) => t.showOnMobile).slice(0, 4)
-    : FLOATING_TAGS;
+  // On mobile or for reduced-motion users, skip the infinite y-bobbing that
+  // drove >1s of style recalc. Hook count is preserved by always iterating
+  // FLOATING_TAGS; only the rendered output is reduced via showOnMobile.
   const animateTags = !prefersReducedMotion && !isMobile;
+  const mobileVisibleSlugs = new Set(
+    FLOATING_TAGS.filter((t) => t.showOnMobile).slice(0, 4).map((t) => t.label),
+  );
 
   const landingJsonLd = [
     {
@@ -122,16 +123,21 @@ const Landing = () => {
         <div className="absolute inset-0 pointer-events-none z-20">
           {FLOATING_TAGS.map((tag, i) => {
             const speed = 0.3 + (i % 4) * 0.15;
+            const yTransform = useTransform(scrollYProgress, [0, 1], [0, enableParallax ? -80 * speed : 0]);
+            const renderOnMobile = mobileVisibleSlugs.has(tag.label);
+            const hiddenClass = isMobile
+              ? (renderOnMobile ? "" : "hidden")
+              : (tag.showOnMobile ? "" : "hidden md:block");
             return (
               <motion.div
                 key={tag.label}
-                className={`absolute pointer-events-auto ${tag.showOnMobile ? '' : 'hidden md:block'}`}
+                className={`absolute pointer-events-auto ${hiddenClass}`}
                 style={{
                   top: tag.top,
                   left: tag.left,
                   right: tag.right,
                   bottom: tag.bottom,
-                  y: useTransform(scrollYProgress, [0, 1], [0, -80 * speed]),
+                  y: yTransform,
                 }}
                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ opacity: 0.7, y: 0, scale: tag.scale }}
@@ -140,9 +146,9 @@ const Landing = () => {
                 <motion.div
                   className="glass rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm text-muted-foreground/70 shadow-sm cursor-pointer transition-shadow duration-300 hover:shadow-2xl hover:shadow-primary/35"
                   style={{ letterSpacing: "var(--letter-spacing-label)" }}
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 4 + tag.delay, repeat: Infinity, ease: "easeInOut" }}
-                  whileHover={{ scale: 1.1, y: -6, opacity: 1 }}
+                  animate={animateTags ? { y: [0, -8, 0] } : undefined}
+                  transition={animateTags ? { duration: 4 + tag.delay, repeat: Infinity, ease: "easeInOut" } : undefined}
+                  whileHover={animateTags ? { scale: 1.1, y: -6, opacity: 1 } : undefined}
                 >
                   {tag.label}
                 </motion.div>
