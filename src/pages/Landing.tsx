@@ -47,9 +47,30 @@ const sectionReveal = {
 const Landing = () => {
   const { user, role } = useAuth();
   const heroRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 768px)").matches : false,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const onChange = () => setIsMobile(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  // Disable hero scroll-parallax on mobile / reduced-motion users — the
+  // constant transform reads were the biggest source of style-recalc cost.
+  const enableParallax = !isMobile && !prefersReducedMotion;
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.96]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.3]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, enableParallax ? 0.96 : 1]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, enableParallax ? 0.3 : 1]);
+
+  // On mobile or for reduced-motion users, render fewer floating tags and
+  // skip the infinite y-bobbing animation that drove >1s of style recalc.
+  const visibleTags = isMobile
+    ? FLOATING_TAGS.filter((t) => t.showOnMobile).slice(0, 4)
+    : FLOATING_TAGS;
+  const animateTags = !prefersReducedMotion && !isMobile;
 
   const landingJsonLd = [
     {
