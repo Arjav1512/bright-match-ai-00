@@ -14,11 +14,14 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:; worker-src 'self' blob:; frame-src 'self' https:;" />
     <meta name="author" content="Wroob" />
 
-    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
-    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
     <link rel="preconnect" href="https://vlavfpvrxnmoutybczfy.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="https://vlavfpvrxnmoutybczfy.supabase.co" />
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+
+    <!-- Self-hosted Satoshi (PR 2): removes the render-blocking Fontshare
+         stylesheet (~444 ms). Preload the two weights that render above the
+         fold on the homepage hero (h1 = 700, eyebrow + body = 400). -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/satoshi-700.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/satoshi-400.woff2" crossorigin />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Wroob" />
