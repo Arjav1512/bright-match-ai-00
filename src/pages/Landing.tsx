@@ -2,17 +2,20 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEO from "@/components/SEO";
 
-import { ArrowRight, Users, Search, CheckCircle, ArrowDown, Briefcase } from "lucide-react";
+import { ArrowRight, Users, Search, CheckCircle, ArrowDown } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
-import WhyChooseWroobSection from "@/components/landing/WhyChooseWroobSection";
-import LandingCategories, { LANDING_CATEGORIES } from "@/components/landing/LandingCategories";
-import LandingValueProps from "@/components/landing/LandingValueProps";
-import LandingFAQ, { LANDING_FAQS } from "@/components/landing/LandingFAQ";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { LANDING_CATEGORIES, LANDING_FAQS } from "@/components/landing/landingData";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { useRef, useEffect, useState, lazy, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+
+// Below-the-fold sections — lazy so the hero paints faster.
+const LandingCategories = lazy(() => import("@/components/landing/LandingCategories"));
+const LandingValueProps = lazy(() => import("@/components/landing/LandingValueProps"));
+const WhyChooseWroobSection = lazy(() => import("@/components/landing/WhyChooseWroobSection"));
+const LandingFAQ = lazy(() => import("@/components/landing/LandingFAQ"));
+const Footer = lazy(() => import("@/components/Footer"));
 
 
 const FLOATING_TAGS = [
