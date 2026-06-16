@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import OnboardingStepIndicator from "./OnboardingStepIndicator";
-import wroobeLogo from "@/assets/wroob-logo.png";
+import wroobeLogo from "@/assets/wroob-logo.webp";
 
 interface OnboardingLayoutProps {
   currentStep: number;
@@ -16,7 +16,7 @@ const OnboardingLayout = ({ currentStep, title, subtitle, children }: Onboarding
       <header className="border-b bg-card/80 backdrop-blur-sm">
         <div className="container flex h-14 items-center">
           <Link to="/">
-            <img src={wroobeLogo} alt="Wroob" width="139" height="56" className="h-14" />
+            <img src={wroobeLogo} alt="Wroob" width="139" height="56" decoding="async" className="h-14" />
           </Link>
         </div>
       </header>

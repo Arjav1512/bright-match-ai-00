@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import wroobeLogo from "@/assets/wroob-logo.png";
+import wroobeLogo from "@/assets/wroob-logo.webp";
 
 const STEPS = [
   { key: "company", label: "Company info" },
@@ -22,7 +22,7 @@ const EmployerOnboardingLayout = ({ currentStep, children }: EmployerOnboardingL
       {/* Dark sidebar */}
       <aside className="hidden md:flex w-72 flex-col bg-foreground text-background p-8">
         <Link to="/" className="mb-12">
-          <img src={wroobeLogo} alt="Wroob" width="139" height="56" className="h-14 brightness-0 invert" />
+          <img src={wroobeLogo} alt="Wroob" width="139" height="56" decoding="async" className="h-14 brightness-0 invert" />
         </Link>
 
         <nav className="space-y-5">
@@ -66,7 +66,7 @@ const EmployerOnboardingLayout = ({ currentStep, children }: EmployerOnboardingL
       {/* Mobile header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-foreground text-background px-4 py-3 flex items-center gap-3">
         <Link to="/">
-          <img src={wroobeLogo} alt="Wroob" width="109" height="44" className="h-11 brightness-0 invert" />
+          <img src={wroobeLogo} alt="Wroob" width="109" height="44" decoding="async" className="h-11 brightness-0 invert" />
         </Link>
         <div className="ml-auto flex gap-1.5">
           {STEPS.map((step, i) => (

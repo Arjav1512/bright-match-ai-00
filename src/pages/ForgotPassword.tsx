@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
-import wroobeLogo from "@/assets/wroob-logo.png";
+import wroobeLogo from "@/assets/wroob-logo.webp";
 import SEO from "@/components/SEO";
 
 const ForgotPassword = () => {
@@ -35,7 +35,7 @@ const ForgotPassword = () => {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link to="/">
-            <img src={wroobeLogo} alt="Wroob" width="139" height="56" className="h-14 mx-auto" />
+            <img src={wroobeLogo} alt="Wroob" width="139" height="56" decoding="async" className="h-14 mx-auto" />
           </Link>
         </div>
         <Card>

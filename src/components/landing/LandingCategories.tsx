@@ -1,17 +1,20 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Code2, Database, Brain, Palette, Megaphone, Briefcase, LineChart, Cpu } from "lucide-react";
+import { LANDING_CATEGORIES } from "./landingData";
 
-const CATEGORIES = [
-  { slug: "frontend", label: "Frontend Development", desc: "React, Vue, UI engineering internships", Icon: Code2 },
-  { slug: "backend", label: "Backend Development", desc: "Node, Python, Go, APIs & databases", Icon: Database },
-  { slug: "ai-ml", label: "AI / Machine Learning", desc: "LLMs, computer vision, applied ML roles", Icon: Brain },
-  { slug: "data-science", label: "Data Science", desc: "Analytics, SQL, modelling and dashboards", Icon: LineChart },
-  { slug: "design", label: "Product & UX Design", desc: "Figma, design systems, user research", Icon: Palette },
-  { slug: "marketing", label: "Marketing & Growth", desc: "Content, performance, SEO, social", Icon: Megaphone },
-  { slug: "product", label: "Product Management", desc: "Associate PM and product ops internships", Icon: Briefcase },
-  { slug: "fintech", label: "Fintech & Web3", desc: "Payments, trading, on-chain product roles", Icon: Cpu },
-];
+const ICONS: Record<string, typeof Code2> = {
+  frontend: Code2,
+  backend: Database,
+  "ai-ml": Brain,
+  "data-science": LineChart,
+  design: Palette,
+  marketing: Megaphone,
+  product: Briefcase,
+  fintech: Cpu,
+};
+
+const CATEGORIES = LANDING_CATEGORIES.map((c) => ({ ...c, Icon: ICONS[c.slug] ?? Briefcase }));
 
 const LandingCategories = () => (
   <motion.section
@@ -52,5 +55,4 @@ const LandingCategories = () => (
   </motion.section>
 );
 
-export const LANDING_CATEGORIES = CATEGORIES;
 export default LandingCategories;

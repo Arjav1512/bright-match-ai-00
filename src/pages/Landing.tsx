@@ -2,17 +2,20 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SEO from "@/components/SEO";
 
-import { ArrowRight, Users, Search, CheckCircle, ArrowDown, Briefcase } from "lucide-react";
+import { ArrowRight, Users, Search, CheckCircle, ArrowDown } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
-import WhyChooseWroobSection from "@/components/landing/WhyChooseWroobSection";
-import LandingCategories, { LANDING_CATEGORIES } from "@/components/landing/LandingCategories";
-import LandingValueProps from "@/components/landing/LandingValueProps";
-import LandingFAQ, { LANDING_FAQS } from "@/components/landing/LandingFAQ";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { LANDING_CATEGORIES, LANDING_FAQS } from "@/components/landing/landingData";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { useRef, useEffect, useState, lazy, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+
+// Below-the-fold sections — lazy so the hero paints faster.
+const LandingCategories = lazy(() => import("@/components/landing/LandingCategories"));
+const LandingValueProps = lazy(() => import("@/components/landing/LandingValueProps"));
+const WhyChooseWroobSection = lazy(() => import("@/components/landing/WhyChooseWroobSection"));
+const LandingFAQ = lazy(() => import("@/components/landing/LandingFAQ"));
+const Footer = lazy(() => import("@/components/Footer"));
 
 
 const FLOATING_TAGS = [
@@ -44,9 +47,31 @@ const sectionReveal = {
 const Landing = () => {
   const { user, role } = useAuth();
   const heroRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 768px)").matches : false,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const onChange = () => setIsMobile(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  // Disable hero scroll-parallax on mobile / reduced-motion users — the
+  // constant transform reads were the biggest source of style-recalc cost.
+  const enableParallax = !isMobile && !prefersReducedMotion;
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.96]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.3]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, enableParallax ? 0.96 : 1]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, enableParallax ? 0.3 : 1]);
+
+  // On mobile or for reduced-motion users, skip the infinite y-bobbing that
+  // drove >1s of style recalc. Hook count is preserved by always iterating
+  // FLOATING_TAGS; only the rendered output is reduced via showOnMobile.
+  const animateTags = !prefersReducedMotion && !isMobile;
+  const mobileVisibleSlugs = new Set(
+    FLOATING_TAGS.filter((t) => t.showOnMobile).slice(0, 4).map((t) => t.label),
+  );
 
   const landingJsonLd = [
     {
@@ -98,16 +123,21 @@ const Landing = () => {
         <div className="absolute inset-0 pointer-events-none z-20">
           {FLOATING_TAGS.map((tag, i) => {
             const speed = 0.3 + (i % 4) * 0.15;
+            const yTransform = useTransform(scrollYProgress, [0, 1], [0, enableParallax ? -80 * speed : 0]);
+            const renderOnMobile = mobileVisibleSlugs.has(tag.label);
+            const hiddenClass = isMobile
+              ? (renderOnMobile ? "" : "hidden")
+              : (tag.showOnMobile ? "" : "hidden md:block");
             return (
               <motion.div
                 key={tag.label}
-                className={`absolute pointer-events-auto ${tag.showOnMobile ? '' : 'hidden md:block'}`}
+                className={`absolute pointer-events-auto ${hiddenClass}`}
                 style={{
                   top: tag.top,
                   left: tag.left,
                   right: tag.right,
                   bottom: tag.bottom,
-                  y: useTransform(scrollYProgress, [0, 1], [0, -80 * speed]),
+                  y: yTransform,
                 }}
                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ opacity: 0.7, y: 0, scale: tag.scale }}
@@ -116,9 +146,9 @@ const Landing = () => {
                 <motion.div
                   className="glass rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm text-muted-foreground/70 shadow-sm cursor-pointer transition-shadow duration-300 hover:shadow-2xl hover:shadow-primary/35"
                   style={{ letterSpacing: "var(--letter-spacing-label)" }}
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 4 + tag.delay, repeat: Infinity, ease: "easeInOut" }}
-                  whileHover={{ scale: 1.1, y: -6, opacity: 1 }}
+                  animate={animateTags ? { y: [0, -8, 0] } : undefined}
+                  transition={animateTags ? { duration: 4 + tag.delay, repeat: Infinity, ease: "easeInOut" } : undefined}
+                  whileHover={animateTags ? { scale: 1.1, y: -6, opacity: 1 } : undefined}
                 >
                   {tag.label}
                 </motion.div>
@@ -306,18 +336,21 @@ const Landing = () => {
         </div>
       </motion.section>
 
-      {/* Why Choose Wroob */}
-      {/* Internship categories (SEO + discovery) */}
-      <LandingCategories />
+      {/* Below-the-fold sections are code-split — they sit far below the LCP
+          hero so deferring their JS shaves bytes off the critical path. */}
+      <Suspense fallback={null}>
+        {/* Internship categories (SEO + discovery) */}
+        <LandingCategories />
 
-      {/* Value props for students / employers / campuses */}
-      <LandingValueProps />
+        {/* Value props for students / employers / campuses */}
+        <LandingValueProps />
 
-      {/* Why Choose Wroob */}
-      <WhyChooseWroobSection />
+        {/* Why Choose Wroob */}
+        <WhyChooseWroobSection />
 
-      {/* FAQ */}
-      <LandingFAQ />
+        {/* FAQ */}
+        <LandingFAQ />
+      </Suspense>
 
       {/* Social proof */}
       <motion.section
@@ -376,7 +409,9 @@ const Landing = () => {
       </motion.section>
       </main>
 
-      <Footer />
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
     </div>
   );
 };
