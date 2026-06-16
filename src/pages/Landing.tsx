@@ -336,18 +336,21 @@ const Landing = () => {
         </div>
       </motion.section>
 
-      {/* Why Choose Wroob */}
-      {/* Internship categories (SEO + discovery) */}
-      <LandingCategories />
+      {/* Below-the-fold sections are code-split — they sit far below the LCP
+          hero so deferring their JS shaves bytes off the critical path. */}
+      <Suspense fallback={null}>
+        {/* Internship categories (SEO + discovery) */}
+        <LandingCategories />
 
-      {/* Value props for students / employers / campuses */}
-      <LandingValueProps />
+        {/* Value props for students / employers / campuses */}
+        <LandingValueProps />
 
-      {/* Why Choose Wroob */}
-      <WhyChooseWroobSection />
+        {/* Why Choose Wroob */}
+        <WhyChooseWroobSection />
 
-      {/* FAQ */}
-      <LandingFAQ />
+        {/* FAQ */}
+        <LandingFAQ />
+      </Suspense>
 
       {/* Social proof */}
       <motion.section
@@ -406,7 +409,9 @@ const Landing = () => {
       </motion.section>
       </main>
 
-      <Footer />
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
     </div>
   );
 };
