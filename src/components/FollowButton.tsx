@@ -3,6 +3,7 @@ import { UserPlus, UserMinus, Loader2, Check, X, Clock } from "lucide-react";
 import { useFollows } from "@/hooks/useFollows";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { formatShortDate } from "@/lib/formatDate";
 
 interface FollowButtonProps {
   targetUserId: string;
@@ -23,6 +24,9 @@ const FollowButton = ({ targetUserId, className }: FollowButtonProps) => {
     cancelOrUnfollow,
     acceptIncoming,
     rejectIncoming,
+    requestSentAt,
+    requestReceivedAt,
+    connectedAt,
   } = useFollows(targetUserId);
 
   if (!user || user.id === targetUserId) return null;
