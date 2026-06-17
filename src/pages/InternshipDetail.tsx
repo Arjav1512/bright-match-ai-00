@@ -149,11 +149,12 @@ const InternshipDetail = () => {
 
   const score = matchScore();
   const isFull = internship.application_count >= internship.app_cap;
-  const isClosed = internship.status === "closed";
   // FIX (HIGH-10): Disable apply after deadline even if status is still "published".
   // The edge function only checks status === "closed"; this client-side guard prevents
   // confusing UX where the button is active but submissions immediately fail.
   const isDeadlinePassed = internship.deadline ? new Date(internship.deadline) < new Date() : false;
+  // P0-1: Treat past-deadline internships as Closed in the badge/UI.
+  const isClosed = internship.status === "closed" || isDeadlinePassed;
 
   const Section = ({ icon: Icon, title, children }: { icon: any; title: string; children: React.ReactNode }) => (
     <div className="space-y-3">
