@@ -300,6 +300,7 @@ export type Database = {
       }
       follows: {
         Row: {
+          accepted_at: string | null
           created_at: string
           follower_id: string
           following_id: string
@@ -307,6 +308,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          accepted_at?: string | null
           created_at?: string
           follower_id: string
           following_id: string
@@ -314,6 +316,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          accepted_at?: string | null
           created_at?: string
           follower_id?: string
           following_id?: string
