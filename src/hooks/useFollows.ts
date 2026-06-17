@@ -1,6 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export type ConnectionState =
   | "none"
@@ -83,6 +84,33 @@ export function useFollows(targetUserId: string) {
     queryClient.invalidateQueries({ queryKey: ["followersList", targetUserId] });
     queryClient.invalidateQueries({ queryKey: ["followingList", targetUserId] });
   };
+
+  // Realtime: react to changes made by the OTHER party (or in another tab)
+  // so the UI updates immediately without manual refresh.
+  useEffect(() => {
+    if (!user || !targetUserId || user.id === targetUserId) return;
+    const channel = supabase
+      .channel(`follows:${user.id}:${targetUserId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "follows" },
+        (payload: any) => {
+          const row = (payload.new ?? payload.old) as
+            | { follower_id?: string; following_id?: string }
+            | undefined;
+          if (!row) return;
+          const involvesPair =
+            (row.follower_id === user.id && row.following_id === targetUserId) ||
+            (row.follower_id === targetUserId && row.following_id === user.id);
+          if (involvesPair) invalidate();
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, targetUserId]);
 
   // Determine connection state
   let state: ConnectionState = "none";
