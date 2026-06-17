@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
     );
 
     if (rlError) {
-      return new Response(JSON.stringify({ error: "Internal server error" }), {
+      return new Response(JSON.stringify({ error: "Internal server error", debug_stage: "rate_limit", debug: JSON.stringify(rlError) }), {
         status: 500,
         headers: { ...responseHeaders },
       });
