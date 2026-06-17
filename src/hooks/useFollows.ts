@@ -9,9 +9,31 @@ export type ConnectionState =
   | "pending_incoming"
   | "accepted";
 
-export function useFollows(targetUserId: string) {
-  const { user } = useAuth();
+export type FollowTargetRole = "student" | "employer";
+
+export function useFollows(targetUserId: string, opts?: { targetRole?: FollowTargetRole }) {
+  const { user, role: viewerRole } = useAuth();
   const queryClient = useQueryClient();
+
+  // Resolve the target's role. Approval is required ONLY for student → student.
+  // Caller may pass targetRole explicitly to avoid an extra query.
+  const { data: resolvedTargetRole } = useQuery({
+    queryKey: ["user-role", targetUserId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", targetUserId)
+        .maybeSingle();
+      return ((data as any)?.role ?? null) as FollowTargetRole | null;
+    },
+    enabled: !!targetUserId && !opts?.targetRole,
+    staleTime: 5 * 60_000,
+  });
+  const targetRole: FollowTargetRole | null = opts?.targetRole ?? resolvedTargetRole ?? null;
+  const requireApproval =
+    viewerRole === "student" && targetRole === "student";
+
 
   // Outgoing row: I follow target
   const { data: outgoing } = useQuery({
