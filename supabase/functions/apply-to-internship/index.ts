@@ -6,13 +6,47 @@ const applySchema = z.object({
   cover_letter: z.string().max(5000).optional().nullable(),
 });
 
-const allowedOrigin = Deno.env.get("ALLOWED_ORIGIN") ?? "https://wroob.in";
+// P0-3 root cause: ALLOWED_ORIGIN was a single string (default "https://wroob.in"),
+// so requests from the Lovable preview origin
+// (https://<id>.lovableproject.com) were blocked by CORS — the browser surfaced
+// the error as "Failed to send a request to the Edge Function" and the apply
+// request never reached the function. Fix: accept a comma-separated allowlist
+// (ALLOWED_ORIGIN), include sensible production + preview defaults, and reflect
+// the incoming Origin when it matches.
+const DEFAULT_ALLOWED_ORIGINS = [
+  "https://wroob.in",
+  "https://www.wroob.in",
+  "https://wroob.lovable.app",
+];
+const ALLOWED_ORIGIN_PATTERNS: RegExp[] = [
+  /^https:\/\/[a-z0-9-]+\.lovableproject\.com$/i,
+  /^https:\/\/[a-z0-9-]+\.lovable\.app$/i,
+];
+const ENV_ALLOWED = (Deno.env.get("ALLOWED_ORIGIN") ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+const ALLOWED_ORIGIN_LIST = new Set<string>([
+  ...DEFAULT_ALLOWED_ORIGINS,
+  ...ENV_ALLOWED,
+]);
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": allowedOrigin,
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+function resolveOrigin(req: Request): string {
+  const origin = req.headers.get("Origin") ?? "";
+  if (ALLOWED_ORIGIN_LIST.has(origin)) return origin;
+  if (ALLOWED_ORIGIN_PATTERNS.some((re) => re.test(origin))) return origin;
+  return ENV_ALLOWED[0] ?? DEFAULT_ALLOWED_ORIGINS[0];
+}
+
+function buildCorsHeaders(req: Request) {
+  return {
+    "Access-Control-Allow-Origin": resolveOrigin(req),
+    "Vary": "Origin",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  } as Record<string, string>;
+}
 
 const securityHeaders = {
   "X-Frame-Options": "DENY",
@@ -21,13 +55,14 @@ const securityHeaders = {
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
 };
 
-const responseHeaders = {
-  ...corsHeaders,
-  ...securityHeaders,
-  "Content-Type": "application/json",
-};
-
 Deno.serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
+  const responseHeaders = {
+    ...corsHeaders,
+    ...securityHeaders,
+    "Content-Type": "application/json",
+  };
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
