@@ -77,6 +77,18 @@ const InternshipDetail = () => {
       setLoading(false);
     };
     fetchData();
+
+    // P0-2: Re-fetch when the page is restored from the browser's bfcache or
+    // becomes visible again after being backgrounded, so an employer's edits
+    // surface without requiring a hard refresh.
+    const onPageShow = (e: PageTransitionEvent) => { if (e.persisted) fetchData(); };
+    const onVisibility = () => { if (document.visibilityState === "visible") fetchData(); };
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [id, user, role]);
 
   const handleApply = async () => {
@@ -449,11 +461,12 @@ const InternshipDetail = () => {
                     size="lg"
                     className="w-full rounded-full h-14 text-base font-semibold brand-gradient border-0 text-white shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200"
                     onClick={() => navigate(`/login?redirect=/internships/${id}`)}
+                    disabled={isClosed}
                   >
-                    Apply Now
+                    {isClosed ? "Internship Closed" : "Apply Now"}
                   </Button>
                   <p className="text-center text-xs text-muted-foreground">
-                    Login required to apply
+                    {isClosed ? "Applications are no longer being accepted" : "Login required to apply"}
                   </p>
                 </div>
               ) : hasApplied ? (
