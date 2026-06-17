@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Globe, Linkedin, ArrowLeft, MapPin, MessageCircle, BadgeCheck, Shield, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FollowButton from "@/components/FollowButton";
+import FollowListDialog from "@/components/FollowListDialog";
+import { useFollows } from "@/hooks/useFollows";
 import AdminField from "@/components/admin/AdminField";
 import { ProfileSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/AuthContext";
