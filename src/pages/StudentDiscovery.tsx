@@ -202,7 +202,7 @@ const StudentDiscovery = () => {
                                   </p>
                                 )}
                               </div>
-                              <FollowButton targetUserId={student.user_id} />
+                              <FollowButton targetUserId={student.user_id} targetRole="student" />
                             </div>
                             {student.skills && student.skills.length > 0 && (
                               <div className="flex flex-wrap gap-1.5 mt-3">
