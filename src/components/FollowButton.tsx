@@ -28,7 +28,7 @@ const FollowButton = ({ targetUserId, targetRole, className }: FollowButtonProps
     requestSentAt,
     requestReceivedAt,
     connectedAt,
-    targetRole: resolvedTargetRole,
+    targetRole: _resolvedTargetRole,
     requireApproval,
   } = useFollows(targetUserId, targetRole ? { targetRole } : undefined);
 
