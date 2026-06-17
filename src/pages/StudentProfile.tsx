@@ -140,7 +140,7 @@ const StudentProfile = () => {
                     {profile.bio && <p className="text-sm mt-2">{profile.bio}</p>}
                     {user && user.id !== userId && (
                       <div className="mt-3 flex items-center gap-2">
-                        <FollowButton targetUserId={userId!} />
+                        <FollowButton targetUserId={userId!} targetRole="student" />
                         {(role === "student" || role === "employer") && (
                           <MessageActionButton
                             targetUserId={userId!}
@@ -275,7 +275,7 @@ const MessageActionButton = ({
   partnerAvatar: string | null;
 }) => {
   // Employers can always DM students. Students can only DM connected peers.
-  const { state } = useFollows(targetUserId);
+  const { state } = useFollows(targetUserId, { targetRole: "student" });
   const isStudentViewer = viewerRole === "student";
   const connected = state === "accepted";
   const disabled = isStudentViewer && !connected;

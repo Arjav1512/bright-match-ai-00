@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Globe, Linkedin, ArrowLeft, MapPin, MessageCircle, BadgeCheck, Shield, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FollowButton from "@/components/FollowButton";
+import FollowListDialog from "@/components/FollowListDialog";
+import { useFollows } from "@/hooks/useFollows";
 import AdminField from "@/components/admin/AdminField";
 import { ProfileSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/AuthContext";
@@ -163,9 +165,10 @@ const EmployerProfile = () => {
                     {ep.company_description && (
                       <p className="text-sm mt-2 line-clamp-3">{ep.company_description}</p>
                     )}
+                    {userId && <EmployerFollowStats userId={userId} />}
                     {user && user.id !== userId && (
                       <div className="mt-3 flex items-center gap-2">
-                        <FollowButton targetUserId={userId!} />
+                        <FollowButton targetUserId={userId!} targetRole="employer" />
                         {/* FIX (HIGH-student-employer-dm): Students can now initiate DMs
                             from the employer profile page — previously there was no
                             Message button here, making student→employer DM impossible. */}
@@ -307,5 +310,22 @@ const EmployerProfile = () => {
     </div>
   );
 };
+
+// Renders follower / following counts for a company. Visible to all visitors.
+const EmployerFollowStats = ({ userId }: { userId: string }) => {
+  const { followerCount, followingCount } = useFollows(userId, { targetRole: "employer" });
+  if (!followerCount && !followingCount) return null;
+  return (
+    <div className="mt-2">
+      <FollowListDialog
+        userId={userId}
+        followerCount={followerCount}
+        followingCount={followingCount}
+        targetRole="employer"
+      />
+    </div>
+  );
+};
+
 
 export default EmployerProfile;

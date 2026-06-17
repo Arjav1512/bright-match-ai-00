@@ -9,9 +9,31 @@ export type ConnectionState =
   | "pending_incoming"
   | "accepted";
 
-export function useFollows(targetUserId: string) {
-  const { user } = useAuth();
+export type FollowTargetRole = "student" | "employer";
+
+export function useFollows(targetUserId: string, opts?: { targetRole?: FollowTargetRole }) {
+  const { user, role: viewerRole } = useAuth();
   const queryClient = useQueryClient();
+
+  // Resolve the target's role. Approval is required ONLY for student → student.
+  // Caller may pass targetRole explicitly to avoid an extra query.
+  const { data: resolvedTargetRole } = useQuery({
+    queryKey: ["user-role", targetUserId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", targetUserId)
+        .maybeSingle();
+      return ((data as any)?.role ?? null) as FollowTargetRole | null;
+    },
+    enabled: !!targetUserId && !opts?.targetRole,
+    staleTime: 5 * 60_000,
+  });
+  const targetRole: FollowTargetRole | null = opts?.targetRole ?? resolvedTargetRole ?? null;
+  const requireApproval =
+    viewerRole === "student" && targetRole === "student";
+
 
   // Outgoing row: I follow target
   const { data: outgoing } = useQuery({
@@ -119,19 +141,20 @@ export function useFollows(targetUserId: string) {
   else if (incoming?.status === "pending") state = "pending_incoming";
   else if (incoming?.status === "accepted") state = "accepted";
 
-  // For employer follows we want one-tap (no approval). Caller decides via `requireApproval`.
+  // Approval logic comes from target role: student→student=pending, otherwise=accepted.
   const sendRequest = useMutation({
-    mutationFn: async (opts: { requireApproval: boolean }) => {
+    mutationFn: async () => {
       if (!user) throw new Error("Not logged in");
       const { error } = await supabase.from("follows").insert({
         follower_id: user.id,
         following_id: targetUserId,
-        status: opts.requireApproval ? "pending" : "accepted",
+        status: requireApproval ? "pending" : "accepted",
       } as any);
       if (error) throw error;
     },
     onSuccess: invalidate,
   });
+
 
   const cancelOrUnfollow = useMutation({
     mutationFn: async () => {
@@ -197,6 +220,8 @@ export function useFollows(targetUserId: string) {
     requestSentAt,
     requestReceivedAt,
     connectedAt,
+    targetRole,
+    requireApproval,
   };
 }
 
