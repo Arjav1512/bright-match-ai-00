@@ -20,7 +20,7 @@ export function useFollows(targetUserId: string) {
       if (!user) return null;
       const { data } = await supabase
         .from("follows")
-        .select("id, status")
+        .select("id, status, created_at, accepted_at")
         .eq("follower_id", user.id)
         .eq("following_id", targetUserId)
         .maybeSingle();
@@ -36,7 +36,7 @@ export function useFollows(targetUserId: string) {
       if (!user) return null;
       const { data } = await supabase
         .from("follows")
-        .select("id, status")
+        .select("id, status, created_at, accepted_at")
         .eq("follower_id", targetUserId)
         .eq("following_id", user.id)
         .maybeSingle();
@@ -175,6 +175,16 @@ export function useFollows(targetUserId: string) {
     onSuccess: invalidate,
   });
 
+  // Pull the relevant timestamps regardless of which side authored the row.
+  const requestSentAt: string | null = outgoing?.created_at ?? null;
+  const requestReceivedAt: string | null = incoming?.created_at ?? null;
+  const connectedAt: string | null =
+    (state === "accepted"
+      ? (outgoing?.status === "accepted"
+          ? outgoing?.accepted_at
+          : incoming?.accepted_at)
+      : null) ?? null;
+
   return {
     state,
     isFollowing: state === "accepted",
@@ -184,6 +194,9 @@ export function useFollows(targetUserId: string) {
     cancelOrUnfollow,
     acceptIncoming,
     rejectIncoming,
+    requestSentAt,
+    requestReceivedAt,
+    connectedAt,
   };
 }
 
@@ -194,7 +207,7 @@ export function useFollowList(userId: string, type: "followers" | "following") {
       if (type === "followers") {
         const { data } = await supabase
           .from("follows")
-          .select("follower_id, created_at")
+          .select("follower_id, created_at, accepted_at")
           .eq("following_id", userId)
           .eq("status", "accepted");
         if (!data || data.length === 0) return [];
@@ -203,11 +216,17 @@ export function useFollowList(userId: string, type: "followers" | "following") {
           .from("profiles")
           .select("user_id, full_name, avatar_url")
           .in("user_id", ids);
-        return profiles ?? [];
+        const byId = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
+        return data
+          .map((r: any) => {
+            const p = byId.get(r.follower_id);
+            return p ? { ...p, connected_at: r.accepted_at ?? r.created_at } : null;
+          })
+          .filter(Boolean) as any[];
       } else {
         const { data } = await supabase
           .from("follows")
-          .select("following_id, created_at")
+          .select("following_id, created_at, accepted_at")
           .eq("follower_id", userId)
           .eq("status", "accepted");
         if (!data || data.length === 0) return [];
@@ -216,7 +235,13 @@ export function useFollowList(userId: string, type: "followers" | "following") {
           .from("profiles")
           .select("user_id, full_name, avatar_url")
           .in("user_id", ids);
-        return profiles ?? [];
+        const byId = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
+        return data
+          .map((r: any) => {
+            const p = byId.get(r.following_id);
+            return p ? { ...p, connected_at: r.accepted_at ?? r.created_at } : null;
+          })
+          .filter(Boolean) as any[];
       }
     },
     enabled: !!userId,

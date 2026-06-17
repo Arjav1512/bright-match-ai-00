@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useFollowList } from "@/hooks/useFollows";
 import { useAuth } from "@/contexts/AuthContext";
 import FollowButton from "@/components/FollowButton";
+import { formatShortDate } from "@/lib/formatDate";
 
 interface FollowListDialogProps {
   userId: string;
@@ -81,13 +82,20 @@ const FollowListDialog = ({ userId, followerCount, followingCount }: FollowListD
                         <AvatarImage src={p.avatar_url || undefined} />
                         <AvatarFallback className="text-xs">{getInitials(p.full_name || "?")}</AvatarFallback>
                       </Avatar>
-                      <button
-                        type="button"
-                        className="text-sm font-medium hover:text-primary hover:underline transition-colors text-left"
-                        onClick={() => { setOpen(false); navigate(`/students?highlight=${p.user_id}`); }}
-                      >
-                        {p.full_name || "Anonymous"}
-                      </button>
+                      <div className="flex flex-col">
+                        <button
+                          type="button"
+                          className="text-sm font-medium hover:text-primary hover:underline transition-colors text-left"
+                          onClick={() => { setOpen(false); navigate(`/students?highlight=${p.user_id}`); }}
+                        >
+                          {p.full_name || "Anonymous"}
+                        </button>
+                        {p.connected_at && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {isStudent ? "Connected since" : "Following since"} {formatShortDate(p.connected_at)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <FollowButton targetUserId={p.user_id} />
                   </div>
@@ -107,13 +115,20 @@ const FollowListDialog = ({ userId, followerCount, followingCount }: FollowListD
                         <AvatarImage src={p.avatar_url || undefined} />
                         <AvatarFallback className="text-xs">{getInitials(p.full_name || "?")}</AvatarFallback>
                       </Avatar>
-                      <button
-                        type="button"
-                        className="text-sm font-medium hover:text-primary hover:underline transition-colors text-left"
-                        onClick={() => { setOpen(false); navigate(`/students?highlight=${p.user_id}`); }}
-                      >
-                        {p.full_name || "Anonymous"}
-                      </button>
+                      <div className="flex flex-col">
+                        <button
+                          type="button"
+                          className="text-sm font-medium hover:text-primary hover:underline transition-colors text-left"
+                          onClick={() => { setOpen(false); navigate(`/students?highlight=${p.user_id}`); }}
+                        >
+                          {p.full_name || "Anonymous"}
+                        </button>
+                        {p.connected_at && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {isStudent ? "Connected since" : "Following since"} {formatShortDate(p.connected_at)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <FollowButton targetUserId={p.user_id} />
                   </div>
