@@ -20,7 +20,7 @@ export function useFollows(targetUserId: string) {
       if (!user) return null;
       const { data } = await supabase
         .from("follows")
-        .select("id, status")
+        .select("id, status, created_at, accepted_at")
         .eq("follower_id", user.id)
         .eq("following_id", targetUserId)
         .maybeSingle();
