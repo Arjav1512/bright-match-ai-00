@@ -165,9 +165,10 @@ const EmployerProfile = () => {
                     {ep.company_description && (
                       <p className="text-sm mt-2 line-clamp-3">{ep.company_description}</p>
                     )}
+                    {userId && <EmployerFollowStats userId={userId} />}
                     {user && user.id !== userId && (
                       <div className="mt-3 flex items-center gap-2">
-                        <FollowButton targetUserId={userId!} />
+                        <FollowButton targetUserId={userId!} targetRole="employer" />
                         {/* FIX (HIGH-student-employer-dm): Students can now initiate DMs
                             from the employer profile page — previously there was no
                             Message button here, making student→employer DM impossible. */}
