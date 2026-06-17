@@ -17,7 +17,7 @@ import ProfileLink from "@/components/ProfileLink";
 
 type AppRole = "student" | "employer" | "admin";
 type RoleFilter = "all" | AppRole | "unknown";
-type StatusFilter = "all" | "completed" | "pending" | "unknown";
+type StatusFilter = "all" | "completed" | "in_progress" | "not_started" | "unknown";
 type ActiveFilter = "all" | "24h" | "7d" | "30d" | "never";
 
 interface UserRow {
@@ -28,8 +28,45 @@ interface UserRow {
   email: string | null;
   phone: string | null;
   onboarding_status: string | null;
+  onboarding_step: number | null;
+  has_profile_row?: boolean;
   last_sign_in_at: string | null;
 }
+
+// P1-6: Derive admin-facing onboarding label from raw (status, step, role).
+// DB values are unchanged; this is presentation only.
+type OnboardingDisplay = {
+  label: string;
+  variant: "default" | "outline" | "secondary";
+};
+
+const ONBOARDING_TOTAL_STEPS: Record<AppRole | "unknown", number> = {
+  student: 4,
+  employer: 6,
+  admin: 0,
+  unknown: 0,
+};
+
+const getOnboardingDisplay = (u: UserRow): OnboardingDisplay => {
+  // No role-specific profile row (admins, users mid-role-selection)
+  if (!u.onboarding_status && u.has_profile_row !== true) {
+    return { label: "No Profile", variant: "outline" };
+  }
+  if (u.onboarding_status === "completed") {
+    return { label: "Completed", variant: "default" };
+  }
+  if (u.onboarding_status === "pending") {
+    const step = u.onboarding_step ?? 1;
+    if (step <= 1) return { label: "Not Started", variant: "outline" };
+    const total = ONBOARDING_TOTAL_STEPS[u.role] || 0;
+    return {
+      label: total ? `In Progress (Step ${step}/${total})` : `In Progress (Step ${step})`,
+      variant: "secondary",
+    };
+  }
+  return { label: u.onboarding_status || "—", variant: "outline" };
+};
+
 
 interface PendingRoleChange {
   user: UserRow;
@@ -111,10 +148,20 @@ const AdminUsers = () => {
     if (roleFilter !== "all" && u.role !== roleFilter) return false;
 
     if (statusFilter !== "all") {
-      const s = u.onboarding_status || "unknown";
-      if (statusFilter === "unknown" && u.onboarding_status) return false;
-      if (statusFilter !== "unknown" && s !== statusFilter) return false;
+      // Filter on raw (status, step) — no DB values changed.
+      const hasRow = u.has_profile_row === true || !!u.onboarding_status;
+      const step = u.onboarding_step ?? 1;
+      if (statusFilter === "unknown") {
+        if (hasRow) return false;
+      } else if (statusFilter === "completed") {
+        if (u.onboarding_status !== "completed") return false;
+      } else if (statusFilter === "not_started") {
+        if (!(u.onboarding_status === "pending" && step <= 1)) return false;
+      } else if (statusFilter === "in_progress") {
+        if (!(u.onboarding_status === "pending" && step > 1)) return false;
+      }
     }
+
 
     if (activeFilter !== "all") {
       if (activeFilter === "never") {
@@ -181,14 +228,16 @@ const AdminUsers = () => {
         </Select>
 
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-[200px]"><SelectValue placeholder="Onboarding" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="completed">Onboarding completed</SelectItem>
-            <SelectItem value="pending">Onboarding pending</SelectItem>
-            <SelectItem value="unknown">No profile</SelectItem>
+            <SelectItem value="all">All onboarding states</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="not_started">Not Started</SelectItem>
+            <SelectItem value="unknown">No Profile</SelectItem>
           </SelectContent>
         </Select>
+
 
         <Select value={activeFilter} onValueChange={(v) => setActiveFilter(v as ActiveFilter)}>
           <SelectTrigger className="w-[180px]"><SelectValue placeholder="Last active" /></SelectTrigger>
@@ -250,14 +299,16 @@ const AdminUsers = () => {
 
                         <td className="p-4"><Badge variant={roleBadgeVariant(u.role)}>{u.role}</Badge></td>
                         <td className="p-4">
-                          {u.onboarding_status ? (
-                            <Badge variant={u.onboarding_status === "completed" ? "default" : "outline"} className="text-xs">
-                              {u.onboarding_status}
-                            </Badge>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">—</span>
-                          )}
+                          {(() => {
+                            const d = getOnboardingDisplay(u);
+                            return (
+                              <Badge variant={d.variant} className="text-xs whitespace-nowrap">
+                                {d.label}
+                              </Badge>
+                            );
+                          })()}
                         </td>
+
                         <td className="p-4 text-muted-foreground text-xs">{formatLastActive(u.last_sign_in_at)}</td>
                         <td className="p-4 text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</td>
                         <td className="p-4">
