@@ -68,8 +68,8 @@ Deno.serve(async (req) => {
     const [{ data: profiles }, { data: roles }, { data: students }, { data: employers }] = await Promise.all([
       service.from("profiles").select("user_id, full_name, created_at").order("created_at", { ascending: false }).limit(500),
       service.from("user_roles").select("user_id, role").limit(1000),
-      service.from("student_profiles").select("user_id, phone_number, onboarding_status"),
-      service.from("employer_profiles").select("user_id, hr_phone, manager_phone, head_office_mobile, onboarding_status"),
+      service.from("student_profiles").select("user_id, phone_number, onboarding_status, onboarding_step"),
+      service.from("employer_profiles").select("user_id, hr_phone, manager_phone, head_office_mobile, onboarding_status, onboarding_step"),
     ]);
 
     // Fetch auth users (paginated) to map emails and last_sign_in_at
@@ -92,21 +92,34 @@ Deno.serve(async (req) => {
     const roleMap = new Map((roles || []).map((r: any) => [r.user_id, r.role]));
     const studentPhone = new Map((students || []).map((s: any) => [s.user_id, s.phone_number]));
     const studentStatus = new Map((students || []).map((s: any) => [s.user_id, s.onboarding_status]));
+    const studentStep = new Map((students || []).map((s: any) => [s.user_id, s.onboarding_step]));
     const employerPhone = new Map(
       (employers || []).map((e: any) => [e.user_id, e.hr_phone || e.manager_phone || e.head_office_mobile])
     );
     const employerStatus = new Map((employers || []).map((e: any) => [e.user_id, e.onboarding_status]));
+    const employerStep = new Map((employers || []).map((e: any) => [e.user_id, e.onboarding_step]));
 
-    const result = (profiles || []).map((p: any) => ({
-      user_id: p.user_id,
-      full_name: p.full_name,
-      created_at: p.created_at,
-      role: roleMap.get(p.user_id) || "unknown",
-      email: emailMap.get(p.user_id) || null,
-      phone: studentPhone.get(p.user_id) || employerPhone.get(p.user_id) || null,
-      onboarding_status: studentStatus.get(p.user_id) || employerStatus.get(p.user_id) || null,
-      last_sign_in_at: lastSignInMap.get(p.user_id) || null,
-    }));
+    const result = (profiles || []).map((p: any) => {
+      const hasStudent = studentStatus.has(p.user_id);
+      const hasEmployer = employerStatus.has(p.user_id);
+      return {
+        user_id: p.user_id,
+        full_name: p.full_name,
+        created_at: p.created_at,
+        role: roleMap.get(p.user_id) || "unknown",
+        email: emailMap.get(p.user_id) || null,
+        phone: studentPhone.get(p.user_id) || employerPhone.get(p.user_id) || null,
+        onboarding_status: studentStatus.get(p.user_id) || employerStatus.get(p.user_id) || null,
+        onboarding_step: hasStudent
+          ? (studentStep.get(p.user_id) ?? null)
+          : hasEmployer
+            ? (employerStep.get(p.user_id) ?? null)
+            : null,
+        has_profile_row: hasStudent || hasEmployer,
+        last_sign_in_at: lastSignInMap.get(p.user_id) || null,
+      };
+    });
+
 
     return new Response(JSON.stringify({ users: result }), { status: 200, headers: responseHeaders });
   } catch (err) {
