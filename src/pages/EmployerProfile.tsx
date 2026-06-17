@@ -25,8 +25,24 @@ const hasDisplayValue = (value: unknown) => {
 const EmployerProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user, role, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const isAdmin = role === "admin";
   const isOwner = !!user && user.id === userId;
+
+  // Smart back: prefer the previous route in history. If there is no history
+  // (deep-link), fall back by role — admins land on /admin/users, others on
+  // /internships. This stops admins being dumped on the student internships
+  // page after viewing a company.
+  const backLabel = isAdmin ? "Back to Users" : "Back to Internships";
+  const backFallback = isAdmin ? "/admin/users" : "/internships";
+  const handleBack = () => {
+    if ((location.key && location.key !== "default") || window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate(backFallback);
+    }
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ["public-employer-profile", userId, role, user?.id],
