@@ -141,19 +141,20 @@ export function useFollows(targetUserId: string, opts?: { targetRole?: FollowTar
   else if (incoming?.status === "pending") state = "pending_incoming";
   else if (incoming?.status === "accepted") state = "accepted";
 
-  // For employer follows we want one-tap (no approval). Caller decides via `requireApproval`.
+  // Approval logic comes from target role: student→student=pending, otherwise=accepted.
   const sendRequest = useMutation({
-    mutationFn: async (opts: { requireApproval: boolean }) => {
+    mutationFn: async () => {
       if (!user) throw new Error("Not logged in");
       const { error } = await supabase.from("follows").insert({
         follower_id: user.id,
         following_id: targetUserId,
-        status: opts.requireApproval ? "pending" : "accepted",
+        status: requireApproval ? "pending" : "accepted",
       } as any);
       if (error) throw error;
     },
     onSuccess: invalidate,
   });
+
 
   const cancelOrUnfollow = useMutation({
     mutationFn: async () => {
