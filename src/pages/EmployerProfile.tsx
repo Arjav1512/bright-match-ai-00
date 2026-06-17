@@ -289,16 +289,16 @@ const EmployerProfile = () => {
                   <AdminField label="City" value={ep.city}  showEmpty />
                   <AdminField label="State" value={ep.state}  showEmpty />
                   <AdminField label="Pincode" value={(ep as any).pincode}  showEmpty />
-                  <AdminField label="Head Office Mobile" value={(ep as any).head_office_mobile} icon={<Phone className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
-                  <AdminField label="Head Office Landline" value={(ep as any).head_office_landline} icon={<Phone className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
+                  <AdminField label="Head Office Mobile" value={(ep as any).head_office_mobile} icon={<Phone className="h-3.5 w-3.5"  />}  showEmpty />
+                  <AdminField label="Head Office Landline" value={(ep as any).head_office_landline} icon={<Phone className="h-3.5 w-3.5"  />}  showEmpty />
                   <AdminField label="HR Name" value={(ep as any).hr_contact_name}  showEmpty />
                   <AdminField label="HR Designation" value={(ep as any).hr_designation}  showEmpty />
-                  <AdminField label="HR Email" value={(ep as any).hr_email} icon={<Mail className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
-                  <AdminField label="HR Phone" value={(ep as any).hr_phone} icon={<Phone className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
+                  <AdminField label="HR Email" value={(ep as any).hr_email} icon={<Mail className="h-3.5 w-3.5"  />}  showEmpty />
+                  <AdminField label="HR Phone" value={(ep as any).hr_phone} icon={<Phone className="h-3.5 w-3.5"  />}  showEmpty />
                   <AdminField label="Manager Name" value={(ep as any).manager_contact_name}  showEmpty />
                   <AdminField label="Manager Designation" value={(ep as any).manager_designation}  showEmpty />
-                  <AdminField label="Manager Email" value={(ep as any).manager_email} icon={<Mail className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
-                  <AdminField label="Manager Phone" value={(ep as any).manager_phone} icon={<Phone className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
+                  <AdminField label="Manager Email" value={(ep as any).manager_email} icon={<Mail className="h-3.5 w-3.5"  />}  showEmpty />
+                  <AdminField label="Manager Phone" value={(ep as any).manager_phone} icon={<Phone className="h-3.5 w-3.5"  />}  showEmpty />
                   <AdminField label="Created" value={(ep as any).created_at}  showEmpty />
                   <AdminField label="Updated" value={(ep as any).updated_at}  showEmpty />
                 </CardContent>
