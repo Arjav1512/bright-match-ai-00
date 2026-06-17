@@ -100,7 +100,7 @@ const FollowListDialog = ({ userId, followerCount, followingCount, targetRole }:
                         </button>
                         {p.connected_at && (
                           <span className="text-[10px] text-muted-foreground">
-                            {isStudent ? "Connected since" : "Following since"} {formatShortDate(p.connected_at)}
+                            {sinceLabel} {formatShortDate(p.connected_at)}
                           </span>
                         )}
                       </div>
@@ -133,7 +133,7 @@ const FollowListDialog = ({ userId, followerCount, followingCount, targetRole }:
                         </button>
                         {p.connected_at && (
                           <span className="text-[10px] text-muted-foreground">
-                            {isStudent ? "Connected since" : "Following since"} {formatShortDate(p.connected_at)}
+                            {sinceLabel} {formatShortDate(p.connected_at)}
                           </span>
                         )}
                       </div>
