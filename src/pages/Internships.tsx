@@ -67,10 +67,13 @@ const Internships = () => {
     const from = pageIndex * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
+    // P0-1: Exclude expired internships (deadline before today) from public list.
+    const todayIso = new Date().toISOString().slice(0, 10);
     const { data } = await supabase
       .from("internships")
       .select("*")
       .eq("status", "published")
+      .or(`deadline.is.null,deadline.gte.${todayIso}`)
       .order("created_at", { ascending: false })
       .range(from, to);
 
@@ -267,17 +270,23 @@ const Internships = () => {
                                   <h2 className="font-display text-lg font-semibold group-hover:text-primary transition-colors truncate">
                                     {intern.title}
                                   </h2>
-                                  <Badge
-                                    variant="outline"
-                                    className={
-                                      intern.status === "closed"
-                                        ? "border-destructive/30 bg-destructive/10 text-destructive text-[10px] uppercase tracking-wide"
-                                        : "border-success/30 bg-success/10 text-success text-[10px] uppercase tracking-wide"
-                                    }
-                                  >
-                                    <span className={`mr-1 inline-block h-1.5 w-1.5 rounded-full ${intern.status === "closed" ? "bg-destructive" : "bg-success animate-pulse"}`} />
-                                    {intern.status === "closed" ? "Closed" : "Live"}
-                                  </Badge>
+                                  {(() => {
+                                    // P0-1: Treat past-deadline internships as Closed even if status is still 'published'.
+                                    const isClosed = intern.status === "closed" || (intern.deadline ? new Date(intern.deadline) < new Date() : false);
+                                    return (
+                                      <Badge
+                                        variant="outline"
+                                        className={
+                                          isClosed
+                                            ? "border-destructive/30 bg-destructive/10 text-destructive text-[10px] uppercase tracking-wide"
+                                            : "border-success/30 bg-success/10 text-success text-[10px] uppercase tracking-wide"
+                                        }
+                                      >
+                                        <span className={`mr-1 inline-block h-1.5 w-1.5 rounded-full ${isClosed ? "bg-destructive" : "bg-success animate-pulse"}`} />
+                                        {isClosed ? "Closed" : "Live"}
+                                      </Badge>
+                                    );
+                                  })()}
                                 </div>
                                 <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground pointer-events-auto">
                                   <Building2 className="h-3.5 w-3.5 shrink-0" />
