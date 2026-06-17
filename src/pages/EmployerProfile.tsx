@@ -311,4 +311,21 @@ const EmployerProfile = () => {
   );
 };
 
+// Renders follower / following counts for a company. Visible to all visitors.
+const EmployerFollowStats = ({ userId }: { userId: string }) => {
+  const { followerCount, followingCount } = useFollows(userId, { targetRole: "employer" });
+  if (!followerCount && !followingCount) return null;
+  return (
+    <div className="mt-2">
+      <FollowListDialog
+        userId={userId}
+        followerCount={followerCount}
+        followingCount={followingCount}
+        targetRole="employer"
+      />
+    </div>
+  );
+};
+
+
 export default EmployerProfile;
