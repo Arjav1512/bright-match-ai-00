@@ -39,82 +39,104 @@ const FollowButton = ({ targetUserId, className }: FollowButtonProps) => {
     acceptIncoming.isPending ||
     rejectIncoming.isPending;
 
-  // Incoming pending request — show Accept / Reject
+  // Incoming pending request — show Accept / Reject with received date
   if (state === "pending_incoming") {
+    const received = formatShortDate(requestReceivedAt);
     return (
-      <div className={`flex gap-2 ${className ?? ""}`}>
-        <Button
-          size="sm"
-          disabled={loading}
-          onClick={() =>
-            acceptIncoming.mutate(undefined, {
-              onSuccess: () => toast.success("Connection accepted"),
-              onError: (e: any) => toast.error(e.message || "Could not accept"),
-            })
-          }
-          className="gap-2"
-        >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-          Accept
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={loading}
-          onClick={() =>
-            rejectIncoming.mutate(undefined, {
-              onSuccess: () => toast("Request rejected"),
-              onError: (e: any) => toast.error(e.message || "Could not reject"),
-            })
-          }
-          className="gap-2"
-        >
-          <X className="h-4 w-4" />
-          Reject
-        </Button>
+      <div className={`flex flex-col items-end gap-1 ${className ?? ""}`}>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            disabled={loading}
+            onClick={() =>
+              acceptIncoming.mutate(undefined, {
+                onSuccess: () => toast.success("Connection accepted"),
+                onError: (e: any) => toast.error(e.message || "Could not accept"),
+              })
+            }
+            className="gap-2"
+            title={received ? `Received ${received}` : undefined}
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            Accept
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={loading}
+            onClick={() =>
+              rejectIncoming.mutate(undefined, {
+                onSuccess: () => toast("Request rejected"),
+                onError: (e: any) => toast.error(e.message || "Could not reject"),
+              })
+            }
+            className="gap-2"
+          >
+            <X className="h-4 w-4" />
+            Reject
+          </Button>
+        </div>
+        {received && (
+          <span className="text-[10px] text-muted-foreground">Received {received}</span>
+        )}
       </div>
     );
   }
 
-  // Outgoing pending — show "Request Sent" with cancel
+  // Outgoing pending — show "Request Sent" with sent date and cancel
   if (state === "pending_outgoing") {
+    const sent = formatShortDate(requestSentAt);
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={loading}
-        className={`gap-2 ${className ?? ""}`}
-        onClick={() =>
-          cancelOrUnfollow.mutate(undefined, {
-            onSuccess: () => toast("Request cancelled"),
-            onError: (e: any) => toast.error(e.message || "Could not cancel"),
-          })
-        }
-      >
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
-        Request Sent
-      </Button>
+      <div className={`flex flex-col items-end gap-1 ${className ?? ""}`}>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={loading}
+          className="gap-2"
+          title={sent ? `Sent ${sent}` : undefined}
+          onClick={() =>
+            cancelOrUnfollow.mutate(undefined, {
+              onSuccess: () => toast("Request cancelled"),
+              onError: (e: any) => toast.error(e.message || "Could not cancel"),
+            })
+          }
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
+          Request Sent
+        </Button>
+        {sent && (
+          <span className="text-[10px] text-muted-foreground">Sent {sent}</span>
+        )}
+      </div>
     );
   }
 
-  // Accepted — show Connected / Unfollow
+  // Accepted — show Connected / Unfollow with connected-since date
   if (state === "accepted") {
+    const since = formatShortDate(connectedAt);
+    const sinceLabel = isStudent ? "Connected since" : "Following since";
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={loading}
-        className={`gap-2 ${className ?? ""}`}
-        onClick={() =>
-          cancelOrUnfollow.mutate(undefined, {
-            onSuccess: () => toast(isStudent ? "Disconnected" : "Unfollowed"),
-            onError: (e: any) => toast.error(e.message || "Could not update"),
-          })
-        }
-      >
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserMinus className="h-4 w-4" />}
-        {isStudent ? "Connected" : "Unfollow"}
-      </Button>
+      <div className={`flex flex-col items-end gap-1 ${className ?? ""}`}>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={loading}
+          className="gap-2"
+          title={since ? `${sinceLabel} ${since}` : undefined}
+          onClick={() =>
+            cancelOrUnfollow.mutate(undefined, {
+              onSuccess: () => toast(isStudent ? "Disconnected" : "Unfollowed"),
+              onError: (e: any) => toast.error(e.message || "Could not update"),
+            })
+          }
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserMinus className="h-4 w-4" />}
+          {isStudent ? "Connected" : "Unfollow"}
+        </Button>
+        {since && (
+          <span className="text-[10px] text-muted-foreground">{sinceLabel} {since}</span>
+        )}
+      </div>
     );
   }
 
