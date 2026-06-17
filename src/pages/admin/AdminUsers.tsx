@@ -148,10 +148,20 @@ const AdminUsers = () => {
     if (roleFilter !== "all" && u.role !== roleFilter) return false;
 
     if (statusFilter !== "all") {
-      const s = u.onboarding_status || "unknown";
-      if (statusFilter === "unknown" && u.onboarding_status) return false;
-      if (statusFilter !== "unknown" && s !== statusFilter) return false;
+      // Filter on raw (status, step) — no DB values changed.
+      const hasRow = u.has_profile_row === true || !!u.onboarding_status;
+      const step = u.onboarding_step ?? 1;
+      if (statusFilter === "unknown") {
+        if (hasRow) return false;
+      } else if (statusFilter === "completed") {
+        if (u.onboarding_status !== "completed") return false;
+      } else if (statusFilter === "not_started") {
+        if (!(u.onboarding_status === "pending" && step <= 1)) return false;
+      } else if (statusFilter === "in_progress") {
+        if (!(u.onboarding_status === "pending" && step > 1)) return false;
+      }
     }
+
 
     if (activeFilter !== "all") {
       if (activeFilter === "never") {
