@@ -175,6 +175,16 @@ export function useFollows(targetUserId: string) {
     onSuccess: invalidate,
   });
 
+  // Pull the relevant timestamps regardless of which side authored the row.
+  const requestSentAt: string | null = outgoing?.created_at ?? null;
+  const requestReceivedAt: string | null = incoming?.created_at ?? null;
+  const connectedAt: string | null =
+    (state === "accepted"
+      ? (outgoing?.status === "accepted"
+          ? outgoing?.accepted_at
+          : incoming?.accepted_at)
+      : null) ?? null;
+
   return {
     state,
     isFollowing: state === "accepted",
@@ -184,6 +194,9 @@ export function useFollows(targetUserId: string) {
     cancelOrUnfollow,
     acceptIncoming,
     rejectIncoming,
+    requestSentAt,
+    requestReceivedAt,
+    connectedAt,
   };
 }
 
