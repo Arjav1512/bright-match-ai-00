@@ -113,7 +113,7 @@ Deno.serve(async (req) => {
     // missing/wrong role, so a valid student got "Only students can apply" on
     // any user_roles table failure instead of a retryable 500.
     if (roleError) {
-      return new Response(JSON.stringify({ error: "Internal server error", debug_stage: "role", debug: JSON.stringify(roleError) }), {
+      return new Response(JSON.stringify({ error: "Internal server error" }), {
         status: 500,
         headers: { ...responseHeaders },
       });
