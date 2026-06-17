@@ -28,8 +28,45 @@ interface UserRow {
   email: string | null;
   phone: string | null;
   onboarding_status: string | null;
+  onboarding_step: number | null;
+  has_profile_row?: boolean;
   last_sign_in_at: string | null;
 }
+
+// P1-6: Derive admin-facing onboarding label from raw (status, step, role).
+// DB values are unchanged; this is presentation only.
+type OnboardingDisplay = {
+  label: string;
+  variant: "default" | "outline" | "secondary";
+};
+
+const ONBOARDING_TOTAL_STEPS: Record<AppRole | "unknown", number> = {
+  student: 4,
+  employer: 6,
+  admin: 0,
+  unknown: 0,
+};
+
+const getOnboardingDisplay = (u: UserRow): OnboardingDisplay => {
+  // No role-specific profile row (admins, users mid-role-selection)
+  if (!u.onboarding_status && u.has_profile_row !== true) {
+    return { label: "No Profile", variant: "outline" };
+  }
+  if (u.onboarding_status === "completed") {
+    return { label: "Completed", variant: "default" };
+  }
+  if (u.onboarding_status === "pending") {
+    const step = u.onboarding_step ?? 1;
+    if (step <= 1) return { label: "Not Started", variant: "outline" };
+    const total = ONBOARDING_TOTAL_STEPS[u.role] || 0;
+    return {
+      label: total ? `In Progress (Step ${step}/${total})` : `In Progress (Step ${step})`,
+      variant: "secondary",
+    };
+  }
+  return { label: u.onboarding_status || "—", variant: "outline" };
+};
+
 
 interface PendingRoleChange {
   user: UserRow;
