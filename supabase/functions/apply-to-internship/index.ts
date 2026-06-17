@@ -202,7 +202,7 @@ Deno.serve(async (req) => {
     if (rpcError) {
       console.error("apply-to-internship rpc error:", rpcError);
       return new Response(
-        JSON.stringify({ error: "Internal server error", debug: rpcError.message, code: rpcError.code }),
+        JSON.stringify({ error: "Internal server error", debug_stage: "rpc", debug: JSON.stringify(rpcError) }),
         { status: 500, headers: { ...responseHeaders } }
       );
     }
