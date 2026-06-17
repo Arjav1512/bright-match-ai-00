@@ -139,9 +139,13 @@ const EmployerProfile = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container max-w-2xl py-10">
-        <Link to="/internships" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="h-4 w-4" /> Back to Internships
-        </Link>
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
+        >
+          <ArrowLeft className="h-4 w-4" /> {backLabel}
+        </button>
 
         {isLoading ? (
           <ProfileSkeleton />
