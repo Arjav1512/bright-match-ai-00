@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useFollowList } from "@/hooks/useFollows";
 import { useAuth } from "@/contexts/AuthContext";
 import FollowButton from "@/components/FollowButton";
+import { formatShortDate } from "@/lib/formatDate";
 
 interface FollowListDialogProps {
   userId: string;
