@@ -228,14 +228,16 @@ const AdminUsers = () => {
         </Select>
 
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-[200px]"><SelectValue placeholder="Onboarding" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="completed">Onboarding completed</SelectItem>
-            <SelectItem value="pending">Onboarding pending</SelectItem>
-            <SelectItem value="unknown">No profile</SelectItem>
+            <SelectItem value="all">All onboarding states</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="not_started">Not Started</SelectItem>
+            <SelectItem value="unknown">No Profile</SelectItem>
           </SelectContent>
         </Select>
+
 
         <Select value={activeFilter} onValueChange={(v) => setActiveFilter(v as ActiveFilter)}>
           <SelectTrigger className="w-[180px]"><SelectValue placeholder="Last active" /></SelectTrigger>
