@@ -275,7 +275,7 @@ const MessageActionButton = ({
   partnerAvatar: string | null;
 }) => {
   // Employers can always DM students. Students can only DM connected peers.
-  const { state } = useFollows(targetUserId);
+  const { state } = useFollows(targetUserId, { targetRole: "student" });
   const isStudentViewer = viewerRole === "student";
   const connected = state === "accepted";
   const disabled = isStudentViewer && !connected;
