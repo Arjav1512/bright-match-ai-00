@@ -34,11 +34,9 @@ const FollowButton = ({ targetUserId, targetRole, className }: FollowButtonProps
 
   if (!user || user.id === targetUserId) return null;
 
-  // Use the explicit prop, falling back to the resolved role from the hook.
-  const effectiveTargetRole = targetRole ?? resolvedTargetRole;
-  // "Peer" = student↔student, the only relation that uses Connect/Connected copy.
-  const isPeer = requireApproval || effectiveTargetRole === null ? requireApproval : false;
-  // Copy table
+  // Student↔student is the only relation that uses Connect/Connected copy.
+  // `requireApproval` from the hook is exactly that signal.
+  const isPeer = requireApproval;
   const connectLabel = isPeer ? "Connect" : "Follow";
   const connectedLabel = isPeer ? "Connected" : "Following";
   const sinceLabel = isPeer ? "Connected since" : "Following since";
