@@ -220,6 +220,8 @@ export function useFollows(targetUserId: string, opts?: { targetRole?: FollowTar
     requestSentAt,
     requestReceivedAt,
     connectedAt,
+    targetRole,
+    requireApproval,
   };
 }
 
