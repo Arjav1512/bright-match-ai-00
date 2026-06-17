@@ -120,6 +120,17 @@ const Internships = () => {
     } else {
       setStudentSkills([]);
     }
+
+    // P0-2: Refetch on bfcache restore / tab visibility so updates surface
+    // without forcing a hard refresh.
+    const onPageShow = (e: PageTransitionEvent) => { if (e.persisted) { setPage(0); fetchPage(0, false); } };
+    const onVisibility = () => { if (document.visibilityState === "visible") { setPage(0); fetchPage(0, false); } };
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [authLoading, user?.id, role, fetchPage]);
 
   const loadMore = () => {
