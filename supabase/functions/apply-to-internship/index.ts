@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
     );
 
     if (rlError) {
-      return new Response(JSON.stringify({ error: "Internal server error", debug_stage: "rate_limit", debug: JSON.stringify(rlError) }), {
+      return new Response(JSON.stringify({ error: "Internal server error" }), {
         status: 500,
         headers: { ...responseHeaders },
       });
@@ -202,7 +202,7 @@ Deno.serve(async (req) => {
     if (rpcError) {
       console.error("apply-to-internship rpc error:", rpcError);
       return new Response(
-        JSON.stringify({ error: "Internal server error", debug_stage: "rpc", debug: JSON.stringify(rpcError) }),
+        JSON.stringify({ error: "Internal server error" }),
         { status: 500, headers: { ...responseHeaders } }
       );
     }
@@ -240,7 +240,7 @@ Deno.serve(async (req) => {
     );
   } catch (err) {
     console.error("apply-to-internship error:", err);
-    return new Response(JSON.stringify({ error: "Internal server error", debug: String(err?.message ?? err) }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...responseHeaders },
     });
