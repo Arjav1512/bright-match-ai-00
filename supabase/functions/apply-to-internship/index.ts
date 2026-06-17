@@ -240,7 +240,7 @@ Deno.serve(async (req) => {
     );
   } catch (err) {
     console.error("apply-to-internship error:", err);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({ error: "Internal server error", debug: String(err?.message ?? err) }), {
       status: 500,
       headers: { ...responseHeaders },
     });
