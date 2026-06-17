@@ -276,7 +276,7 @@ const StudentDiscovery = () => {
                                   </p>
                                 )}
                               </div>
-                              <FollowButton targetUserId={company.user_id} />
+                              <FollowButton targetUserId={company.user_id} targetRole="employer" />
                             </div>
                             {company.company_size && (
                               <Badge variant="secondary" className="text-xs mt-3">
