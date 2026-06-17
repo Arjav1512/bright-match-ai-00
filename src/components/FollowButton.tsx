@@ -1,23 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { UserPlus, UserMinus, Loader2, Check, X, Clock } from "lucide-react";
-import { useFollows } from "@/hooks/useFollows";
+import { useFollows, type FollowTargetRole } from "@/hooks/useFollows";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { formatShortDate } from "@/lib/formatDate";
 
 interface FollowButtonProps {
   targetUserId: string;
+  targetRole?: FollowTargetRole;
   className?: string;
 }
 
 /**
- * Connection workflow:
- * - Student → Student: requires approval (pending → accepted on accept).
- * - Employer → Student (or any non-student follower): one-tap follow (instant accepted).
- *   Approval flow only applies between two students.
+ * Connection workflow (target-role driven):
+ * - Student → Student: requires approval (Connect → Requested → Connected).
+ * - Anything else (student → employer, employer → student, employer → employer):
+ *   one-tap follow (Follow → Following). Auto-accepted by the DB trigger.
  */
-const FollowButton = ({ targetUserId, className }: FollowButtonProps) => {
-  const { user, role } = useAuth();
+const FollowButton = ({ targetUserId, targetRole, className }: FollowButtonProps) => {
+  const { user } = useAuth();
   const {
     state,
     sendRequest,
@@ -27,19 +28,30 @@ const FollowButton = ({ targetUserId, className }: FollowButtonProps) => {
     requestSentAt,
     requestReceivedAt,
     connectedAt,
-  } = useFollows(targetUserId);
+    targetRole: resolvedTargetRole,
+    requireApproval,
+  } = useFollows(targetUserId, targetRole ? { targetRole } : undefined);
 
   if (!user || user.id === targetUserId) return null;
 
-  const isStudent = role === "student";
-  const requireApproval = isStudent; // student-initiated → needs approval
+  // Use the explicit prop, falling back to the resolved role from the hook.
+  const effectiveTargetRole = targetRole ?? resolvedTargetRole;
+  // "Peer" = student↔student, the only relation that uses Connect/Connected copy.
+  const isPeer = requireApproval || effectiveTargetRole === null ? requireApproval : false;
+  // Copy table
+  const connectLabel = isPeer ? "Connect" : "Follow";
+  const connectedLabel = isPeer ? "Connected" : "Following";
+  const sinceLabel = isPeer ? "Connected since" : "Following since";
+  const disconnectToast = isPeer ? "Disconnected" : "Unfollowed";
+  const sendToast = isPeer ? "Request sent" : "Following";
+
   const loading =
     sendRequest.isPending ||
     cancelOrUnfollow.isPending ||
     acceptIncoming.isPending ||
     rejectIncoming.isPending;
 
-  // Incoming pending request — show Accept / Reject with received date
+  // Incoming pending request — only possible student↔student.
   if (state === "pending_incoming") {
     const received = formatShortDate(requestReceivedAt);
     return (
@@ -83,7 +95,7 @@ const FollowButton = ({ targetUserId, className }: FollowButtonProps) => {
     );
   }
 
-  // Outgoing pending — show "Request Sent" with sent date and cancel
+  // Outgoing pending — only possible student↔student.
   if (state === "pending_outgoing") {
     const sent = formatShortDate(requestSentAt);
     return (
@@ -102,7 +114,7 @@ const FollowButton = ({ targetUserId, className }: FollowButtonProps) => {
           }
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
-          Request Sent
+          Requested
         </Button>
         {sent && (
           <span className="text-[10px] text-muted-foreground">Sent {sent}</span>
@@ -111,10 +123,9 @@ const FollowButton = ({ targetUserId, className }: FollowButtonProps) => {
     );
   }
 
-  // Accepted — show Connected / Unfollow with connected-since date
+  // Accepted — Connected/Following depending on target role.
   if (state === "accepted") {
     const since = formatShortDate(connectedAt);
-    const sinceLabel = isStudent ? "Connected since" : "Following since";
     return (
       <div className={`flex flex-col items-end gap-1 ${className ?? ""}`}>
         <Button
@@ -125,13 +136,13 @@ const FollowButton = ({ targetUserId, className }: FollowButtonProps) => {
           title={since ? `${sinceLabel} ${since}` : undefined}
           onClick={() =>
             cancelOrUnfollow.mutate(undefined, {
-              onSuccess: () => toast(isStudent ? "Disconnected" : "Unfollowed"),
+              onSuccess: () => toast(disconnectToast),
               onError: (e: any) => toast.error(e.message || "Could not update"),
             })
           }
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserMinus className="h-4 w-4" />}
-          {isStudent ? "Connected" : "Unfollow"}
+          {connectedLabel}
         </Button>
         {since && (
           <span className="text-[10px] text-muted-foreground">{sinceLabel} {since}</span>
@@ -140,25 +151,21 @@ const FollowButton = ({ targetUserId, className }: FollowButtonProps) => {
     );
   }
 
-  // None — Connect (student) or Follow (other)
+  // None — Connect (peer) or Follow (everything else).
   return (
     <Button
       size="sm"
       disabled={loading}
       className={`gap-2 ${className ?? ""}`}
       onClick={() =>
-        sendRequest.mutate(
-          { requireApproval },
-          {
-            onSuccess: () =>
-              toast.success(requireApproval ? "Request sent" : "Following"),
-            onError: (e: any) => toast.error(e.message || "Could not send request"),
-          }
-        )
+        sendRequest.mutate(undefined, {
+          onSuccess: () => toast.success(sendToast),
+          onError: (e: any) => toast.error(e.message || "Could not send request"),
+        })
       }
     >
       {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
-      {isStudent ? "Connect" : "Follow"}
+      {connectLabel}
     </Button>
   );
 };
