@@ -12,6 +12,8 @@ interface FollowListDialogProps {
   userId: string;
   followerCount: number;
   followingCount: number;
+  /** Role of the profile being viewed; drives label semantics (Followers vs Connections). */
+  targetRole?: "student" | "employer";
 }
 
 function getInitials(name: string) {
@@ -23,20 +25,26 @@ function getInitials(name: string) {
     .slice(0, 2);
 }
 
-const FollowListDialog = ({ userId, followerCount, followingCount }: FollowListDialogProps) => {
+const FollowListDialog = ({ userId, followerCount, followingCount, targetRole }: FollowListDialogProps) => {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"followers" | "following">("followers");
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { role: viewerRole } = useAuth();
 
   const { data: followers = [], isLoading: loadingFollowers } = useFollowList(userId, "followers");
   const { data: following = [], isLoading: loadingFollowing } = useFollowList(userId, "following");
 
-  const isStudent = role === "student";
+  // Labels follow the TARGET's role. Companies show "Followers / Following",
+  // students show "Connections / Connected To". Fallback to viewer role
+  // when targetRole isn't provided (used by the user's own profile screen).
+  const effectiveRole = targetRole ?? viewerRole;
+  const isStudent = effectiveRole === "student";
   const followersLabel = isStudent ? "Connections" : "Followers";
   const followingLabel = isStudent ? "Connected To" : "Following";
+  const sinceLabel = isStudent ? "Connected since" : "Following since";
   const noFollowersText = isStudent ? "No connections yet" : "No followers yet";
   const noFollowingText = isStudent ? "Not connected to anyone yet" : "Not following anyone yet";
+
 
   return (
     <>
