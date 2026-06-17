@@ -17,7 +17,7 @@ import ProfileLink from "@/components/ProfileLink";
 
 type AppRole = "student" | "employer" | "admin";
 type RoleFilter = "all" | AppRole | "unknown";
-type StatusFilter = "all" | "completed" | "pending" | "unknown";
+type StatusFilter = "all" | "completed" | "in_progress" | "not_started" | "unknown";
 type ActiveFilter = "all" | "24h" | "7d" | "30d" | "never";
 
 interface UserRow {
