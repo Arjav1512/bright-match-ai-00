@@ -263,44 +263,44 @@ const EmployerProfile = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
-                  <AdminField label="Onboarding Status" value={(ep as any).onboarding_status} />
-                  <AdminField label="Onboarding Step" value={(ep as any).onboarding_step} />
-                  <AdminField label="Onboarding Completed" value={(ep as any).onboarding_completed_at} />
-                  <AdminField label="Verified" value={ep.is_verified} />
-                  <AdminField label="Verification Method" value={(ep as any).verification_method} />
-                  <AdminField label="Verified At" value={(ep as any).verified_at} />
-                  <AdminField label="Verified Domain" value={(ep as any).verified_domain} />
-                  <AdminField label="Work Email Verified" value={(ep as any).work_email_verified} />
-                  <AdminField label="Company Name" value={ep.company_name} />
-                  <AdminField label="Company Domain" value={(ep as any).company_domain} />
-                  <AdminField label="Industry" value={ep.industry} />
-                  <AdminField label="Description" value={ep.company_description} />
-                  <AdminField label="Company Size" value={ep.company_size} />
-                  <AdminField label="Year Established" value={ep.year_established} />
-                  <AdminField label="Funding Stage" value={ep.funding_stage} />
-                  <AdminField label="Website" value={ep.website} />
-                  <AdminField label="LinkedIn" value={ep.linkedin_profile} />
-                  <AdminField label="Hiring Roles" value={(ep as any).hiring_roles?.length ? (ep as any).hiring_roles.join(", ") : null} />
-                  <AdminField label="GSTIN" value={(ep as any).gstin} />
-                  <AdminField label="GST Number" value={(ep as any).gst_number} />
-                  <AdminField label="PAN" value={(ep as any).pan_number} />
-                  <AdminField label="CIN" value={(ep as any).cin} />
-                  <AdminField label="Head Office Address" value={(ep as any).head_office_address} />
-                  <AdminField label="City" value={ep.city} />
-                  <AdminField label="State" value={ep.state} />
-                  <AdminField label="Pincode" value={(ep as any).pincode} />
-                  <AdminField label="Head Office Mobile" value={(ep as any).head_office_mobile} icon={<Phone className="h-3.5 w-3.5" />} />
-                  <AdminField label="Head Office Landline" value={(ep as any).head_office_landline} icon={<Phone className="h-3.5 w-3.5" />} />
-                  <AdminField label="HR Name" value={(ep as any).hr_contact_name} />
-                  <AdminField label="HR Designation" value={(ep as any).hr_designation} />
-                  <AdminField label="HR Email" value={(ep as any).hr_email} icon={<Mail className="h-3.5 w-3.5" />} />
-                  <AdminField label="HR Phone" value={(ep as any).hr_phone} icon={<Phone className="h-3.5 w-3.5" />} />
-                  <AdminField label="Manager Name" value={(ep as any).manager_contact_name} />
-                  <AdminField label="Manager Designation" value={(ep as any).manager_designation} />
-                  <AdminField label="Manager Email" value={(ep as any).manager_email} icon={<Mail className="h-3.5 w-3.5" />} />
-                  <AdminField label="Manager Phone" value={(ep as any).manager_phone} icon={<Phone className="h-3.5 w-3.5" />} />
-                  <AdminField label="Created" value={(ep as any).created_at} />
-                  <AdminField label="Updated" value={(ep as any).updated_at} />
+                  <AdminField label="Onboarding Status" value={(ep as any).onboarding_status}  showEmpty />
+                  <AdminField label="Onboarding Step" value={(ep as any).onboarding_step}  showEmpty />
+                  <AdminField label="Onboarding Completed" value={(ep as any).onboarding_completed_at}  showEmpty />
+                  <AdminField label="Verified" value={ep.is_verified}  showEmpty />
+                  <AdminField label="Verification Method" value={(ep as any).verification_method}  showEmpty />
+                  <AdminField label="Verified At" value={(ep as any).verified_at}  showEmpty />
+                  <AdminField label="Verified Domain" value={(ep as any).verified_domain}  showEmpty />
+                  <AdminField label="Work Email Verified" value={(ep as any).work_email_verified}  showEmpty />
+                  <AdminField label="Company Name" value={ep.company_name}  showEmpty />
+                  <AdminField label="Company Domain" value={(ep as any).company_domain}  showEmpty />
+                  <AdminField label="Industry" value={ep.industry}  showEmpty />
+                  <AdminField label="Description" value={ep.company_description}  showEmpty />
+                  <AdminField label="Company Size" value={ep.company_size}  showEmpty />
+                  <AdminField label="Year Established" value={ep.year_established}  showEmpty />
+                  <AdminField label="Funding Stage" value={ep.funding_stage}  showEmpty />
+                  <AdminField label="Website" value={ep.website}  showEmpty />
+                  <AdminField label="LinkedIn" value={ep.linkedin_profile}  showEmpty />
+                  <AdminField label="Hiring Roles" value={(ep as any).hiring_roles?.length ? (ep as any).hiring_roles.join(", ") : null}  showEmpty />
+                  <AdminField label="GSTIN" value={(ep as any).gstin}  showEmpty />
+                  <AdminField label="GST Number" value={(ep as any).gst_number}  showEmpty />
+                  <AdminField label="PAN" value={(ep as any).pan_number}  showEmpty />
+                  <AdminField label="CIN" value={(ep as any).cin}  showEmpty />
+                  <AdminField label="Head Office Address" value={(ep as any).head_office_address}  showEmpty />
+                  <AdminField label="City" value={ep.city}  showEmpty />
+                  <AdminField label="State" value={ep.state}  showEmpty />
+                  <AdminField label="Pincode" value={(ep as any).pincode}  showEmpty />
+                  <AdminField label="Head Office Mobile" value={(ep as any).head_office_mobile} icon={<Phone className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
+                  <AdminField label="Head Office Landline" value={(ep as any).head_office_landline} icon={<Phone className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
+                  <AdminField label="HR Name" value={(ep as any).hr_contact_name}  showEmpty />
+                  <AdminField label="HR Designation" value={(ep as any).hr_designation}  showEmpty />
+                  <AdminField label="HR Email" value={(ep as any).hr_email} icon={<Mail className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
+                  <AdminField label="HR Phone" value={(ep as any).hr_phone} icon={<Phone className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
+                  <AdminField label="Manager Name" value={(ep as any).manager_contact_name}  showEmpty />
+                  <AdminField label="Manager Designation" value={(ep as any).manager_designation}  showEmpty />
+                  <AdminField label="Manager Email" value={(ep as any).manager_email} icon={<Mail className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
+                  <AdminField label="Manager Phone" value={(ep as any).manager_phone} icon={<Phone className="h-3.5 w-3.5"  showEmpty />}  showEmpty />
+                  <AdminField label="Created" value={(ep as any).created_at}  showEmpty />
+                  <AdminField label="Updated" value={(ep as any).updated_at}  showEmpty />
                 </CardContent>
               </Card>
             )}
