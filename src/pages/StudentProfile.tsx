@@ -24,9 +24,24 @@ const hasDisplayValue = (value: unknown) => {
 const StudentProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user, role, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const isAdmin = role === "admin";
   const isOwner = !!user && user.id === userId;
+
+  // Smart back: prefer the previous route. On deep-link, admins fall back to
+  // /admin/users; everyone else to /students (LinkUp).
+  const backLabel = isAdmin ? "Back to Users" : "Back to LinkUp";
+  const backFallback = isAdmin ? "/admin/users" : "/students";
+  const handleBack = () => {
+    if ((location.key && location.key !== "default") || window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate(backFallback);
+    }
+  };
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["public-student-profile", userId, role, user?.id],
