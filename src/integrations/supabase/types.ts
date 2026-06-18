@@ -1328,7 +1328,7 @@ export type Database = {
         | "interview"
         | "accepted"
         | "rejected"
-      internship_status: "draft" | "published" | "closed"
+      internship_status: "draft" | "published" | "closed" | "removed"
       internship_type: "remote" | "onsite" | "hybrid"
       notification_type:
         | "application_submitted"
@@ -1472,7 +1472,7 @@ export const Constants = {
         "accepted",
         "rejected",
       ],
-      internship_status: ["draft", "published", "closed"],
+      internship_status: ["draft", "published", "closed", "removed"],
       internship_type: ["remote", "onsite", "hybrid"],
       notification_type: [
         "application_submitted",
