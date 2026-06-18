@@ -44,13 +44,14 @@ const InternshipDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       // FIX (HIGH-draft): Exclude drafts — but keep closed visible so applicants
-      // can view internships they already applied to after the employer closes them.
-      // Only "draft" must be blocked; "published" and "closed" are both readable.
+      // can view internships they already applied to. Also include 'removed' so
+      // we can render a friendly "removed by administrator" notice instead of
+      // a generic not-found.
       const { data } = await supabase
         .from("internships")
         .select("*")
         .eq("id", id!)
-        .in("status", ["published", "closed"])
+        .in("status", ["published", "closed", "removed"])
         .maybeSingle();
 
       if (data) {
@@ -64,6 +65,7 @@ const InternshipDetail = () => {
       } else {
         setInternship(null);
       }
+
 
       if (user) {
         const { data: app } = await supabase.from("applications").select("id").eq("student_id", user.id).eq("internship_id", id!).maybeSingle();
