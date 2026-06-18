@@ -106,7 +106,10 @@ const ApplicantReview = () => {
   }, [id, user, navigate]);
 
   const updateStatus = async (appId: string, status: "pending" | "reviewed" | "interview" | "accepted" | "rejected") => {
-    const { error } = await supabase.from("applications").update({ status }).eq("id", appId);
+    const { error } = await (supabase as any).rpc("update_application_status", {
+      p_application_id: appId,
+      p_new_status: status,
+    });
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
