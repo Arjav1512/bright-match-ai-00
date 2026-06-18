@@ -27,6 +27,12 @@ const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
   published: "bg-success/10 text-success border-success/20",
   closed: "bg-destructive/10 text-destructive border-destructive/20",
+  removed: "bg-destructive/10 text-destructive border-destructive/30",
+};
+
+const formatDate = (s?: string | null) => {
+  if (!s) return "";
+  try { return new Date(s).toLocaleDateString(); } catch { return ""; }
 };
 
 const MyInternships = () => {
