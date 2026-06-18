@@ -33,6 +33,19 @@ const EditInternship = () => {
         return;
       }
 
+      // If an admin has removed this listing, employers may not edit it until restored.
+      if ((data as any).status === "removed") {
+        toast({
+          title: "Editing disabled",
+          description: "This internship was removed by an administrator and cannot be edited.",
+          variant: "destructive",
+        });
+        navigate("/my-internships");
+        return;
+      }
+
+
+
       const d = data as any;
       setInitialData({
         title: d.title || "",

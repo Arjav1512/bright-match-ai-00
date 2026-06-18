@@ -44,13 +44,14 @@ const InternshipDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       // FIX (HIGH-draft): Exclude drafts — but keep closed visible so applicants
-      // can view internships they already applied to after the employer closes them.
-      // Only "draft" must be blocked; "published" and "closed" are both readable.
+      // can view internships they already applied to. Also include 'removed' so
+      // we can render a friendly "removed by administrator" notice instead of
+      // a generic not-found.
       const { data } = await supabase
         .from("internships")
         .select("*")
         .eq("id", id!)
-        .in("status", ["published", "closed"])
+        .in("status", ["published", "closed", "removed"])
         .maybeSingle();
 
       if (data) {
@@ -64,6 +65,7 @@ const InternshipDetail = () => {
       } else {
         setInternship(null);
       }
+
 
       if (user) {
         const { data: app } = await supabase.from("applications").select("id").eq("student_id", user.id).eq("internship_id", id!).maybeSingle();
@@ -158,6 +160,23 @@ const InternshipDetail = () => {
       </div>
     </div>
   );
+
+  // Removed-by-admin: show a dedicated notice instead of the full listing.
+  // Owner (employer) and admins keep seeing the full page so they can review/edit.
+  if (internship.status === "removed" && role !== "admin" && user?.id !== internship.employer_id) return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="container max-w-2xl py-20 text-center">
+        <h2 className="font-display text-2xl font-bold">This internship has been removed by an administrator</h2>
+        <p className="mt-3 text-muted-foreground">
+          The listing is no longer accepting applications. If you have already applied,
+          your application remains on file and you can review it from My Applications.
+        </p>
+        <Button className="mt-6" onClick={() => navigate("/internships")}>Browse Internships</Button>
+      </div>
+    </div>
+  );
+
 
   const score = matchScore();
   const isFull = internship.application_count >= internship.app_cap;
