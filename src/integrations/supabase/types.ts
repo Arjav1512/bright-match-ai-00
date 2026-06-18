@@ -1337,6 +1337,27 @@ export type Database = {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: undefined
       }
+      update_application_status: {
+        Args: {
+          p_application_id: string
+          p_new_status: Database["public"]["Enums"]["application_status"]
+        }
+        Returns: {
+          applied_at: string
+          cover_letter: string | null
+          id: string
+          internship_id: string
+          status: Database["public"]["Enums"]["application_status"]
+          student_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "applications"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       update_student_reputation: {
         Args: { _student_id: string }
         Returns: undefined
