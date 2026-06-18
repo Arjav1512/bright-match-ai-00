@@ -161,6 +161,23 @@ const InternshipDetail = () => {
     </div>
   );
 
+  // Removed-by-admin: show a dedicated notice instead of the full listing.
+  // Owner (employer) and admins keep seeing the full page so they can review/edit.
+  if (internship.status === "removed" && role !== "admin" && user?.id !== internship.employer_id) return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="container max-w-2xl py-20 text-center">
+        <h2 className="font-display text-2xl font-bold">This internship has been removed by an administrator</h2>
+        <p className="mt-3 text-muted-foreground">
+          The listing is no longer accepting applications. If you have already applied,
+          your application remains on file and you can review it from My Applications.
+        </p>
+        <Button className="mt-6" onClick={() => navigate("/internships")}>Browse Internships</Button>
+      </div>
+    </div>
+  );
+
+
   const score = matchScore();
   const isFull = internship.application_count >= internship.app_cap;
   // FIX (HIGH-10): Disable apply after deadline even if status is still "published".
