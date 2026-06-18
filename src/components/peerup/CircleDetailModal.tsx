@@ -197,7 +197,7 @@ const CircleDetailModal = ({
             className="w-full brand-gradient border-0 text-white gap-2"
           >
             {loadingAction ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-            Request to spark this Wroob
+            Request to Join Circle
           </Button>
           <Button variant="outline" className="w-full" onClick={onClose}>
             Maybe later
