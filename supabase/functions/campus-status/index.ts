@@ -197,7 +197,9 @@ Deno.serve(async (req) => {
         .single();
 
       if (error) throw error;
-      return new Response(JSON.stringify(data), {
+      // Strip precise coordinates before returning to the client.
+      const { latitude: _lat, longitude: _lng, ...safe } = data as any;
+      return new Response(JSON.stringify(safe), {
         headers: { ...responseHeaders },
       });
     }
