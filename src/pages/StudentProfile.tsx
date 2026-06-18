@@ -138,7 +138,7 @@ const StudentProfile = () => {
                       </p>
                     )}
                     {profile.bio && <p className="text-sm mt-2">{profile.bio}</p>}
-                    {user && user.id !== userId && (
+                    {user && user.id !== userId && !isAdmin && (
                       <div className="mt-3 flex items-center gap-2">
                         <FollowButton targetUserId={userId!} targetRole="student" />
                         {(role === "student" || role === "employer") && (
