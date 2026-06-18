@@ -104,7 +104,9 @@ const MyInternships = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {internships.map((intern) => (
+            {internships.map((intern) => {
+              const isRemoved = intern.status === "removed";
+              return (
               <Card key={intern.id} className="transition-all hover:shadow-md">
                 <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                   <div className="min-w-0 flex-1">
@@ -116,15 +118,28 @@ const MyInternships = () => {
                         {intern.applications?.[0]?.count || 0} applicants
                       </span>
                     </div>
+                    {isRemoved && (
+                      <div className="mt-3 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
+                        <p className="font-medium text-destructive">Removed by admin</p>
+                        {intern.removal_reason && (
+                          <p className="mt-1 text-muted-foreground"><span className="font-medium">Reason:</span> {intern.removal_reason}</p>
+                        )}
+                        {intern.removed_at && (
+                          <p className="mt-1 text-xs text-muted-foreground">Removed on {formatDate(intern.removed_at)}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-2 sm:shrink-0">
-                    <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
-                      <Link to={`/internships/${intern.id}/edit`}><Pencil className="h-3.5 w-3.5 mr-1" />Edit</Link>
+                    <Button variant="outline" size="sm" asChild={!isRemoved} disabled={isRemoved} className="flex-1 sm:flex-none">
+                      {isRemoved
+                        ? <span><Pencil className="h-3.5 w-3.5 mr-1 inline" />Edit</span>
+                        : <Link to={`/internships/${intern.id}/edit`}><Pencil className="h-3.5 w-3.5 mr-1" />Edit</Link>}
                     </Button>
                     <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
                       <Link to={`/internships/${intern.id}/applicants`}>View Applicants</Link>
                     </Button>
-                    {intern.status !== "closed" && (
+                    {intern.status !== "closed" && !isRemoved && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="destructive" size="sm" disabled={closingId === intern.id} className="flex-1 sm:flex-none">
@@ -150,7 +165,8 @@ const MyInternships = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
