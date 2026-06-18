@@ -6,8 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Send, MapPin, Briefcase } from "lucide-react";
+import { ArrowLeft, Send, MapPin, Briefcase, Trash2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface GroupChatProps {
   group: UserGroup;
@@ -16,9 +27,11 @@ interface GroupChatProps {
 
 const GroupChat = ({ group, onBack }: GroupChatProps) => {
   const { user } = useAuth();
-  const { messages, sendMessage, loading } = useGroupChat(group.id);
+  const { messages, sendMessage, deleteMessage, loading, isOwner } = useGroupChat(group.id);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,6 +50,20 @@ const GroupChat = ({ group, onBack }: GroupChatProps) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    try {
+      await deleteMessage(pendingDelete);
+      toast.success("Message deleted");
+    } catch (e: any) {
+      toast.error(e?.message || "Could not delete message");
+    } finally {
+      setDeleting(false);
+      setPendingDelete(null);
     }
   };
 
@@ -76,11 +103,23 @@ const GroupChat = ({ group, onBack }: GroupChatProps) => {
           <div className="space-y-3">
             {messages.map((msg) => {
               const isMe = msg.sender_id === user?.id;
+              const canDelete = isMe || isOwner;
               return (
                 <div
                   key={msg.id}
-                  className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+                  className={`group flex items-end gap-2 ${isMe ? "justify-end" : "justify-start"}`}
                 >
+                  {canDelete && isMe && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                      onClick={() => setPendingDelete(msg.id)}
+                      aria-label="Delete message"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                   <div
                     className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${
                       isMe
@@ -98,6 +137,17 @@ const GroupChat = ({ group, onBack }: GroupChatProps) => {
                       {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
+                  {canDelete && !isMe && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                      onClick={() => setPendingDelete(msg.id)}
+                      aria-label="Delete message"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                 </div>
               );
             })}
@@ -126,6 +176,30 @@ const GroupChat = ({ group, onBack }: GroupChatProps) => {
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this message?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This message will be removed for everyone in the group. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                confirmDelete();
+              }}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };

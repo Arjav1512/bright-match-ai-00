@@ -15,6 +15,7 @@ export function useGroupChat(groupId: string | null) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<GroupMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     if (!groupId) return;
@@ -31,7 +32,16 @@ export function useGroupChat(groupId: string | null) {
         setLoading(false);
       });
 
-    // Subscribe to realtime
+    // Resolve ownership for current user
+    if (user) {
+      supabase
+        .rpc("is_group_owner", { _group_id: groupId, _user_id: user.id })
+        .then(({ data }) => setIsOwner(Boolean(data)));
+    } else {
+      setIsOwner(false);
+    }
+
+    // Subscribe to realtime INSERT + DELETE
     const channel = supabase
       .channel(`group-chat-${groupId}`)
       .on(
@@ -43,7 +53,25 @@ export function useGroupChat(groupId: string | null) {
           filter: `group_id=eq.${groupId}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as GroupMessage]);
+          setMessages((prev) => {
+            const next = payload.new as GroupMessage;
+            if (prev.some((m) => m.id === next.id)) return prev;
+            return [...prev, next];
+          });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "group_messages",
+          filter: `group_id=eq.${groupId}`,
+        },
+        (payload) => {
+          const oldId = (payload.old as { id?: string })?.id;
+          if (!oldId) return;
+          setMessages((prev) => prev.filter((m) => m.id !== oldId));
         }
       )
       .subscribe();
@@ -51,13 +79,12 @@ export function useGroupChat(groupId: string | null) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [groupId]);
+  }, [groupId, user]);
 
   const sendMessage = useCallback(
     async (text: string) => {
       if (!groupId || !user) return;
 
-      // Get sender name from profile
       const { data: profile } = await supabase
         .from("profiles")
         .select("full_name")
@@ -74,5 +101,18 @@ export function useGroupChat(groupId: string | null) {
     [groupId, user]
   );
 
-  return { messages, sendMessage, loading };
+  const deleteMessage = useCallback(
+    async (messageId: string) => {
+      const { error } = await supabase
+        .from("group_messages")
+        .delete()
+        .eq("id", messageId);
+      if (error) throw error;
+      // Optimistic: also drop locally in case realtime is delayed
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+    },
+    []
+  );
+
+  return { messages, sendMessage, deleteMessage, loading, isOwner };
 }
