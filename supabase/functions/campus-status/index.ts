@@ -295,12 +295,16 @@ Deno.serve(async (req) => {
         replyCountMap.set(r.status_id, (replyCountMap.get(r.status_id) || 0) + 1);
       });
 
-      const enriched = nearby.map((s: any) => ({
-        ...s,
-        student_name: profileMap.get(s.student_id)?.full_name || "Student",
-        student_avatar: profileMap.get(s.student_id)?.avatar_url || null,
-        reply_count: replyCountMap.get(s.id) || 0,
-      }));
+      const enriched = nearby.map((s: any) => {
+        // Strip precise coordinates before returning to the client.
+        const { latitude: _lat, longitude: _lng, ...safe } = s;
+        return {
+          ...safe,
+          student_name: profileMap.get(s.student_id)?.full_name || "Student",
+          student_avatar: profileMap.get(s.student_id)?.avatar_url || null,
+          reply_count: replyCountMap.get(s.id) || 0,
+        };
+      });
 
       return new Response(JSON.stringify(enriched), {
         headers: { ...responseHeaders },
