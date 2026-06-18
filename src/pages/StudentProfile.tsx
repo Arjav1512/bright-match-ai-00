@@ -123,9 +123,14 @@ const StudentProfile = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container max-w-2xl py-10">
-        <Link to="/students" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="h-4 w-4" /> Back to LinkUp
-        </Link>
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
+        >
+          <ArrowLeft className="h-4 w-4" /> {backLabel}
+        </button>
+
 
         {isLoading ? (
           <ProfileSkeleton />
