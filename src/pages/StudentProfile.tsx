@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
@@ -24,9 +24,24 @@ const hasDisplayValue = (value: unknown) => {
 const StudentProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user, role, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const isAdmin = role === "admin";
   const isOwner = !!user && user.id === userId;
+
+  // Smart back: prefer the previous route. On deep-link, admins fall back to
+  // /admin/users; everyone else to /students (LinkUp).
+  const backLabel = isAdmin ? "Back to Users" : "Back to LinkUp";
+  const backFallback = isAdmin ? "/admin/users" : "/students";
+  const handleBack = () => {
+    if ((location.key && location.key !== "default") || window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate(backFallback);
+    }
+  };
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["public-student-profile", userId, role, user?.id],
@@ -108,9 +123,14 @@ const StudentProfile = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container max-w-2xl py-10">
-        <Link to="/students" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="h-4 w-4" /> Back to LinkUp
-        </Link>
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
+        >
+          <ArrowLeft className="h-4 w-4" /> {backLabel}
+        </button>
+
 
         {isLoading ? (
           <ProfileSkeleton />
