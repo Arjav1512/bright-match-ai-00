@@ -483,7 +483,13 @@ export type Database = {
           interview_required: boolean | null
           joining_process: string | null
           location: string | null
+          previous_status:
+            | Database["public"]["Enums"]["internship_status"]
+            | null
           projects: string | null
+          removal_reason: string | null
+          removed_at: string | null
+          removed_by: string | null
           requirements: string | null
           resume_screening: boolean | null
           roles_responsibilities: string | null
@@ -519,7 +525,13 @@ export type Database = {
           interview_required?: boolean | null
           joining_process?: string | null
           location?: string | null
+          previous_status?:
+            | Database["public"]["Enums"]["internship_status"]
+            | null
           projects?: string | null
+          removal_reason?: string | null
+          removed_at?: string | null
+          removed_by?: string | null
           requirements?: string | null
           resume_screening?: boolean | null
           roles_responsibilities?: string | null
@@ -555,7 +567,13 @@ export type Database = {
           interview_required?: boolean | null
           joining_process?: string | null
           location?: string | null
+          previous_status?:
+            | Database["public"]["Enums"]["internship_status"]
+            | null
           projects?: string | null
+          removal_reason?: string | null
+          removed_at?: string | null
+          removed_by?: string | null
           requirements?: string | null
           resume_screening?: boolean | null
           roles_responsibilities?: string | null
