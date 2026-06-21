@@ -1254,6 +1254,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      display_name_for: { Args: { _user_id: string }; Returns: string }
       get_applicant_profiles_for_employer: {
         Args: { p_internship_id: string }
         Returns: {
