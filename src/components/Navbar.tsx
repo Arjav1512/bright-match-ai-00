@@ -105,7 +105,11 @@ const Navbar = () => {
   };
 
   const getInitials = () => {
-    const name = profile?.full_name || user?.email || "";
+    // Prefer company_name for employers, then profile name, then a safe fallback.
+    const name =
+      (role === "employer" && employerCompanyName) ||
+      profile?.full_name ||
+      "";
     return name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "U";
   };
 
