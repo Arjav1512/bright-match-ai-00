@@ -99,7 +99,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Wroob — Find Internships in India, Build Skills & Grow Your Career"
+        title="Your Internship Journey Starts (& Ends) Here — Find It, Build it, Land It"
         description="Start your career journey while you're still in college. So when interview day comes, companies pick you for the permanent role — not the temporary one. Build real skills, real experience, and a real shot at getting hired for keeps."
         path="/"
         jsonLd={landingJsonLd}
@@ -185,9 +185,9 @@ const Landing = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1 }}
             >
-              Find Internships in India,
+              Your Internship Journey Starts (& Ends) Here&nbsp;
               <br />
-              <span className="brand-gradient-text">Build Skills & Grow Your Career</span>
+              <span className="brand-gradient-text">Find It, Build it, Land It</span>
             </motion.h1>
 
             <motion.p
