@@ -21,22 +21,63 @@ const SelectRole = () => {
   // If user already has a role, skip this page entirely. Re-check the DB
   // because AuthContext can hold a stale null right after signup before the
   // role-assignment trigger or set_initial_role completes.
+  //
+  // P0-5A: if the user picked a role on the Signup page before clicking
+  // "Continue with Google", that choice is in sessionStorage under
+  // "wroob_pending_role". Auto-claim it here so the user never sees this
+  // picker a second time. Only the two safe values are honoured; anything
+  // else (e.g. tampered "admin") is ignored and the key is cleared.
   useEffect(() => {
     if (loading) return;
     if (!user) {
       setVerifying(false);
       return;
     }
+
+    const pending = sessionStorage.getItem("wroob_pending_role");
+    const pendingRole: "student" | "employer" | null =
+      pending === "student" || pending === "employer" ? pending : null;
+    if (pending && !pendingRole) {
+      // Invalid value — never trust it.
+      sessionStorage.removeItem("wroob_pending_role");
+    }
+
     if (role) {
+      sessionStorage.removeItem("wroob_pending_role");
       navigate("/dashboard", { replace: true });
       return;
     }
-    refreshRole().then((r) => {
+
+    refreshRole().then(async (r) => {
       if (r) {
+        sessionStorage.removeItem("wroob_pending_role");
         navigate("/dashboard", { replace: true });
-      } else {
-        setVerifying(false);
+        return;
       }
+
+      if (pendingRole) {
+        try {
+          const { error } = await supabase.rpc("set_initial_role", { _role: pendingRole });
+          // Always clear the key — success or failure — to prevent loops.
+          sessionStorage.removeItem("wroob_pending_role");
+          if (error) {
+            // Fall through to render the picker so the user can pick manually.
+            setVerifying(false);
+            return;
+          }
+          // Hard reload so AuthContext re-fetches the role and downstream
+          // guards see it immediately (same pattern as handleContinue below).
+          window.location.href =
+            pendingRole === "student" ? "/onboarding/profile" : "/employer/onboarding/company";
+          return;
+        } catch {
+          sessionStorage.removeItem("wroob_pending_role");
+          setVerifying(false);
+          return;
+        }
+      }
+
+      setVerifying(false);
     });
   }, [loading, role, user, navigate, refreshRole]);
 
