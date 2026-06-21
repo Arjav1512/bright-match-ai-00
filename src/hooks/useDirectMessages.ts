@@ -65,7 +65,7 @@ export function useDirectMessages() {
       return;
     }
 
-    const [profilesRes, rolesRes] = await Promise.all([
+    const [profilesRes, rolesRes, employersRes] = await Promise.all([
       supabase
         .from("profiles")
         .select("user_id, full_name, avatar_url")
@@ -75,6 +75,12 @@ export function useDirectMessages() {
       supabase
         .from("user_roles")
         .select("user_id, role")
+        .in("user_id", partnerIds),
+      // P0-1: Employer partners must render as company_name (with logo),
+      // never as "User" derived from an empty profiles.full_name.
+      (supabase as any)
+        .from("employer_profiles_public")
+        .select("user_id, company_name, logo_url")
         .in("user_id", partnerIds),
     ]);
 
@@ -86,17 +92,25 @@ export function useDirectMessages() {
     const roleMap = new Map(
       (rolesRes.data || []).map((r) => [r.user_id, r.role as "student" | "employer"])
     );
+    const employerMap = new Map(
+      ((employersRes as any).data || []).map((e: any) => [e.user_id, e])
+    );
 
     let unread = 0;
     const convList: Conversation[] = partnerIds.map((pid) => {
       const conv = convMap.get(pid)!;
       const profile = profileMap.get(pid);
+      const role = roleMap.get(pid) ?? "student";
+      const emp = employerMap.get(pid) as any;
+      const isEmployer = role === "employer";
       unread += conv.unread;
       return {
         partnerId: pid,
-        partnerName: profile?.full_name || "User",
-        partnerAvatar: profile?.avatar_url || null,
-        partnerRole: roleMap.get(pid) ?? "student",
+        partnerName: isEmployer
+          ? (emp?.company_name || profile?.full_name || "Company")
+          : (profile?.full_name || "Student"),
+        partnerAvatar: (isEmployer ? emp?.logo_url : profile?.avatar_url) || profile?.avatar_url || null,
+        partnerRole: role,
         lastMessage: conv.messages[0]?.text || "",
         lastMessageAt: conv.messages[0]?.created_at || "",
         unreadCount: conv.unread,
