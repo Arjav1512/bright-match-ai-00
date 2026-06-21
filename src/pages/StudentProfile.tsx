@@ -1,6 +1,8 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,6 +21,49 @@ const hasDisplayValue = (value: unknown) => {
   if (typeof value === "string") return value.trim() !== "";
   if (Array.isArray(value)) return value.length > 0;
   return true;
+};
+
+// Renders a "View resume" link that resolves the stored value (path or legacy
+// full URL) into a signed URL on click. The resumes bucket is private, so a
+// raw href to the path 404s and a legacy public URL returns 403.
+const ResumeLink = ({ stored, studentId }: { stored: string; studentId?: string }) => {
+  const [loading, setLoading] = useState(false);
+  const openResume = async () => {
+    setLoading(true);
+    try {
+      const storagePath = stored.startsWith("http")
+        ? decodeURIComponent(stored.split("/resumes/")[1] || "")
+        : stored;
+      if (!storagePath) {
+        console.error("[resume] invalid storage path", { studentId, stored });
+        toast.error("Unable to open resume.");
+        return;
+      }
+      const { data, error } = await supabase.storage.from("resumes").createSignedUrl(storagePath, 3600);
+      if (error || !data?.signedUrl) {
+        console.error("[resume] signed URL generation failed", {
+          studentId,
+          storagePath,
+          error: error?.message,
+        });
+        toast.error("Unable to open resume.");
+        return;
+      }
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={openResume}
+      disabled={loading}
+      className="text-primary hover:underline disabled:opacity-60"
+    >
+      {loading ? "Opening…" : "View resume"}
+    </button>
+  );
 };
 
 const StudentProfile = () => {
@@ -268,7 +313,7 @@ const StudentProfile = () => {
                     <div className="flex items-center gap-2">
                       <FileText className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-muted-foreground">Resume:</span>
-                      <a href={sp.resume_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View resume</a>
+                      <ResumeLink stored={sp.resume_url} studentId={sp.user_id} />
                     </div>
                   )}
                   <AdminField label="Created" value={sp.created_at} />
