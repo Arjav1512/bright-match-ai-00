@@ -202,12 +202,27 @@ const ApplicantReview = () => {
                                 <SelectItem value="rejected">Rejected</SelectItem>
                               </SelectContent>
                             </Select>
-                            {app.student_profiles?.resume_url && resumeSignedUrls[app.id] && (
-                              <Button variant="outline" size="sm" className="gap-1" asChild>
-                                <a href={resumeSignedUrls[app.id]} target="_blank" rel="noopener">
+                            {app.student_profiles?.resume_url ? (
+                              resumeSignedUrls[app.id] ? (
+                                <Button variant="outline" size="sm" className="gap-1" asChild>
+                                  <a href={resumeSignedUrls[app.id]} target="_blank" rel="noopener">
+                                    <Download className="h-3 w-3" /> Resume
+                                  </a>
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="gap-1"
+                                  onClick={() => toast({ title: "Unable to open resume.", variant: "destructive" })}
+                                >
                                   <Download className="h-3 w-3" /> Resume
-                                </a>
-                              </Button>
+                                </Button>
+                              )
+                            ) : (
+                              <Badge variant="secondary" className="text-xs text-muted-foreground">
+                                No resume provided
+                              </Badge>
                             )}
                             {/* FIX (HIGH-employer-dm): Employers can now initiate DMs
                                 directly from the applicant card without visiting the
