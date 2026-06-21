@@ -100,7 +100,7 @@ const Landing = () => {
     <div className="min-h-screen bg-background">
       <SEO
         title="Wroob — Find Internships in India, Build Skills & Grow Your Career"
-        description="India's skills-based internship platform. Discover remote and on-site internships, build a verified reputation, and connect with innovative employers — free for students."
+        description="Start your career journey while you're still in college. So when interview day comes, companies pick you for the permanent role — not the temporary one. Build real skills, real experience, and a real shot at getting hired for keeps."
         path="/"
         jsonLd={landingJsonLd}
       />
