@@ -94,7 +94,7 @@ const FollowListDialog = ({ userId, followerCount, followingCount, targetRole }:
                         <button
                           type="button"
                           className="text-sm font-medium hover:text-primary hover:underline transition-colors text-left"
-                          onClick={() => { setOpen(false); navigate(`/students?highlight=${p.user_id}`); }}
+                          onClick={() => { setOpen(false); navigate(p.role === "employer" ? `/employer/${p.user_id}` : `/students?highlight=${p.user_id}`); }}
                         >
                           {p.full_name || "Anonymous"}
                         </button>
@@ -127,7 +127,7 @@ const FollowListDialog = ({ userId, followerCount, followingCount, targetRole }:
                         <button
                           type="button"
                           className="text-sm font-medium hover:text-primary hover:underline transition-colors text-left"
-                          onClick={() => { setOpen(false); navigate(`/students?highlight=${p.user_id}`); }}
+                          onClick={() => { setOpen(false); navigate(p.role === "employer" ? `/employer/${p.user_id}` : `/students?highlight=${p.user_id}`); }}
                         >
                           {p.full_name || "Anonymous"}
                         </button>

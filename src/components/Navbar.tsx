@@ -25,6 +25,7 @@ const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [employerCompanyName, setEmployerCompanyName] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const { toast } = useToast();
   const { count: unreadGroupCount, markRead: markGroupsRead } = useUnreadGroupMessages();
@@ -54,6 +55,22 @@ const Navbar = () => {
     }
     const t = setTimeout(run, 1500);
     return () => clearTimeout(t);
+  }, [user, role]);
+
+  // P0-1: For employer accounts, fetch company_name so the avatar initials
+  // (and any name fallback) reflect the company, not the email address.
+  useEffect(() => {
+    if (!user || role !== "employer") { setEmployerCompanyName(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("employer_profiles")
+        .select("company_name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!cancelled) setEmployerCompanyName((data as any)?.company_name ?? null);
+    })();
+    return () => { cancelled = true; };
   }, [user, role]);
 
   useEffect(() => {
@@ -88,7 +105,11 @@ const Navbar = () => {
   };
 
   const getInitials = () => {
-    const name = profile?.full_name || user?.email || "";
+    // Prefer company_name for employers, then profile name, then a safe fallback.
+    const name =
+      (role === "employer" && employerCompanyName) ||
+      profile?.full_name ||
+      "";
     return name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "U";
   };
 
