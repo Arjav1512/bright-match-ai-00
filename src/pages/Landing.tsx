@@ -185,9 +185,9 @@ const Landing = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1 }}
             >
-              Find Internships in India,
+              Your Internship Journey Starts (& Ends) Here&nbsp;
               <br />
-              <span className="brand-gradient-text">Build Skills & Grow Your Career</span>
+              <span className="brand-gradient-text">Find It, Build it, Land It</span>
             </motion.h1>
 
             <motion.p
