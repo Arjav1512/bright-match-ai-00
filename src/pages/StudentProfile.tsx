@@ -313,7 +313,7 @@ const StudentProfile = () => {
                     <div className="flex items-center gap-2">
                       <FileText className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-muted-foreground">Resume:</span>
-                      <a href={sp.resume_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View resume</a>
+                      <ResumeLink stored={sp.resume_url} studentId={sp.user_id} />
                     </div>
                   )}
                   <AdminField label="Created" value={sp.created_at} />
