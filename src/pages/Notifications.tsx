@@ -68,9 +68,24 @@ const Notifications = () => {
   }, [user]);
 
   const markAllRead = async () => {
-    if (!user) return;
-    await supabase.from("notifications").update({ read: true }).eq("user_id", user.id).eq("read", false);
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    if (!user || markingAll || unreadCount === 0) return;
+    setMarkingAll(true);
+    const snapshot = notifications;
+    // Optimistic update
+    setNotifications((prev) => prev.map((n) => (n.read ? n : { ...n, read: true })));
+    const { error } = await supabase
+      .from("notifications")
+      .update({ read: true })
+      .eq("user_id", user.id)
+      .eq("read", false);
+    if (error) {
+      // Revert
+      setNotifications(snapshot);
+      toast.error("Couldn't mark all as read", { description: error.message });
+    } else {
+      toast.success("All notifications marked as read");
+    }
+    setMarkingAll(false);
   };
 
   const handleClick = async (notif: any) => {
