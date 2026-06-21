@@ -25,6 +25,7 @@ const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [employerCompanyName, setEmployerCompanyName] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const { toast } = useToast();
   const { count: unreadGroupCount, markRead: markGroupsRead } = useUnreadGroupMessages();
