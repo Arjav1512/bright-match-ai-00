@@ -278,11 +278,20 @@ const StudentDiscovery = () => {
                               </div>
                               <FollowButton targetUserId={company.user_id} targetRole="employer" />
                             </div>
-                            {company.company_size && (
-                              <Badge variant="secondary" className="text-xs mt-3">
-                                {company.company_size} employees
-                              </Badge>
-                            )}
+                            <div className="flex items-center justify-between gap-2 mt-3">
+                              {company.company_size ? (
+                                <Badge variant="secondary" className="text-xs">
+                                  {company.company_size} employees
+                                </Badge>
+                              ) : <span />}
+                              {/* P0-2: Explicit View Profile action on every company card. */}
+                              <Link
+                                to={`/employer/${company.user_id}`}
+                                className="text-xs font-medium text-primary hover:underline whitespace-nowrap"
+                              >
+                                View profile →
+                              </Link>
+                            </div>
                           </div>
                         </div>
                       </CardContent>
