@@ -229,45 +229,50 @@ export function useFollowList(userId: string, type: "followers" | "following") {
   return useQuery({
     queryKey: [type === "followers" ? "followersList" : "followingList", userId],
     queryFn: async () => {
-      if (type === "followers") {
-        const { data } = await supabase
-          .from("follows")
-          .select("follower_id, created_at, accepted_at")
-          .eq("following_id", userId)
-          .eq("status", "accepted");
-        if (!data || data.length === 0) return [];
-        const ids = data.map((d) => d.follower_id);
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, full_name, avatar_url")
-          .in("user_id", ids);
-        const byId = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
-        return data
-          .map((r: any) => {
-            const p = byId.get(r.follower_id);
-            return p ? { ...p, connected_at: r.accepted_at ?? r.created_at } : null;
-          })
-          .filter(Boolean) as any[];
-      } else {
-        const { data } = await supabase
-          .from("follows")
-          .select("following_id, created_at, accepted_at")
-          .eq("follower_id", userId)
-          .eq("status", "accepted");
-        if (!data || data.length === 0) return [];
-        const ids = data.map((d) => d.following_id);
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, full_name, avatar_url")
-          .in("user_id", ids);
-        const byId = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
-        return data
-          .map((r: any) => {
-            const p = byId.get(r.following_id);
-            return p ? { ...p, connected_at: r.accepted_at ?? r.created_at } : null;
-          })
-          .filter(Boolean) as any[];
-      }
+      const col = type === "followers" ? "follower_id" : "following_id";
+      const otherCol = type === "followers" ? "following_id" : "follower_id";
+      const { data } = await supabase
+        .from("follows")
+        .select(`${col}, created_at, accepted_at`)
+        .eq(otherCol, userId)
+        .eq("status", "accepted");
+      if (!data || data.length === 0) return [];
+      const ids = data.map((d: any) => d[col]);
+
+      // Pull profiles, roles, and employer company info in parallel so we can
+      // render company_name (not email / not "Anonymous") for employer rows
+      // and route clicks to the correct profile type.
+      const [{ data: profiles }, { data: roles }, { data: employers }] = await Promise.all([
+        supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", ids),
+        supabase.from("user_roles").select("user_id, role").in("user_id", ids),
+        (supabase as any)
+          .from("employer_profiles_public")
+          .select("user_id, company_name, logo_url")
+          .in("user_id", ids),
+      ]);
+
+      const profileById = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
+      const roleById = new Map((roles ?? []).map((r: any) => [r.user_id, r.role]));
+      const employerById = new Map((employers ?? []).map((e: any) => [e.user_id, e]));
+
+      return data.map((r: any) => {
+        const uid = r[col];
+        const p = profileById.get(uid) as any;
+        const role = roleById.get(uid) as "student" | "employer" | "admin" | undefined;
+        const emp = employerById.get(uid) as any;
+        const isEmployer = role === "employer";
+        const display_name = isEmployer
+          ? (emp?.company_name || p?.full_name || "Company")
+          : (p?.full_name || "Student");
+        const avatar_url = isEmployer ? (emp?.logo_url || p?.avatar_url) : p?.avatar_url;
+        return {
+          user_id: uid,
+          full_name: display_name,
+          avatar_url: avatar_url ?? null,
+          role: role ?? null,
+          connected_at: r.accepted_at ?? r.created_at,
+        };
+      });
     },
     enabled: !!userId,
   });
