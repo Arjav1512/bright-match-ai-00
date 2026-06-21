@@ -57,6 +57,22 @@ const Navbar = () => {
     return () => clearTimeout(t);
   }, [user, role]);
 
+  // P0-1: For employer accounts, fetch company_name so the avatar initials
+  // (and any name fallback) reflect the company, not the email address.
+  useEffect(() => {
+    if (!user || role !== "employer") { setEmployerCompanyName(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("employer_profiles")
+        .select("company_name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!cancelled) setEmployerCompanyName((data as any)?.company_name ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [user, role]);
+
   useEffect(() => {
     if (!user) return;
     const fetchUnread = async () => {
