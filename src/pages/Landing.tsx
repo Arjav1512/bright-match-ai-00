@@ -100,7 +100,7 @@ const Landing = () => {
     <div className="min-h-screen bg-background">
       <SEO
         title="Wroob — Find Internships in India, Build Skills & Grow Your Career"
-        description="India's skills-based internship platform. Discover remote and on-site internships, build a verified reputation, and connect with innovative employers — free for students."
+        description="Start your career journey while you're still in college. So when interview day comes, companies pick you for the permanent role — not the temporary one. Build real skills, real experience, and a real shot at getting hired for keeps."
         path="/"
         jsonLd={landingJsonLd}
       />
@@ -197,7 +197,8 @@ const Landing = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
             >
-              Wroob is India's skills-based internship platform — discover remote and on-site internships, build a verified reputation, and connect with innovative employers. Free for students.
+              Start your career journey while you're still in college<br />
+              So when interview day comes, companies pick you for the permanent role — not the temporary one. Build real skills, real experience, and a real shot at getting hired for keeps.
             </motion.p>
 
 
