@@ -19,18 +19,18 @@ const Footer = lazy(() => import("@/components/Footer"));
 
 
 const FLOATING_TAGS = [
-  { label: "Frontend", top: "10%", left: "4%", delay: 0, scale: 1.02, showOnMobile: true },
-  { label: "AI / ML", top: "15%", right: "4%", delay: 0.5, scale: 0.97, showOnMobile: true },
-  { label: "Remote", top: "35%", left: "5%", delay: 1.2, scale: 1.0, showOnMobile: false },
-  { label: "React", bottom: "20%", left: "4%", delay: 0.8, scale: 1.04, showOnMobile: true },
-  { label: "Fintech", top: "8%", left: "32%", delay: 1.5, scale: 0.96, showOnMobile: false },
-  { label: "Web3", bottom: "18%", right: "8%", delay: 0.3, scale: 1.01, showOnMobile: false },
-  { label: "Data Science", bottom: "30%", right: "2%", delay: 1.8, scale: 0.98, showOnMobile: true },
-  { label: "Python", bottom: "12%", right: "4%", delay: 0.7, scale: 1.03, showOnMobile: true },
-  { label: "UI/UX", bottom: "12%", left: "25%", delay: 1.1, scale: 0.99, showOnMobile: false },
-  { label: "Backend", top: "6%", right: "30%", delay: 1.4, scale: 1.0, showOnMobile: true },
-  { label: "Marketing", bottom: "22%", left: "3%", delay: 2.0, scale: 1.02, showOnMobile: false },
-  { label: "Machine Learning", top: "25%", left: "18%", delay: 0.6, scale: 0.97, showOnMobile: false },
+  { label: "Manufacturing", top: "10%", left: "4%", delay: 0, scale: 1.02, showOnMobile: true },
+  { label: "Robotics", top: "15%", right: "4%", delay: 0.5, scale: 0.97, showOnMobile: true },
+  { label: "Plant Operations", top: "35%", left: "5%", delay: 1.2, scale: 1.0, showOnMobile: false },
+  { label: "Industrial Automation", bottom: "20%", left: "4%", delay: 0.8, scale: 1.04, showOnMobile: true },
+  { label: "Supply Chain", top: "8%", left: "32%", delay: 1.5, scale: 0.96, showOnMobile: false },
+  { label: "CNC Machining", bottom: "18%", right: "8%", delay: 0.3, scale: 1.01, showOnMobile: false },
+  { label: "Quality Control", bottom: "30%", right: "2%", delay: 1.8, scale: 0.98, showOnMobile: true },
+  { label: "Mechatronics", bottom: "12%", right: "4%", delay: 0.7, scale: 1.03, showOnMobile: true },
+  { label: "Lean Manufacturing", bottom: "12%", left: "25%", delay: 1.1, scale: 0.99, showOnMobile: false },
+  { label: "Production Engineering", top: "6%", right: "30%", delay: 1.4, scale: 1.0, showOnMobile: true },
+  { label: "Industry 4.0", bottom: "22%", left: "3%", delay: 2.0, scale: 1.02, showOnMobile: false },
+  { label: "Data Analytics", top: "25%", left: "18%", delay: 0.6, scale: 0.97, showOnMobile: false },
 ];
 
 const HOW_STEPS = [
