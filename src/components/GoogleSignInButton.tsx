@@ -6,16 +6,31 @@ import { useToast } from "@/hooks/use-toast";
 interface GoogleSignInButtonProps {
   label?: string;
   className?: string;
+  /**
+   * Optional pre-selected role from the Signup page. When set, persisted to
+   * sessionStorage so SelectRole can auto-claim it after the OAuth round trip
+   * and skip the duplicate role-selection step. Only "student" / "employer"
+   * are honoured downstream (set_initial_role rejects anything else).
+   */
+  role?: "student" | "employer";
 }
 
 export const GoogleSignInButton = forwardRef<HTMLButtonElement, GoogleSignInButtonProps>(
-  ({ label = "Continue with Google", className }, ref) => {
+  ({ label = "Continue with Google", className, role }, ref) => {
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
 
     const handleGoogleSignIn = async () => {
       setLoading(true);
       try {
+        // P0-5A: persist the role chosen on the Signup page so SelectRole
+        // can auto-claim it after the OAuth round trip. Only allow the two
+        // safe values; never write anything else (defence-in-depth — the
+        // RPC also rejects non-{student,employer} values).
+        if (role === "student" || role === "employer") {
+          sessionStorage.setItem("wroob_pending_role", role);
+        }
+
         const result = await lovable.auth.signInWithOAuth("google", {
           redirect_uri: `${window.location.origin}/dashboard`,
         });
