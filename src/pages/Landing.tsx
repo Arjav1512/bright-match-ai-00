@@ -185,9 +185,7 @@ const Landing = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1 }}
             >
-              Your Internship Journey Starts (& Ends) Here&nbsp;
-              <br />
-              <span className="brand-gradient-text">Find It, Build It, Land It</span>
+              Start your <span className="brand-gradient-text">career journey</span> while you're still in college
             </motion.h1>
 
             <motion.p
@@ -197,7 +195,6 @@ const Landing = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
             >
-              Start your career journey while you're still in college<br />
               So when interview day comes, companies pick you for the permanent role — not the temporary one. Build real skills, real experience, and a real shot at getting hired for keeps.
             </motion.p>
 
