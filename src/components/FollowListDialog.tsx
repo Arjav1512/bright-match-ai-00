@@ -146,6 +146,16 @@ const FollowListDialog = ({ userId, followerCount, followingCount, targetRole }:
                             {sinceLabel} {formatShortDate(p.connected_at)}
                           </span>
                         )}
+                        {/* P0-2: Explicit View Profile action for company rows. */}
+                        {p.role === "employer" && (
+                          <button
+                            type="button"
+                            className="text-[11px] font-medium text-primary hover:underline text-left mt-0.5"
+                            onClick={() => { setOpen(false); navigate(`/employer/${p.user_id}`); }}
+                          >
+                            View profile →
+                          </button>
+                        )}
                       </div>
                     </div>
                     <FollowButton targetUserId={p.user_id} />
