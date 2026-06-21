@@ -102,8 +102,16 @@ const Notifications = () => {
       <div className="container max-w-2xl py-10">
         <div className="mb-8 flex items-center justify-between">
           <h1 className="font-display text-3xl font-bold">Notifications</h1>
-          <Button variant="outline" size="sm" className="gap-1" onClick={markAllRead}>
-            <CheckCheck className="h-4 w-4" /> Mark all read
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            onClick={markAllRead}
+            disabled={markingAll || unreadCount === 0}
+            aria-busy={markingAll}
+          >
+            {markingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCheck className="h-4 w-4" />}
+            Mark all read
           </Button>
         </div>
 
