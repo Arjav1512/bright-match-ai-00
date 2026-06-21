@@ -1,20 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { NotificationSkeleton } from "@/components/skeletons";
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const Notifications = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [markingAll, setMarkingAll] = useState(false);
+  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 
   useEffect(() => {
     if (!user) return;
@@ -65,9 +68,24 @@ const Notifications = () => {
   }, [user]);
 
   const markAllRead = async () => {
-    if (!user) return;
-    await supabase.from("notifications").update({ read: true }).eq("user_id", user.id).eq("read", false);
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    if (!user || markingAll || unreadCount === 0) return;
+    setMarkingAll(true);
+    const snapshot = notifications;
+    // Optimistic update
+    setNotifications((prev) => prev.map((n) => (n.read ? n : { ...n, read: true })));
+    const { error } = await supabase
+      .from("notifications")
+      .update({ read: true })
+      .eq("user_id", user.id)
+      .eq("read", false);
+    if (error) {
+      // Revert
+      setNotifications(snapshot);
+      toast.error("Couldn't mark all as read", { description: error.message });
+    } else {
+      toast.success("All notifications marked as read");
+    }
+    setMarkingAll(false);
   };
 
   const handleClick = async (notif: any) => {
@@ -84,8 +102,16 @@ const Notifications = () => {
       <div className="container max-w-2xl py-10">
         <div className="mb-8 flex items-center justify-between">
           <h1 className="font-display text-3xl font-bold">Notifications</h1>
-          <Button variant="outline" size="sm" className="gap-1" onClick={markAllRead}>
-            <CheckCheck className="h-4 w-4" /> Mark all read
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            onClick={markAllRead}
+            disabled={markingAll || unreadCount === 0}
+            aria-busy={markingAll}
+          >
+            {markingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCheck className="h-4 w-4" />}
+            Mark all read
           </Button>
         </div>
 
