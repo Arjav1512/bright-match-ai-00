@@ -94,9 +94,20 @@ const ApplicantReview = () => {
           const storagePath = stored.startsWith("http")
             ? decodeURIComponent(stored.split("/resumes/")[1] || "")
             : stored;
-          if (!storagePath) return;
-          const { data } = await supabase.storage.from("resumes").createSignedUrl(storagePath, 3600);
-          if (data?.signedUrl) urlMap[app.id] = data.signedUrl;
+          if (!storagePath) {
+            console.error("[resume] invalid storage path", { studentId: app.student_id, stored });
+            return;
+          }
+          const { data, error } = await supabase.storage.from("resumes").createSignedUrl(storagePath, 3600);
+          if (error || !data?.signedUrl) {
+            console.error("[resume] signed URL generation failed", {
+              studentId: app.student_id,
+              storagePath,
+              error: error?.message,
+            });
+            return;
+          }
+          urlMap[app.id] = data.signedUrl;
         })
       );
       setResumeSignedUrls(urlMap);
