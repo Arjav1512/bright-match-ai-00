@@ -210,4 +210,4 @@ Open an issue or PR. The code is readable — start in `src/pages/` or `src/comp
 
 - Website: [wroob.in](https://wroob.in)
 - Instagram: [@wroob.in](https://www.instagram.com/wroob.in/)
-- LinkedIn: [Wroob Official]([https://www.linkedin.com/in/wroob-offcial-2573043b8](https://www.linkedin.com/company/wroob-in/))
+- LinkedIn: [wroob.in](https://www.linkedin.com/company/wroob-in/)
