@@ -15,7 +15,7 @@ interface OnboardingStepIndicatorProps {
 const OnboardingStepIndicator = ({ currentStep }: OnboardingStepIndicatorProps) => {
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="flex items-center justify-center rounded-full border bg-card px-6 py-3 shadow-sm">
+      <div className="flex items-center justify-center rounded-full border bg-card px-3 py-3 shadow-sm sm:px-6">
         {STEPS.map((step, i) => {
           const stepNum = i + 1;
           const isActive = stepNum === currentStep;
@@ -26,7 +26,7 @@ const OnboardingStepIndicator = ({ currentStep }: OnboardingStepIndicatorProps) 
               {i > 0 && (
                 <div
                   className={cn(
-                    "mx-2 h-px w-6 sm:w-10",
+                    "mx-1 h-px w-3 sm:mx-2 sm:w-10",
                     isCompleted ? "bg-primary" : "bg-border"
                   )}
                 />
