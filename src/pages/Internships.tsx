@@ -147,7 +147,22 @@ const Internships = () => {
 
   const filtered = internships
     .filter((i) => {
-      const matchesSearch = !search || i.title.toLowerCase().includes(search.toLowerCase()) || i.description?.toLowerCase().includes(search.toLowerCase());
+      // P0-3: include company_name, industry, location, and required skills in
+      // the search index so typing a company ("Google") or skill ("Figma")
+      // surfaces the right internships, not just title/description matches.
+      const q = search.toLowerCase();
+      const companyName = ((i as any).employer_profiles?.company_name || "").toLowerCase();
+      const industry = ((i as any).employer_profiles?.industry || "").toLowerCase();
+      const location = (i.location || "").toLowerCase();
+      const skillsHay = (i.skills_required || []).join(" ").toLowerCase();
+      const matchesSearch =
+        !search ||
+        i.title.toLowerCase().includes(q) ||
+        (i.description || "").toLowerCase().includes(q) ||
+        companyName.includes(q) ||
+        industry.includes(q) ||
+        location.includes(q) ||
+        skillsHay.includes(q);
       const matchesType = typeFilter === "all" || i.type === typeFilter;
       const matchesCategory = categoryFilter === "all" || (i as any).internship_category === categoryFilter;
       const matchesStipend = stipendRange[0] === 0 || (i.stipend_amount != null && i.stipend_amount >= stipendRange[0]);
@@ -175,7 +190,7 @@ const Internships = () => {
               <div className="space-y-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+                  <Input placeholder="Search role, company, skill…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
                 </div>
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
                   <SelectTrigger>
