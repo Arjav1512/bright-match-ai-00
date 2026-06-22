@@ -180,12 +180,13 @@ const Landing = () => {
 
             <motion.h1
               className="font-display font-bold"
-              style={{ font: "var(--text-hero)", letterSpacing: "-0.035em", fontSize: "clamp(40px, 7vw, 76px)", lineHeight: "1.05" }}
+              style={{ font: "var(--text-hero)", letterSpacing: "-0.035em", fontSize: "clamp(40px, 7vw, 76px)", lineHeight: "1.15" }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1 }}
             >
-              Start your <span className="brand-gradient-text">career journey</span> while you're still in college
+              Your Internship Journey Starts (& Ends) Here{"\u00a0"}<br />
+              <span className="brand-gradient-text">Find It, Build It, Land It</span>
             </motion.h1>
 
             <motion.p
