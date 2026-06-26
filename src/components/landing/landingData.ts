@@ -5,12 +5,12 @@
 export const LANDING_CATEGORIES = [
   { slug: "frontend", label: "Frontend Development", desc: "React, Vue, UI engineering internships" },
   { slug: "backend", label: "Backend Development", desc: "Node, Python, Go, APIs & databases" },
-  { slug: "ai-ml", label: "AI / Machine Learning", desc: "LLMs, computer vision, applied ML roles" },
-  { slug: "data-science", label: "Data Science", desc: "Analytics, SQL, modelling and dashboards" },
-  { slug: "design", label: "Product & UX Design", desc: "Figma, design systems, user research" },
-  { slug: "marketing", label: "Marketing & Growth", desc: "Content, performance, SEO, social" },
-  { slug: "product", label: "Product Management", desc: "Associate PM and product ops internships" },
-  { slug: "fintech", label: "Fintech & Web3", desc: "Payments, trading, on-chain product roles" },
+  { slug: "ai-ml", label: "Robotics & Mechatronics", desc: "Robotics, cobots, automation systems roles" },
+  { slug: "data-science", label: "Quality Control & Analytics", desc: "SPC, Six Sigma, inspection and analytics" },
+  { slug: "design", label: "Product & Industrial Design", desc: "CAD, modelling, prototyping research" },
+  { slug: "marketing", label: "Technical Sales & Marketing", desc: "Industrial sales, marketing, content, digital" },
+  { slug: "product", label: "Production Engineering", desc: "Plant ops and process engineering internships" },
+  { slug: "fintech", label: "Industrial Automation", desc: "PLC, SCADA, robotics integration roles" },
 ] as const;
 
 export const LANDING_FAQS = [
