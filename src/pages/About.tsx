@@ -21,7 +21,7 @@ const About = () => (
             About <span className="brand-gradient-text">Wroob</span>
           </h1>
           <p className="mt-5 text-lg text-muted-foreground leading-relaxed">
-            Wroob is a skills-based internship platform connecting ambitious students with innovative companies. We make the hiring process smarter, faster, and fairer for everyone.
+            Wroob is a workforce-readiness platform engineered to close the gap between classroom learning and industry-ready employment. We operate at the intersection of three stakeholders — students, colleges, and industry — and build the systems, partnerships, and pipelines that let them function as one connected production line for talent, rather than three disconnected processes. Our approach is structured the way a manufacturing operation is structured: a defined input (students), a controlled process (skill-building, internships, real project work), and a measurable output (industry-ready professionals who convert from temporary roles into permanent ones). Every stage is built for consistency, traceability, and quality — not chance.
           </p>
         </motion.div>
       </div>
