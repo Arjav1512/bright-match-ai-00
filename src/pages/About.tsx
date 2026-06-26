@@ -5,9 +5,9 @@ import { Target, Users, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 
 const VALUES = [
-  { icon: Target, title: "Mission-Driven", desc: "We believe every student deserves access to meaningful career opportunities, regardless of background." },
-  { icon: Users, title: "Community First", desc: "We're building a network where students and companies grow together through genuine connections." },
-  { icon: Zap, title: "Skills Over Pedigree", desc: "Our matching algorithm focuses on what you can do — not where you went to school." },
+  { icon: Target, title: "Sourcing & Marketing", desc: "We believe every student deserves access to meaningful career opportunities, regardless of background." },
+  { icon: Users, title: "Skill Development", desc: "We're building a network where students and companies grow together through genuine connections." },
+  { icon: Zap, title: "Placement Conversion", desc: "Our matching algorithm focuses on what you can do — not where you went to school." },
 ];
 
 const About = () => (
