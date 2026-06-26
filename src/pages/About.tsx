@@ -29,7 +29,7 @@ const About = () => (
 
     <section className="border-t py-20 section-alt">
       <div className="container">
-        <h2 className="font-display text-2xl font-bold text-center md:text-3xl">Our Story</h2>
+        <h2 className="font-display text-2xl font-bold text-center md:text-3xl">Our Mission</h2>
         <div className="mx-auto mt-8 max-w-2xl space-y-4 text-muted-foreground leading-relaxed">
           <p>To give every student the opportunity to begin their career while still in college — so that by the time the interview happens, they are being selected for a permanent role, not a temporary one. We exist to make industry experience a standard part of education, not an afterthought to it.</p>
         </div>
