@@ -5,9 +5,9 @@ import { Target, Users, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 
 const VALUES = [
-  { icon: Target, title: "Sourcing & Marketing", desc: "We believe every student deserves access to meaningful career opportunities, regardless of background." },
-  { icon: Users, title: "Skill Development", desc: "We're building a network where students and companies grow together through genuine connections." },
-  { icon: Zap, title: "Placement Conversion", desc: "Our matching algorithm focuses on what you can do — not where you went to school." },
+  { icon: Target, title: "Sourcing & Marketing", desc: "Connecting students with verified internship and project opportunities aligned to their skills and career direction." },
+  { icon: Users, title: "Skill Development", desc: "Equipping students with practical, job-ready capability through real work, not simulated coursework." },
+  { icon: Zap, title: "Placement Conversion", desc: "Enabling colleges and industry partners to convert proven interns into full-time hires, reducing hiring risk and onboarding time." },
 ];
 
 const About = () => (
