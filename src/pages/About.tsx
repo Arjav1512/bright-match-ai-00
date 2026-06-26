@@ -38,7 +38,7 @@ const About = () => (
 
     <section className="border-t py-20">
       <div className="container">
-        <h2 className="font-display text-2xl font-bold text-center md:text-3xl">What We Stand For</h2>
+        <h2 className="font-display text-2xl font-bold text-center md:text-3xl">What We Do</h2>
         <div className="mt-12 grid gap-8 md:grid-cols-3">
           {VALUES.map((v, i) => (
             <motion.div key={i} className="card-depth p-8 text-center" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.4 }}>
