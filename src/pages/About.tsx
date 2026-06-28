@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import { Target, Users, Zap, Linkedin } from "lucide-react";
 import { motion } from "framer-motion";
+import founderAsset from "@/assets/founder-jeetu.jpg.asset.json";
 
 const VALUES = [
   { icon: Target, title: "Sourcing & Marketing", desc: "Connecting students with verified internship and project opportunities aligned to their skills and career direction." },
