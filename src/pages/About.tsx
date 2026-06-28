@@ -81,14 +81,17 @@ const About = () => (
                 <blockquote className="mt-6 text-muted-foreground leading-relaxed italic border-l-2 border-primary/30 pl-4">
                   &ldquo;My vision is to eliminate the gap between education and employment. Students shouldn&apos;t have to wait until graduation to gain industry experience. Wroob is being built to become India&apos;s most trusted Learning-to-Earning platform where students, colleges, and industries grow together.&rdquo;
                 </blockquote>
-                <a
-                  href="https://www.linkedin.com/in/jeetu-sharma-4a2473212"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
+                <button
+                  type="button"
+                  className="mt-6 inline-flex items-center gap-2 text-primary font-medium hover:underline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open('https://www.linkedin.com/in/jeetu-sharma-4a2473212', '_blank', 'noopener,noreferrer');
+                  }}
                 >
+                  <Linkedin className="h-4 w-4" />
                   Connect on LinkedIn
-                </a>
+                </button>
               </div>
             </div>
           </motion.div>
