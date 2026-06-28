@@ -68,9 +68,9 @@ const About = () => (
               <div className="mx-auto md:mx-0">
                 <div className="h-48 w-48 md:h-64 md:w-64 rounded-full overflow-hidden border-4 border-border bg-muted flex items-center justify-center">
                   <img
-                    src="/placeholder.svg"
+                    src={founderAsset.url}
                     alt="Jeetu Sharma"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover object-[center_top]"
                   />
                 </div>
               </div>
