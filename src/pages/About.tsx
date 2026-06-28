@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import { Target, Users, Zap, Linkedin } from "lucide-react";
 import { motion } from "framer-motion";
+import founderAsset from "@/assets/founder-jeetu.jpg.asset.json";
 
 const VALUES = [
   { icon: Target, title: "Sourcing & Marketing", desc: "Connecting students with verified internship and project opportunities aligned to their skills and career direction." },
@@ -67,9 +68,9 @@ const About = () => (
               <div className="mx-auto md:mx-0">
                 <div className="h-48 w-48 md:h-64 md:w-64 rounded-full overflow-hidden border-4 border-border bg-muted flex items-center justify-center">
                   <img
-                    src="/placeholder.svg"
+                    src={founderAsset.url}
                     alt="Jeetu Sharma"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover object-[center_top]"
                   />
                 </div>
               </div>
