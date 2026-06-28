@@ -85,9 +85,8 @@ const About = () => (
                   href="https://www.linkedin.com/in/jeetu-sharma-4a2473212"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 mt-6 text-primary hover:underline font-medium"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <Linkedin className="h-4 w-4" />
                   Connect on LinkedIn
                 </a>
               </div>
