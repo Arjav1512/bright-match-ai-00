@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
-import { Target, Users, Zap } from "lucide-react";
+import { Target, Users, Zap, Linkedin } from "lucide-react";
 import { motion } from "framer-motion";
 
 const VALUES = [
