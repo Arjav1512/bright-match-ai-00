@@ -52,6 +52,49 @@ const About = () => (
         </div>
       </div>
     </section>
+    <section className="border-t py-20 section-alt">
+      <div className="container">
+        <h2 className="font-display text-2xl font-bold text-center md:text-3xl">Meet the Founder</h2>
+        <div className="mt-12 mx-auto max-w-4xl">
+          <motion.div
+            className="card-depth overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="grid md:grid-cols-[280px_1fr] gap-8 p-8 md:p-12 items-center">
+              <div className="mx-auto md:mx-0">
+                <div className="h-48 w-48 md:h-64 md:w-64 rounded-full overflow-hidden border-4 border-border bg-muted flex items-center justify-center">
+                  <img
+                    src="/placeholder.svg"
+                    alt="Jeetu Sharma"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+              <div className="text-center md:text-left">
+                <h3 className="font-display text-2xl font-bold">Jeetu Sharma</h3>
+                <p className="mt-1 text-primary font-medium">Founder &amp; CEO</p>
+                <p className="mt-2 text-sm text-muted-foreground">B.Tech (Electrical Engineer) | MBA (Marketing)</p>
+                <blockquote className="mt-6 text-muted-foreground leading-relaxed italic border-l-2 border-primary/30 pl-4">
+                  &ldquo;My vision is to eliminate the gap between education and employment. Students shouldn&apos;t have to wait until graduation to gain industry experience. Wroob is being built to become India&apos;s most trusted Learning-to-Earning platform where students, colleges, and industries grow together.&rdquo;
+                </blockquote>
+                <a
+                  href="https://www.linkedin.com/in/jeetu-sharma-4a2473212"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 mt-6 text-primary hover:underline font-medium"
+                >
+                  <Linkedin className="h-4 w-4" />
+                  Connect on LinkedIn
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
     <Footer />
   </div>
 );
