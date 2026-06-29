@@ -145,11 +145,16 @@ export function useFollows(targetUserId: string, opts?: { targetRole?: FollowTar
   const sendRequest = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Not logged in");
-      const { error } = await supabase.from("follows").insert({
-        follower_id: user.id,
-        following_id: targetUserId,
-        status: requireApproval ? "pending" : "accepted",
-      } as any);
+      const { error } = await supabase
+        .from("follows")
+        .upsert(
+          {
+            follower_id: user.id,
+            following_id: targetUserId,
+            status: requireApproval ? "pending" : "accepted",
+          } as any,
+          { onConflict: "follower_id,following_id", ignoreDuplicates: true },
+        );
       if (error) throw error;
     },
     onSuccess: invalidate,
