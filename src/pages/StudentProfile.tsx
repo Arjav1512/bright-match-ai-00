@@ -236,9 +236,16 @@ const StudentProfile = () => {
               <Card>
                 <CardHeader><CardTitle className="text-lg">Student Details</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
-                  {studentDetailFields.map((field) => (
-                    <AdminField key={field.label} label={field.label} value={field.value} />
-                  ))}
+                  {studentDetailFields.map((field) =>
+                    field.render ? (
+                      <div key={field.label} className="flex items-start gap-2 text-sm">
+                        <span className="text-muted-foreground min-w-[140px]">{field.label}:</span>
+                        {field.render()}
+                      </div>
+                    ) : (
+                      <AdminField key={field.label} label={field.label} value={field.value} />
+                    )
+                  )}
                 </CardContent>
               </Card>
             )}
