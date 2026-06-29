@@ -132,7 +132,7 @@ const StudentProfile = () => {
   const profile = data?.profile;
   const sp = data?.studentProfile as any;
 
-  const studentDetailFields = sp
+  const studentDetailFields: { label: string; value: any; render?: () => JSX.Element }[] = sp
     ? [
         { label: "University", value: sp.university },
         { label: "Major", value: sp.major },
@@ -150,7 +150,17 @@ const StudentProfile = () => {
         ...((isOwner || isAdmin)
           ? [
               { label: "Phone", value: sp.phone_number },
-              { label: "Resume", value: sp.resume_url },
+              {
+                label: "Resume",
+                value: sp.resume_url,
+                // Render a signed-URL button instead of the raw storage path,
+                // so admins/owners can actually open the file. The resumes
+                // bucket is private — printing the path as text or linking it
+                // directly produces a 404 on the app domain.
+                render: sp.resume_url
+                  ? () => <ResumeLink stored={sp.resume_url} studentId={sp.user_id} />
+                  : undefined,
+              },
               { label: "Onboarding Status", value: sp.onboarding_status },
             ]
           : []),
