@@ -101,9 +101,10 @@ const AdminVerification = () => {
   };
 
   const filtered = employers.filter((e) => {
+    const name = resolveCompanyName(e).toLowerCase();
     const matchesSearch =
       !search ||
-      e.company_name?.toLowerCase().includes(search.toLowerCase()) ||
+      name.includes(search.toLowerCase()) ||
       e.gstin?.toLowerCase().includes(search.toLowerCase()) ||
       e.pan_number?.toLowerCase().includes(search.toLowerCase());
     // FIX (A-2): "pending" filter mirrors the counter — any unverified entry.
