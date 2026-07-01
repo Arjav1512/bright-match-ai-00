@@ -45,7 +45,7 @@ const OnboardingResume = () => {
       // and only then returns success — preventing DB rows that reference a
       // file that Storage rejected mid-flight.
       const uploadResult = await uploadResume(user.id, file, { prefixWithTimestamp: true });
-      if (!uploadResult.ok) {
+      if (uploadResult.ok !== true) {
         toast({ title: "Upload failed", description: uploadResult.message, variant: "destructive" });
         setUploading(false);
         return;
