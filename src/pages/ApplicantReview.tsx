@@ -87,34 +87,24 @@ const ApplicantReview = () => {
       }));
       setApplicants(appsData);
 
-      // Generate 1-hour signed URLs for each applicant's resume.
-      // The resumes bucket is private; public URLs return 403 when opened in the browser.
+      // Generate 1-hour signed URLs for each applicant's resume via the shared
+      // helper so path normalisation and error classification stay consistent.
       const urlMap: Record<string, string> = {};
+      const errMap: Record<string, ResumeErrorCode> = {};
       await Promise.all(
         appsData.map(async (app: any) => {
           const stored = app.student_profiles?.resume_url;
           if (!stored) return;
-          // Support both new (path) and legacy (full URL) storage formats.
-          const storagePath = stored.startsWith("http")
-            ? decodeURIComponent(stored.split("/resumes/")[1] || "")
-            : stored;
-          if (!storagePath) {
-            console.error("[resume] invalid storage path", { studentId: app.student_id, stored });
-            return;
+          const result = await getResumeSignedUrl(stored);
+          if (result.ok === true) {
+            urlMap[app.id] = result.url;
+          } else {
+            errMap[app.id] = result.code;
           }
-          const { data, error } = await supabase.storage.from("resumes").createSignedUrl(storagePath, 3600);
-          if (error || !data?.signedUrl) {
-            console.error("[resume] signed URL generation failed", {
-              studentId: app.student_id,
-              storagePath,
-              error: error?.message,
-            });
-            return;
-          }
-          urlMap[app.id] = data.signedUrl;
         })
       );
       setResumeSignedUrls(urlMap);
+      setResumeErrors(errMap);
       setLoading(false);
     };
     fetchData();
