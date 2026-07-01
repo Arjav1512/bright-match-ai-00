@@ -315,6 +315,11 @@ const AdminVerification = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <CompanyDetailDrawer
+        employerId={viewingId}
+        onOpenChange={(open) => { if (!open) setViewingId(null); }}
+      />
     </AdminLayout>
   );
 };
