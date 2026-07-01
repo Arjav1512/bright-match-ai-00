@@ -589,7 +589,7 @@ const Profile = () => {
                         <FileText className="h-5 w-5 text-primary shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{resumeFileName}</p>
-                          <p className="text-xs text-muted-foreground">Uploaded ✓</p>
+                          <ResumeLink stored={studentProfile.resume_url} studentId={user?.id} className="text-xs">View</ResumeLink>
                         </div>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
