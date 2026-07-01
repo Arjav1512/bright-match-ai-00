@@ -26,6 +26,8 @@ import { ReputationScoreCard } from "@/components/reputation/ReputationScoreCard
 import { useReputation } from "@/hooks/useReputation";
 import { COURSE_CATEGORIES, SCHOOL_NAMES } from "@/data/courseData";
 import CourseSearchSelect from "@/components/CourseSearchSelect";
+import ResumeLink from "@/components/ResumeLink";
+import { uploadResume, resumeDisplayName } from "@/lib/resumeStorage";
 
 const EXPERIENCE_OPTIONS = [
   { value: "0", label: "0 months" },
