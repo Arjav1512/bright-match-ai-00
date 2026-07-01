@@ -33,6 +33,9 @@ const ApplicantReview = () => {
   const [loading, setLoading] = useState(true);
   // FIX (HIGH-resume-private): signed URLs generated at fetch time (1-hour TTL).
   const [resumeSignedUrls, setResumeSignedUrls] = useState<Record<string, string>>({});
+  // Track structured retrieval errors so the button surfaces the right message
+  // (missing file vs. permission denied vs. unknown) instead of a generic toast.
+  const [resumeErrors, setResumeErrors] = useState<Record<string, ResumeErrorCode>>({});
 
   useEffect(() => {
     const fetchData = async () => {
