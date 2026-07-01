@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { uploadResume } from "@/lib/resumeStorage";
 
 const ACCEPTED_TYPES = [".pdf", ".doc", ".docx", ".rtf", ".txt"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
