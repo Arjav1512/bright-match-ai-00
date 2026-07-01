@@ -98,6 +98,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <ScrollToTop />
           <Suspense fallback={null}>
             <SessionTimeoutWarning />
             <LoginGreeting />
