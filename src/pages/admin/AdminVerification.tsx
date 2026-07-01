@@ -43,6 +43,7 @@ const AdminVerification = () => {
   const [filter, setFilter] = useState<"all" | "pending" | "verified">("all");
   const [toggling, setToggling] = useState<string | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ employer: EmployerRow; action: "verify" | "revoke" } | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
 
   const fetchEmployers = async () => {
     setLoading(true);
