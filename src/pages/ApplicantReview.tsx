@@ -13,6 +13,7 @@ import { ApplicantListSkeleton } from "@/components/skeletons";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Download, MessageCircle, Users } from "lucide-react";
 import { CandidateScoreBadge } from "@/components/reputation/ReputationScoreCard";
+import { getResumeSignedUrl, resumeErrorMessage, type ResumeErrorCode } from "@/lib/resumeStorage";
 
 const statusColors: Record<string, string> = {
   pending: "bg-warning/10 text-warning border-warning/20",
