@@ -26,6 +26,8 @@ import { ReputationScoreCard } from "@/components/reputation/ReputationScoreCard
 import { useReputation } from "@/hooks/useReputation";
 import { COURSE_CATEGORIES, SCHOOL_NAMES } from "@/data/courseData";
 import CourseSearchSelect from "@/components/CourseSearchSelect";
+import ResumeLink from "@/components/ResumeLink";
+import { uploadResume, resumeDisplayName } from "@/lib/resumeStorage";
 
 const EXPERIENCE_OPTIONS = [
   { value: "0", label: "0 months" },
@@ -331,18 +333,17 @@ const Profile = () => {
       e.target.value = "";
       return;
     }
-    const path = `${user.id}/${file.name}`;
-    const { error } = await supabase.storage.from("resumes").upload(path, file, { upsert: true });
-    if (error) {
-      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
-    } else {
-      // FIX (HIGH-resume-private): Store the storage path, not a public URL.
-      // The resumes bucket is private; getPublicUrl() produces a /object/public/
-      // URL that returns 403. Signed URLs are generated at display time instead.
-      setStudentProfile((p) => ({ ...p, resume_url: path }));
-      await supabase.from("student_profiles").update({ resume_url: path }).eq("user_id", user.id);
-      toast({ title: "Resume uploaded!" });
+    // uploadResume() writes to storage and verifies the object exists before
+    // returning success. We only persist the DB reference on verified uploads.
+    const result = await uploadResume(user.id, file);
+    if (result.ok !== true) {
+      toast({ title: "Upload failed", description: result.message, variant: "destructive" });
+      e.target.value = "";
+      return;
     }
+    setStudentProfile((p) => ({ ...p, resume_url: result.path }));
+    await supabase.from("student_profiles").update({ resume_url: result.path }).eq("user_id", user.id);
+    toast({ title: "Resume uploaded!" });
     e.target.value = "";
   };
 
@@ -361,9 +362,7 @@ const Profile = () => {
     toast({ title: "Resume deleted" });
   };
 
-  const resumeFileName = studentProfile.resume_url
-    ? decodeURIComponent(studentProfile.resume_url.split("/").pop() || "Resume")
-    : null;
+  const resumeFileName = resumeDisplayName(studentProfile.resume_url);
 
   return (
     <div className="min-h-screen bg-background">
@@ -590,7 +589,7 @@ const Profile = () => {
                         <FileText className="h-5 w-5 text-primary shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{resumeFileName}</p>
-                          <p className="text-xs text-muted-foreground">Uploaded ✓</p>
+                          <ResumeLink stored={studentProfile.resume_url} studentId={user?.id} className="text-xs">View</ResumeLink>
                         </div>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
