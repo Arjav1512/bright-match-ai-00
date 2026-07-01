@@ -357,6 +357,7 @@ export type Database = {
       group_messages: {
         Row: {
           created_at: string
+          expires_at: string
           group_id: string
           id: string
           sender_id: string
@@ -365,6 +366,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          expires_at?: string
           group_id: string
           id?: string
           sender_id: string
@@ -373,6 +375,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          expires_at?: string
           group_id?: string
           id?: string
           sender_id?: string
@@ -1247,6 +1250,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      cleanup_expired_group_messages: { Args: never; Returns: number }
       cleanup_old_closed_internships: { Args: never; Returns: number }
       create_notification: {
         Args: {
