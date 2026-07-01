@@ -41,18 +41,19 @@ const OnboardingResume = () => {
       }
 
       setUploading(true);
-      const path = `${user.id}/${Date.now()}-${file.name}`;
-      const { error } = await supabase.storage.from("resumes").upload(path, file, { upsert: true });
-
-      if (error) {
-        toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      // uploadResume() writes to storage, verifies the object is retrievable,
+      // and only then returns success — preventing DB rows that reference a
+      // file that Storage rejected mid-flight.
+      const uploadResult = await uploadResume(user.id, file, { prefixWithTimestamp: true });
+      if (!uploadResult.ok) {
+        toast({ title: "Upload failed", description: uploadResult.message, variant: "destructive" });
         setUploading(false);
         return;
       }
 
       // FIX (HIGH-resume-private): Store the storage path, not a public URL.
       // The resumes bucket is private; signed URLs are generated at display time.
-      await supabase.from("student_profiles").update({ resume_url: path } as any).eq("user_id", user.id);
+      await supabase.from("student_profiles").update({ resume_url: uploadResult.path } as any).eq("user_id", user.id);
 
       // FIX (HIGH-14): Complete onboarding BEFORE showing success toast and navigating.
       // Old order: toast fires → completeOnboarding() → if DB write fails, user sees
