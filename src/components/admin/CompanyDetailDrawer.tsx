@@ -99,20 +99,36 @@ const CompanyDetailDrawer = ({ employerId, onOpenChange }: Props) => {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data: res, error } = await (supabase as any).rpc("admin_get_employer_detail", {
-        p_employer_id: employerId,
-      });
-      if (cancelled) return;
-      if (error) {
-        toast({ title: "Failed to load company", description: error.message, variant: "destructive" });
+      try {
+        const { data: res, error } = await (supabase as any).rpc("admin_get_employer_detail", {
+          p_employer_id: employerId,
+        });
+        if (cancelled) return;
+        if (error) {
+          console.error("[CompanyDetailDrawer] rpc failed", error);
+          toast({ title: "Failed to load company", description: error.message, variant: "destructive" });
+          setData(null);
+        } else {
+          // Defensive: ensure stats is always an object so the UI never crashes.
+          const safe = {
+            profile: (res as any)?.profile ?? {},
+            email: (res as any)?.email ?? null,
+            stats: (res as any)?.stats ?? {},
+          };
+          setData(safe as any);
+        }
+      } catch (e: any) {
+        if (cancelled) return;
+        console.error("[CompanyDetailDrawer] unexpected error", e);
+        toast({ title: "Failed to load company", description: e?.message ?? "Unknown error", variant: "destructive" });
         setData(null);
-      } else {
-        setData(res as any);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      setLoading(false);
     })();
     return () => { cancelled = true; };
   }, [employerId, toast]);
+
 
   const p = data?.profile ?? {};
   const stats = data?.stats ?? {};
