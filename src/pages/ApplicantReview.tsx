@@ -208,7 +208,12 @@ const ApplicantReview = () => {
                                   variant="outline"
                                   size="sm"
                                   className="gap-1"
-                                  onClick={() => toast({ title: "Unable to open resume.", variant: "destructive" })}
+                                  onClick={() =>
+                                    toast({
+                                      title: resumeErrorMessage(resumeErrors[app.id] ?? "unknown"),
+                                      variant: "destructive",
+                                    })
+                                  }
                                 >
                                   <Download className="h-3 w-3" /> Resume
                                 </Button>
