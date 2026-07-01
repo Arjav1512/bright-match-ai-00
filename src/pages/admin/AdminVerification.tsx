@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, XCircle, ExternalLink, Search, Building2, Shield } from "lucide-react";
+import { CheckCircle2, XCircle, ExternalLink, Search, Building2, Shield, Eye } from "lucide-react";
+import CompanyDetailDrawer, { resolveCompanyName } from "@/components/admin/CompanyDetailDrawer";
 import { AdminVerificationSkeleton } from "@/components/skeletons";
 import {
   Dialog,
