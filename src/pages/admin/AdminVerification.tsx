@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, XCircle, ExternalLink, Search, Building2, Shield } from "lucide-react";
+import { CheckCircle2, XCircle, ExternalLink, Search, Building2, Shield, Eye } from "lucide-react";
+import CompanyDetailDrawer, { resolveCompanyName } from "@/components/admin/CompanyDetailDrawer";
 import { AdminVerificationSkeleton } from "@/components/skeletons";
 import {
   Dialog,
@@ -42,6 +43,7 @@ const AdminVerification = () => {
   const [filter, setFilter] = useState<"all" | "pending" | "verified">("all");
   const [toggling, setToggling] = useState<string | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ employer: EmployerRow; action: "verify" | "revoke" } | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
 
   const fetchEmployers = async () => {
     setLoading(true);
@@ -99,9 +101,10 @@ const AdminVerification = () => {
   };
 
   const filtered = employers.filter((e) => {
+    const name = resolveCompanyName(e).toLowerCase();
     const matchesSearch =
       !search ||
-      e.company_name?.toLowerCase().includes(search.toLowerCase()) ||
+      name.includes(search.toLowerCase()) ||
       e.gstin?.toLowerCase().includes(search.toLowerCase()) ||
       e.pan_number?.toLowerCase().includes(search.toLowerCase());
     // FIX (A-2): "pending" filter mirrors the counter — any unverified entry.
@@ -193,13 +196,21 @@ const AdminVerification = () => {
                         <Building2 className="h-5 w-5 text-muted-foreground" />
                       </div>
                       <div>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          {employer.company_name || "Unnamed Company"}
+                        <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
+                          {resolveCompanyName(employer)}
                           {employer.is_verified && (
                             <Badge className="bg-green-100 text-green-800 border-green-200">
                               <CheckCircle2 className="h-3 w-3 mr-1" /> Verified
                             </Badge>
                           )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="ml-2 h-7 px-2 text-xs"
+                            onClick={() => setViewingId(employer.id)}
+                          >
+                            <Eye className="h-3.5 w-3.5 mr-1" /> View
+                          </Button>
                         </CardTitle>
                         <p className="text-sm text-muted-foreground">
                           {[employer.industry, employer.city].filter(Boolean).join(" · ") || "No details"}
@@ -304,6 +315,11 @@ const AdminVerification = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <CompanyDetailDrawer
+        employerId={viewingId}
+        onOpenChange={(open) => { if (!open) setViewingId(null); }}
+      />
     </AdminLayout>
   );
 };

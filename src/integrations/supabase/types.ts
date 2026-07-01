@@ -1202,6 +1202,10 @@ export type Database = {
       }
     }
     Functions: {
+      admin_get_employer_detail: {
+        Args: { p_employer_id: string }
+        Returns: Json
+      }
       admin_list_employers_for_verification: {
         Args: never
         Returns: {
