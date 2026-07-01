@@ -28,12 +28,12 @@ const ResumeLink = ({ stored, studentId, className, children, emptyLabel }: Prop
     setLoading(true);
     try {
       const result = await getResumeSignedUrl(stored);
-      if (!result.ok) {
+      if (result.ok === true) {
+        window.open(result.url, "_blank", "noopener,noreferrer");
+      } else {
         console.error("[resume] open failed", { studentId, code: result.code, stored });
         toast.error(result.message);
-        return;
       }
-      window.open(result.url, "_blank", "noopener,noreferrer");
     } finally {
       setLoading(false);
     }
