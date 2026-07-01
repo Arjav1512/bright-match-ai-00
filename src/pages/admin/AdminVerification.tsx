@@ -196,13 +196,21 @@ const AdminVerification = () => {
                         <Building2 className="h-5 w-5 text-muted-foreground" />
                       </div>
                       <div>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          {employer.company_name || "Unnamed Company"}
+                        <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
+                          {resolveCompanyName(employer)}
                           {employer.is_verified && (
                             <Badge className="bg-green-100 text-green-800 border-green-200">
                               <CheckCircle2 className="h-3 w-3 mr-1" /> Verified
                             </Badge>
                           )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="ml-2 h-7 px-2 text-xs"
+                            onClick={() => setViewingId(employer.id)}
+                          >
+                            <Eye className="h-3.5 w-3.5 mr-1" /> View
+                          </Button>
                         </CardTitle>
                         <p className="text-sm text-muted-foreground">
                           {[employer.industry, employer.city].filter(Boolean).join(" · ") || "No details"}
