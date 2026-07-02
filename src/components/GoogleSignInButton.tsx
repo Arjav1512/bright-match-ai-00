@@ -8,9 +8,9 @@ interface GoogleSignInButtonProps {
   className?: string;
   /**
    * Optional pre-selected role from the Signup page. When set, persisted to
-   * sessionStorage so SelectRole can auto-claim it after the OAuth round trip
-   * and skip the duplicate role-selection step. Only "student" / "employer"
-   * are honoured downstream (set_initial_role rejects anything else).
+   * both localStorage and sessionStorage so Dashboard can auto-claim it
+   * after the OAuth round trip and skip the /select-role page entirely.
+   * Only "student" / "employer" are honoured (set_initial_role rejects anything else).
    */
   role?: "student" | "employer";
 }
@@ -23,12 +23,14 @@ export const GoogleSignInButton = forwardRef<HTMLButtonElement, GoogleSignInButt
     const handleGoogleSignIn = async () => {
       setLoading(true);
       try {
-        // P0-5A: persist the role chosen on the Signup page so SelectRole
-        // can auto-claim it after the OAuth round trip. Only allow the two
-        // safe values; never write anything else (defence-in-depth — the
-        // RPC also rejects non-{student,employer} values).
+        // P0-X: persist the role chosen on Signup so Dashboard auto-claims it
+        // after the OAuth round trip, skipping /select-role on the happy path.
+        // localStorage survives popup/redirect variations; sessionStorage kept
+        // for back-compat. A 10-min TTL is enforced when the value is claimed.
         if (role === "student" || role === "employer") {
-          sessionStorage.setItem("wroob_pending_role", role);
+          const payload = JSON.stringify({ role, ts: Date.now() });
+          try { localStorage.setItem("wroob_pending_role", payload); } catch {}
+          try { sessionStorage.setItem("wroob_pending_role", role); } catch {}
         }
 
         const result = await lovable.auth.signInWithOAuth("google", {
