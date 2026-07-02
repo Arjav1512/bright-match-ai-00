@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import wroobeLogo from "@/assets/wroob-logo.webp";
 import SEO from "@/components/SEO";
+import { readPendingRole, clearPendingRole } from "@/lib/pendingRole";
 
 const SelectRole = () => {
   const { user, role, loading, refreshRole } = useAuth();
