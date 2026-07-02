@@ -45,7 +45,7 @@ const SelectRole = () => {
 
     refreshRole().then(async (r) => {
       if (r) {
-        sessionStorage.removeItem("wroob_pending_role");
+        clearPendingRole();
         navigate("/dashboard", { replace: true });
         return;
       }
