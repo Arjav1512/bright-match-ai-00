@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { PageLoadingSkeleton } from "@/components/skeletons";
+import { readPendingRole, clearPendingRole } from "@/lib/pendingRole";
 // FIX (MEDIUM-3): Removed duplicate "/onboarding/culture" at index 2.
 // A student with onboarding_step=3 now correctly lands on /onboarding/resume.
 const STUDENT_STEP_ROUTES = [
