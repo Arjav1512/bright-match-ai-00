@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import wroobeLogo from "@/assets/wroob-logo.webp";
 import SEO from "@/components/SEO";
+import { readPendingRole, clearPendingRole } from "@/lib/pendingRole";
 
 const SelectRole = () => {
   const { user, role, loading, refreshRole } = useAuth();
@@ -34,23 +35,17 @@ const SelectRole = () => {
       return;
     }
 
-    const pending = sessionStorage.getItem("wroob_pending_role");
-    const pendingRole: "student" | "employer" | null =
-      pending === "student" || pending === "employer" ? pending : null;
-    if (pending && !pendingRole) {
-      // Invalid value — never trust it.
-      sessionStorage.removeItem("wroob_pending_role");
-    }
+    const pendingRole = readPendingRole();
 
     if (role) {
-      sessionStorage.removeItem("wroob_pending_role");
+      clearPendingRole();
       navigate("/dashboard", { replace: true });
       return;
     }
 
     refreshRole().then(async (r) => {
       if (r) {
-        sessionStorage.removeItem("wroob_pending_role");
+        clearPendingRole();
         navigate("/dashboard", { replace: true });
         return;
       }
@@ -59,7 +54,7 @@ const SelectRole = () => {
         try {
           const { error } = await supabase.rpc("set_initial_role", { _role: pendingRole });
           // Always clear the key — success or failure — to prevent loops.
-          sessionStorage.removeItem("wroob_pending_role");
+          clearPendingRole();
           if (error) {
             // Fall through to render the picker so the user can pick manually.
             setVerifying(false);
@@ -71,7 +66,7 @@ const SelectRole = () => {
             pendingRole === "student" ? "/onboarding/profile" : "/employer/onboarding/company";
           return;
         } catch {
-          sessionStorage.removeItem("wroob_pending_role");
+          clearPendingRole();
           setVerifying(false);
           return;
         }
