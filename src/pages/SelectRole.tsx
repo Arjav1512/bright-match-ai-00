@@ -35,16 +35,10 @@ const SelectRole = () => {
       return;
     }
 
-    const pending = sessionStorage.getItem("wroob_pending_role");
-    const pendingRole: "student" | "employer" | null =
-      pending === "student" || pending === "employer" ? pending : null;
-    if (pending && !pendingRole) {
-      // Invalid value — never trust it.
-      sessionStorage.removeItem("wroob_pending_role");
-    }
+    const pendingRole = readPendingRole();
 
     if (role) {
-      sessionStorage.removeItem("wroob_pending_role");
+      clearPendingRole();
       navigate("/dashboard", { replace: true });
       return;
     }
