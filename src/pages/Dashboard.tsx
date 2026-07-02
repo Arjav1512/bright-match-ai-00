@@ -92,6 +92,36 @@ const Dashboard = () => {
         const dbRole = (roleRow as any)?.role as "student" | "employer" | "admin" | undefined;
 
         if (!dbRole) {
+          // P0-X: Before bouncing to /select-role, try to auto-claim a role
+          // the user already picked on the Signup page (email OR Google OAuth).
+          // This eliminates the duplicate role-selection step users were seeing
+          // after Google signup.
+          const pending = readPendingRole();
+          if (pending) {
+            const { error: claimErr } = await supabase.rpc("set_initial_role", { _role: pending });
+            clearPendingRole();
+            if (!claimErr) {
+              // Full reload so AuthContext re-fetches the role and downstream
+              // guards see it immediately.
+              window.location.href =
+                pending === "student" ? "/onboarding/profile" : "/employer/onboarding/company";
+              return;
+            }
+            // Claim failed (e.g. role already exists via race) — re-check DB.
+            const { data: recheck } = await supabase
+              .from("user_roles")
+              .select("role")
+              .eq("user_id", user.id)
+              .maybeSingle();
+            const recheckedRole = (recheck as any)?.role as "student" | "employer" | "admin" | undefined;
+            if (recheckedRole) {
+              window.location.href =
+                recheckedRole === "admin" ? "/admin"
+                : recheckedRole === "employer" ? "/my-internships"
+                : "/internships";
+              return;
+            }
+          }
           setOnboardingRoute("/select-role");
           setOnboardingCheck("needs");
           return;
