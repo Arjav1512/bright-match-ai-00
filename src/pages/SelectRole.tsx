@@ -66,7 +66,7 @@ const SelectRole = () => {
             pendingRole === "student" ? "/onboarding/profile" : "/employer/onboarding/company";
           return;
         } catch {
-          sessionStorage.removeItem("wroob_pending_role");
+          clearPendingRole();
           setVerifying(false);
           return;
         }
