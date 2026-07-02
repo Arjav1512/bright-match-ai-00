@@ -1191,6 +1191,7 @@ export type Database = {
           graduation_year: number | null
           id: string | null
           is_student: boolean | null
+          linkedin_url: string | null
           location: string | null
           major: string | null
           not_employed: boolean | null
@@ -1200,6 +1201,7 @@ export type Database = {
           skills: string[] | null
           university: string | null
           user_id: string | null
+          website_url: string | null
         }
         Relationships: []
       }
@@ -1331,6 +1333,7 @@ export type Database = {
           graduation_year: number
           id: string
           is_student: boolean
+          linkedin_url: string
           location: string
           major: string
           not_employed: boolean
@@ -1340,6 +1343,7 @@ export type Database = {
           skills: string[]
           university: string
           user_id: string
+          website_url: string
         }[]
       }
       set_initial_role: {
