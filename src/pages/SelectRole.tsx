@@ -54,7 +54,7 @@ const SelectRole = () => {
         try {
           const { error } = await supabase.rpc("set_initial_role", { _role: pendingRole });
           // Always clear the key — success or failure — to prevent loops.
-          sessionStorage.removeItem("wroob_pending_role");
+          clearPendingRole();
           if (error) {
             // Fall through to render the picker so the user can pick manually.
             setVerifying(false);
