@@ -47,36 +47,54 @@ const StudentProfile = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["public-student-profile", userId, role, user?.id],
     queryFn: async () => {
-      if (!userId) throw new Error("No user ID");
+      // Never throw — a thrown queryFn bubbles up to the top-level ErrorBoundary
+      // and shows "Something went wrong". Return an empty payload instead so the
+      // page can render its own "Profile not found" state.
+      if (!userId) return { profile: null, studentProfile: null };
 
-      const profilePromise = supabase
-        .from("profiles")
-        .select("user_id, full_name, avatar_url, bio")
-        .eq("user_id", userId)
-        .maybeSingle();
+      let profile: any = null;
+      let studentProfile: any = null;
+
+      try {
+        const { data: p } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url, bio")
+          .eq("user_id", userId)
+          .maybeSingle();
+        profile = p ?? null;
+      } catch (err) {
+        console.error("[StudentProfile] profiles fetch failed", err);
+      }
 
       // Always try the full table first — RLS allows owners, admins, and
       // employers-with-applications. Fall through to the safe public view
       // (which only exposes onboarding-completed rows) when RLS denies.
-      const { data: full } = await supabase
-        .from("student_profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      let studentProfile: any = full;
-      if (!studentProfile) {
-        const { data: pub } = await (supabase as any)
-          .from("student_profiles_public")
-          .select(
-            "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
-          )
+      try {
+        const { data: full } = await supabase
+          .from("student_profiles")
+          .select("*")
           .eq("user_id", userId)
           .maybeSingle();
-        studentProfile = pub;
+        studentProfile = full ?? null;
+      } catch (err) {
+        console.error("[StudentProfile] student_profiles fetch failed", err);
       }
 
-      const { data: profile } = await profilePromise;
+      if (!studentProfile) {
+        try {
+          const { data: pub } = await (supabase as any)
+            .from("student_profiles_public")
+            .select(
+              "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
+            )
+            .eq("user_id", userId)
+            .maybeSingle();
+          studentProfile = pub ?? null;
+        } catch (err) {
+          console.error("[StudentProfile] public student view fetch failed", err);
+        }
+      }
+
       return { profile, studentProfile };
     },
     // Wait for auth to resolve so admin/owner detection is accurate.
@@ -97,7 +115,7 @@ const StudentProfile = () => {
         { label: "Graduation Year", value: sp.graduation_year },
         { label: "Experience (months)", value: sp.experience_years },
         { label: "Location", value: sp.location },
-        { label: "Skills", value: sp.skills?.length ? sp.skills.join(", ") : null },
+        { label: "Skills", value: Array.isArray(sp.skills) && sp.skills.length ? sp.skills.join(", ") : null },
         { label: "Current Job Title", value: sp.current_job_title },
         { label: "Current Company", value: sp.current_company },
         { label: "Not Employed", value: sp.not_employed },
@@ -126,8 +144,19 @@ const StudentProfile = () => {
   const hasStudentDetails = studentDetailFields.some((field) => hasDisplayValue(field.value));
 
   const getInitials = () => {
-    const name = profile?.full_name || "";
-    return name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
+    try {
+      const name = (profile?.full_name ?? "").toString();
+      const initials = name
+        .split(" ")
+        .filter(Boolean)
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+      return initials || "?";
+    } catch {
+      return "?";
+    }
   };
 
   return (
@@ -207,13 +236,13 @@ const StudentProfile = () => {
             )}
 
             {/* Skills */}
-            {sp?.skills && sp.skills.length > 0 && (
+            {Array.isArray(sp?.skills) && sp.skills.length > 0 && (
               <Card>
                 <CardHeader><CardTitle className="text-lg">Skills</CardTitle></CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {sp.skills.map((skill: string) => (
-                      <Badge key={skill} variant="secondary">{skill}</Badge>
+                    {sp.skills.filter((s: unknown): s is string => typeof s === "string" && s.length > 0).map((skill: string, idx: number) => (
+                      <Badge key={`${skill}-${idx}`} variant="secondary">{skill}</Badge>
                     ))}
                   </div>
                 </CardContent>
@@ -354,4 +383,41 @@ const MessageActionButton = ({
   );
 };
 
-export default StudentProfile;
+// Scoped error boundary — if something inside StudentProfile throws at render
+// time (unexpected data shape, downstream hook failure), we show an inline
+// recoverable message instead of blanking the whole app with the top-level
+// "Something went wrong" screen.
+import { Component, ErrorInfo, ReactNode } from "react";
+class StudentProfileBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(err: Error, info: ErrorInfo) {
+    console.error("[StudentProfile] render error", err, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-background">
+          <Navbar />
+          <div className="container max-w-2xl py-10">
+            <Card>
+              <CardContent className="py-12 text-center text-muted-foreground space-y-3">
+                <p>We couldn't display this profile right now.</p>
+                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Reload</Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const StudentProfileWithBoundary = () => (
+  <StudentProfileBoundary>
+    <StudentProfile />
+  </StudentProfileBoundary>
+);
+
+export default StudentProfileWithBoundary;
