@@ -115,7 +115,7 @@ const StudentProfile = () => {
         { label: "Graduation Year", value: sp.graduation_year },
         { label: "Experience (months)", value: sp.experience_years },
         { label: "Location", value: sp.location },
-        { label: "Skills", value: sp.skills?.length ? sp.skills.join(", ") : null },
+        { label: "Skills", value: Array.isArray(sp.skills) && sp.skills.length ? sp.skills.join(", ") : null },
         { label: "Current Job Title", value: sp.current_job_title },
         { label: "Current Company", value: sp.current_company },
         { label: "Not Employed", value: sp.not_employed },
