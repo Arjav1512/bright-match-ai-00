@@ -383,4 +383,41 @@ const MessageActionButton = ({
   );
 };
 
-export default StudentProfile;
+// Scoped error boundary — if something inside StudentProfile throws at render
+// time (unexpected data shape, downstream hook failure), we show an inline
+// recoverable message instead of blanking the whole app with the top-level
+// "Something went wrong" screen.
+import { Component, ErrorInfo, ReactNode } from "react";
+class StudentProfileBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(err: Error, info: ErrorInfo) {
+    console.error("[StudentProfile] render error", err, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-background">
+          <Navbar />
+          <div className="container max-w-2xl py-10">
+            <Card>
+              <CardContent className="py-12 text-center text-muted-foreground space-y-3">
+                <p>We couldn't display this profile right now.</p>
+                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Reload</Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const StudentProfileWithBoundary = () => (
+  <StudentProfileBoundary>
+    <StudentProfile />
+  </StudentProfileBoundary>
+);
+
+export default StudentProfileWithBoundary;
