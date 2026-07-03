@@ -144,8 +144,19 @@ const StudentProfile = () => {
   const hasStudentDetails = studentDetailFields.some((field) => hasDisplayValue(field.value));
 
   const getInitials = () => {
-    const name = profile?.full_name || "";
-    return name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
+    try {
+      const name = (profile?.full_name ?? "").toString();
+      const initials = name
+        .split(" ")
+        .filter(Boolean)
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+      return initials || "?";
+    } catch {
+      return "?";
+    }
   };
 
   return (
