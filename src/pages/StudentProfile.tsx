@@ -47,36 +47,54 @@ const StudentProfile = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["public-student-profile", userId, role, user?.id],
     queryFn: async () => {
-      if (!userId) throw new Error("No user ID");
+      // Never throw — a thrown queryFn bubbles up to the top-level ErrorBoundary
+      // and shows "Something went wrong". Return an empty payload instead so the
+      // page can render its own "Profile not found" state.
+      if (!userId) return { profile: null, studentProfile: null };
 
-      const profilePromise = supabase
-        .from("profiles")
-        .select("user_id, full_name, avatar_url, bio")
-        .eq("user_id", userId)
-        .maybeSingle();
+      let profile: any = null;
+      let studentProfile: any = null;
+
+      try {
+        const { data: p } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url, bio")
+          .eq("user_id", userId)
+          .maybeSingle();
+        profile = p ?? null;
+      } catch (err) {
+        console.error("[StudentProfile] profiles fetch failed", err);
+      }
 
       // Always try the full table first — RLS allows owners, admins, and
       // employers-with-applications. Fall through to the safe public view
       // (which only exposes onboarding-completed rows) when RLS denies.
-      const { data: full } = await supabase
-        .from("student_profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      let studentProfile: any = full;
-      if (!studentProfile) {
-        const { data: pub } = await (supabase as any)
-          .from("student_profiles_public")
-          .select(
-            "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
-          )
+      try {
+        const { data: full } = await supabase
+          .from("student_profiles")
+          .select("*")
           .eq("user_id", userId)
           .maybeSingle();
-        studentProfile = pub;
+        studentProfile = full ?? null;
+      } catch (err) {
+        console.error("[StudentProfile] student_profiles fetch failed", err);
       }
 
-      const { data: profile } = await profilePromise;
+      if (!studentProfile) {
+        try {
+          const { data: pub } = await (supabase as any)
+            .from("student_profiles_public")
+            .select(
+              "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
+            )
+            .eq("user_id", userId)
+            .maybeSingle();
+          studentProfile = pub ?? null;
+        } catch (err) {
+          console.error("[StudentProfile] public student view fetch failed", err);
+        }
+      }
+
       return { profile, studentProfile };
     },
     // Wait for auth to resolve so admin/owner detection is accurate.
