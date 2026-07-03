@@ -236,13 +236,13 @@ const StudentProfile = () => {
             )}
 
             {/* Skills */}
-            {sp?.skills && sp.skills.length > 0 && (
+            {Array.isArray(sp?.skills) && sp.skills.length > 0 && (
               <Card>
                 <CardHeader><CardTitle className="text-lg">Skills</CardTitle></CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {sp.skills.map((skill: string) => (
-                      <Badge key={skill} variant="secondary">{skill}</Badge>
+                    {sp.skills.filter((s: unknown): s is string => typeof s === "string" && s.length > 0).map((skill: string, idx: number) => (
+                      <Badge key={`${skill}-${idx}`} variant="secondary">{skill}</Badge>
                     ))}
                   </div>
                 </CardContent>
