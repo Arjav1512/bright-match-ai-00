@@ -1,3 +1,4 @@
+import { Component, ErrorInfo, ReactNode } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,7 @@ import { safeExternalUrl } from "@/lib/utils";
 import AdminField from "@/components/admin/AdminField";
 import { useFollows } from "@/hooks/useFollows";
 import ResumeLink from "@/components/ResumeLink";
+
 
 const hasDisplayValue = (value: unknown) => {
   if (value === null || value === undefined) return false;
