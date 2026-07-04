@@ -388,7 +388,26 @@ const MessageActionButton = ({
   );
 };
 
+// Micro-boundary for connect/message controls — if useFollows or a downstream
+// query throws (realtime subscription, transient network, RLS quirk), the
+// profile still renders. The buttons just quietly disappear.
+class SafeInteractionZone extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(err: Error) {
+    console.error("[StudentProfile] interaction zone error", err);
+  }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
+
 // Scoped error boundary — if something inside StudentProfile throws at render
+
 // time (unexpected data shape, downstream hook failure), we show an inline
 // recoverable message instead of blanking the whole app with the top-level
 // "Something went wrong" screen. The error message is surfaced so we can
