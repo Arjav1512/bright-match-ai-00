@@ -1,3 +1,4 @@
+import { Component, ErrorInfo, ReactNode } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,7 @@ import { safeExternalUrl } from "@/lib/utils";
 import AdminField from "@/components/admin/AdminField";
 import { useFollows } from "@/hooks/useFollows";
 import ResumeLink from "@/components/ResumeLink";
+
 
 const hasDisplayValue = (value: unknown) => {
   if (value === null || value === undefined) return false;
@@ -200,17 +202,20 @@ const StudentProfile = () => {
                     {profile.bio && <p className="text-sm mt-2">{profile.bio}</p>}
                     {user && user.id !== userId && !isAdmin && (
                       <div className="mt-3 flex items-center gap-2">
-                        <FollowButton targetUserId={userId!} targetRole="student" />
-                        {(role === "student" || role === "employer") && (
-                          <MessageActionButton
-                            targetUserId={userId!}
-                            viewerRole={role}
-                            partnerName={profile.full_name || "Student"}
-                            partnerAvatar={profile.avatar_url}
-                          />
-                        )}
+                        <SafeInteractionZone>
+                          <FollowButton targetUserId={userId!} targetRole="student" />
+                          {(role === "student" || role === "employer") && (
+                            <MessageActionButton
+                              targetUserId={userId!}
+                              viewerRole={role}
+                              partnerName={profile.full_name || "Student"}
+                              partnerAvatar={profile.avatar_url}
+                            />
+                          )}
+                        </SafeInteractionZone>
                       </div>
                     )}
+
                   </div>
                 </div>
               </CardContent>
@@ -383,15 +388,40 @@ const MessageActionButton = ({
   );
 };
 
-// Scoped error boundary — if something inside StudentProfile throws at render
-// time (unexpected data shape, downstream hook failure), we show an inline
-// recoverable message instead of blanking the whole app with the top-level
-// "Something went wrong" screen.
-import { Component, ErrorInfo, ReactNode } from "react";
-class StudentProfileBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+// Micro-boundary for connect/message controls — if useFollows or a downstream
+// query throws (realtime subscription, transient network, RLS quirk), the
+// profile still renders. The buttons just quietly disappear.
+class SafeInteractionZone extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
   state = { hasError: false };
   static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(err: Error) {
+    console.error("[StudentProfile] interaction zone error", err);
+  }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
+
+// Scoped error boundary — if something inside StudentProfile throws at render
+
+// time (unexpected data shape, downstream hook failure), we show an inline
+// recoverable message instead of blanking the whole app with the top-level
+// "Something went wrong" screen. The error message is surfaced so we can
+// diagnose live reports without needing a repro.
+class StudentProfileBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; message: string | null }
+> {
+  state = { hasError: false, message: null as string | null };
+  static getDerivedStateFromError(err: Error) {
+    return { hasError: true, message: err?.message ?? String(err) };
+  }
   componentDidCatch(err: Error, info: ErrorInfo) {
+    // Full details in the console for support/debugging.
     console.error("[StudentProfile] render error", err, info.componentStack);
   }
   render() {
@@ -403,7 +433,17 @@ class StudentProfileBoundary extends Component<{ children: ReactNode }, { hasErr
             <Card>
               <CardContent className="py-12 text-center text-muted-foreground space-y-3">
                 <p>We couldn't display this profile right now.</p>
-                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Reload</Button>
+                {this.state.message && (
+                  <p className="text-xs opacity-70 break-all">{this.state.message}</p>
+                )}
+                <div className="flex justify-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                    Reload
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => window.history.back()}>
+                    Go back
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -421,3 +461,4 @@ const StudentProfileWithBoundary = () => (
 );
 
 export default StudentProfileWithBoundary;
+
