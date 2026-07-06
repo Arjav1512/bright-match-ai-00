@@ -628,38 +628,79 @@ export type Database = {
         }
         Relationships: []
       }
+      peerup_circle_credentials: {
+        Row: {
+          circle_id: string
+          created_at: string
+          meeting_link: string | null
+          meeting_login_id: string | null
+          meeting_password: string | null
+          updated_at: string
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string
+          meeting_link?: string | null
+          meeting_login_id?: string | null
+          meeting_password?: string | null
+          updated_at?: string
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string
+          meeting_link?: string | null
+          meeting_login_id?: string | null
+          meeting_password?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "peerup_circle_credentials_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: true
+            referencedRelation: "peerup_circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       peerup_circles: {
         Row: {
+          additional_info: string | null
           created_at: string
           creator_id: string
           drop_in_time: string
           expires_at: string
-          fuel_type: string
+          fuel_type: string | null
           id: string
+          mode: string
           spot_location: string | null
           spot_name: string
           status: string
           topic: string
         }
         Insert: {
+          additional_info?: string | null
           created_at?: string
           creator_id: string
           drop_in_time: string
           expires_at?: string
-          fuel_type: string
+          fuel_type?: string | null
           id?: string
+          mode?: string
           spot_location?: string | null
           spot_name: string
           status?: string
           topic: string
         }
         Update: {
+          additional_info?: string | null
           created_at?: string
           creator_id?: string
           drop_in_time?: string
           expires_at?: string
-          fuel_type?: string
+          fuel_type?: string | null
           id?: string
+          mode?: string
           spot_location?: string | null
           spot_name?: string
           status?: string
