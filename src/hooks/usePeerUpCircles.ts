@@ -349,6 +349,7 @@ export function usePeerUpCircles() {
     circles,
     loading,
     createCircle,
+    fetchCredentials,
     requestToJoin,
     fetchRequests,
     handleRequest,
