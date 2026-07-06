@@ -96,6 +96,7 @@ const CampusCommunity = () => {
               onHandleRequest={handleRequest}
               onApproveAll={approveAll}
               onFetchParticipants={fetchParticipants}
+              onFetchCredentials={fetchCredentials}
               onDelete={deleteCircle}
             />
           </TabsContent>
