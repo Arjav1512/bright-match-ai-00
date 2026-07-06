@@ -22,6 +22,7 @@ interface CircleDetailModalProps {
   onApproveAll: (circleId: string) => Promise<void>;
   onFetchParticipants: (circleId: string, creatorId: string) => Promise<CircleParticipant[]>;
   onDelete: (circleId: string) => Promise<void>;
+  onFetchCredentials?: (circleId: string) => Promise<PeerUpCredentials | null>;
 }
 
 const getInitials = (name: string) =>
