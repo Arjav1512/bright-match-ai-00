@@ -60,6 +60,7 @@ const CircleDetailModal = ({
   const [view, setView] = useState<"detail" | "requests" | "members">("detail");
   const [requests, setRequests] = useState<CircleRequest[]>([]);
   const [participants, setParticipants] = useState<CircleParticipant[]>([]);
+  const [credentials, setCredentials] = useState<PeerUpCredentials | null>(null);
   const [loadingAction, setLoadingAction] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
