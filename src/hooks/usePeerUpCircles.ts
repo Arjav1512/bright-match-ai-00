@@ -172,20 +172,56 @@ export function usePeerUpCircles() {
     spot_name: string;
     spot_location?: string;
     topic: string;
-    fuel_type: string;
+    fuel_type?: string;
+    additional_info?: string;
+    mode: PeerUpMode;
     drop_in_time: string;
+    meeting_link?: string;
+    meeting_login_id?: string;
+    meeting_password?: string;
   }) => {
     if (!user) throw new Error("Not authenticated");
-    const { error } = await supabase.from("peerup_circles").insert({
-      creator_id: user.id,
-      spot_name: data.spot_name,
-      spot_location: data.spot_location || null,
-      topic: data.topic,
-      fuel_type: data.fuel_type,
-      drop_in_time: data.drop_in_time,
-    });
+    const { data: inserted, error } = await supabase
+      .from("peerup_circles")
+      .insert({
+        creator_id: user.id,
+        spot_name: data.spot_name,
+        spot_location: data.spot_location || null,
+        topic: data.topic,
+        fuel_type: data.mode === "offline" ? (data.fuel_type || null) : null,
+        additional_info: data.mode === "online" ? (data.additional_info || null) : null,
+        mode: data.mode,
+        drop_in_time: data.drop_in_time,
+      } as any)
+      .select("id")
+      .single();
     if (error) throw error;
+
+    if (data.mode === "online" && inserted?.id) {
+      const { error: credErr } = await (supabase as any)
+        .from("peerup_circle_credentials")
+        .insert({
+          circle_id: inserted.id,
+          meeting_link: data.meeting_link || null,
+          meeting_login_id: data.meeting_login_id || null,
+          meeting_password: data.meeting_password || null,
+        });
+      if (credErr) throw credErr;
+    }
     await fetchCircles();
+  };
+
+  const fetchCredentials = async (circleId: string): Promise<PeerUpCredentials | null> => {
+    const { data, error } = await (supabase as any)
+      .from("peerup_circle_credentials")
+      .select("meeting_link, meeting_login_id, meeting_password")
+      .eq("circle_id", circleId)
+      .maybeSingle();
+    if (error) {
+      console.warn("fetchCredentials error:", error.message);
+      return null;
+    }
+    return data || null;
   };
 
   const requestToJoin = async (circleId: string) => {
