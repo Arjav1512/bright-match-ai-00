@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clock, MapPin, Coffee, Users, ArrowRight, Loader2, Trash2, Check, X, Navigation, MessageCircle } from "lucide-react";
+import { Clock, MapPin, Coffee, Users, ArrowRight, Loader2, Trash2, Check, X, Navigation, MessageCircle, Globe, Video, Link2, KeyRound, User as UserIcon, Info, Copy } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
