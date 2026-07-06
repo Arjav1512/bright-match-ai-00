@@ -52,7 +52,7 @@ const formatDropInTime = (dt: string) => {
 const CircleDetailModal = ({
   circle, open, onClose, onRequestJoin,
   onFetchRequests, onHandleRequest, onApproveAll,
-  onFetchParticipants, onDelete,
+  onFetchParticipants, onDelete, onFetchCredentials,
 }: CircleDetailModalProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
