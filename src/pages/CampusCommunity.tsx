@@ -19,7 +19,7 @@ const CampusCommunity = () => {
   const {
     circles, loading, createCircle, requestToJoin,
     fetchRequests, handleRequest, approveAll,
-    fetchParticipants, deleteCircle, refresh,
+    fetchParticipants, deleteCircle, refresh, fetchCredentials,
   } = usePeerUpCircles();
 
   const [showCreateForm, setShowCreateForm] = useState(false);
