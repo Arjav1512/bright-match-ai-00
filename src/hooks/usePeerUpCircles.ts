@@ -2,13 +2,23 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+export type PeerUpMode = "offline" | "online";
+
+export interface PeerUpCredentials {
+  meeting_link: string | null;
+  meeting_login_id: string | null;
+  meeting_password: string | null;
+}
+
 export interface PeerUpCircle {
   id: string;
   creator_id: string;
   spot_name: string;
   spot_location: string | null;
   topic: string;
-  fuel_type: string;
+  fuel_type: string | null;
+  additional_info: string | null;
+  mode: PeerUpMode;
   drop_in_time: string;
   created_at: string;
   expires_at: string;
