@@ -94,6 +94,17 @@ const CircleDetailModal = ({
     loadData();
   }, [circle, open, view, isCreator, isParticipant]);
 
+  // Fetch access credentials only when the viewer is authorized
+  useEffect(() => {
+    setCredentials(null);
+    if (!circle || !open || circle.mode !== "online") return;
+    if (!isCreator && !isParticipant) return;
+    if (!onFetchCredentials) return;
+    let cancelled = false;
+    onFetchCredentials(circle.id).then((c) => { if (!cancelled) setCredentials(c); });
+    return () => { cancelled = true; };
+  }, [circle, open, isCreator, isParticipant, onFetchCredentials]);
+
   if (!circle) return null;
 
   const handleJoinRequest = async () => {
