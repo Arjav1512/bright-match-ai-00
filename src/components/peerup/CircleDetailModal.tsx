@@ -154,13 +154,22 @@ const CircleDetailModal = ({
   // Detail view (non-member, non-creator)
   const renderDetailView = () => (
     <div className="space-y-4">
-      {isParticipant && (
-        <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <Badge
+          variant="outline"
+          className={circle.mode === "online"
+            ? "text-[10px] border-primary/50 text-primary gap-1"
+            : "text-[10px] border-amber-500/50 text-amber-600 dark:text-amber-400 gap-1"}
+        >
+          {circle.mode === "online" ? <Globe className="h-3 w-3" /> : <Users className="h-3 w-3" />}
+          {circle.mode === "online" ? "Online Community" : "Offline Community"}
+        </Badge>
+        {isParticipant && (
           <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-600 dark:text-emerald-400">
             {getTimeLeft(circle.expires_at)}
           </Badge>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="flex items-start gap-3">
         <Avatar className="h-12 w-12 border-2 border-emerald-500/50">
@@ -181,24 +190,108 @@ const CircleDetailModal = ({
           <p className="text-sm font-medium">{circle.topic}</p>
         </div>
         <div className="bg-muted/50 rounded-lg p-3">
-          <p className="text-[11px] text-muted-foreground mb-0.5">Spot Location</p>
+          <p className="text-[11px] text-muted-foreground mb-0.5">
+            {circle.mode === "online" ? "Community Name" : "Spot Location"}
+          </p>
           <p className="text-sm font-medium">{circle.spot_location || circle.spot_name}</p>
         </div>
         <div className="bg-muted/50 rounded-lg p-3 col-span-2">
           <p className="text-[11px] text-muted-foreground mb-0.5 flex items-center gap-1">
-            <Clock className="h-3 w-3" /> Drop-in Time
+            <Clock className="h-3 w-3" /> Date & Time
           </p>
           <p className="text-sm font-medium">{formatDropInTime(circle.drop_in_time)}</p>
         </div>
-        <div className="bg-muted/50 rounded-lg p-3">
-          <p className="text-[11px] text-muted-foreground mb-0.5">Fuel of the Session</p>
-          <p className="text-sm font-medium">{circle.fuel_type}</p>
-        </div>
+        {circle.mode === "offline" && circle.fuel_type && (
+          <div className="bg-muted/50 rounded-lg p-3">
+            <p className="text-[11px] text-muted-foreground mb-0.5">Fuel of the Session</p>
+            <p className="text-sm font-medium">{circle.fuel_type}</p>
+          </div>
+        )}
         <div className="bg-muted/50 rounded-lg p-3">
           <p className="text-[11px] text-muted-foreground mb-0.5">Members</p>
           <p className="text-sm font-medium">{circle.participant_count || 1} joined</p>
         </div>
+        {circle.mode === "online" && circle.additional_info && (
+          <div className="bg-muted/50 rounded-lg p-3 col-span-2">
+            <p className="text-[11px] text-muted-foreground mb-0.5 flex items-center gap-1">
+              <Info className="h-3 w-3" /> Additional Information
+            </p>
+            <p className="text-sm whitespace-pre-wrap">{circle.additional_info}</p>
+          </div>
+        )}
       </div>
+
+      {/* Online access details — visible only to host & approved participants */}
+      {circle.mode === "online" && (isCreator || isParticipant) && (
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+          <div className="flex items-center gap-2">
+            <Video className="h-4 w-4 text-primary" />
+            <p className="text-sm font-medium">Access details</p>
+          </div>
+          {!credentials ? (
+            <p className="text-xs text-muted-foreground">Loading access details…</p>
+          ) : (
+            <div className="space-y-2">
+              {credentials.meeting_link && (
+                <div>
+                  <p className="text-[11px] text-muted-foreground mb-0.5 flex items-center gap-1">
+                    <Link2 className="h-3 w-3" /> Meeting Link
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={credentials.meeting_link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm font-medium text-primary underline break-all flex-1"
+                    >
+                      {credentials.meeting_link}
+                    </a>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 shrink-0"
+                      onClick={() => {
+                        navigator.clipboard.writeText(credentials.meeting_link || "");
+                        toast({ title: "Link copied" });
+                      }}
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {credentials.meeting_login_id && (
+                <div>
+                  <p className="text-[11px] text-muted-foreground mb-0.5 flex items-center gap-1">
+                    <UserIcon className="h-3 w-3" /> Login ID
+                  </p>
+                  <p className="text-sm font-medium break-all">{credentials.meeting_login_id}</p>
+                </div>
+              )}
+              {credentials.meeting_password && (
+                <div>
+                  <p className="text-[11px] text-muted-foreground mb-0.5 flex items-center gap-1">
+                    <KeyRound className="h-3 w-3" /> Password
+                  </p>
+                  <p className="text-sm font-medium break-all">{credentials.meeting_password}</p>
+                </div>
+              )}
+              {!credentials.meeting_link && !credentials.meeting_login_id && !credentials.meeting_password && (
+                <p className="text-xs text-muted-foreground">Host hasn't added access details yet.</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {circle.mode === "online" && !isCreator && !isParticipant && (
+        <div className="rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 p-3 text-xs text-muted-foreground flex items-center gap-2">
+          <KeyRound className="h-3.5 w-3.5" />
+          Meeting link, Login ID and Password are revealed once the host approves your request.
+        </div>
+      )}
+
+
 
 
       {/* Actions */}
