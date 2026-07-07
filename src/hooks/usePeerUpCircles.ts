@@ -78,11 +78,11 @@ export function usePeerUpCircles() {
       const enriched = await Promise.all(
         circlesData.map(async (c: any) => {
           // Get creator profile
-          const { data: profile } = await supabase
-            .from("profiles")
+          const { data: profile } = await (supabase as any)
+            .from("profiles_public")
             .select("full_name, avatar_url")
             .eq("user_id", c.creator_id)
-            .single();
+            .maybeSingle();
 
           const { data: studentProfile } = await (supabase as any)
             .from("student_profiles_public")
@@ -245,11 +245,11 @@ export function usePeerUpCircles() {
 
     const enriched = await Promise.all(
       data.map(async (r: any) => {
-        const { data: profile } = await supabase
-          .from("profiles")
+        const { data: profile } = await (supabase as any)
+          .from("profiles_public")
           .select("full_name, avatar_url")
           .eq("user_id", r.requester_id)
-          .single();
+          .maybeSingle();
         const { data: sp } = await (supabase as any)
           .from("student_profiles_public")
           .select("major, graduation_year")
@@ -309,11 +309,11 @@ export function usePeerUpCircles() {
     
     const participants: CircleParticipant[] = await Promise.all(
       allUserIds.map(async (uid) => {
-        const { data: profile } = await supabase
-          .from("profiles")
+        const { data: profile } = await (supabase as any)
+          .from("profiles_public")
           .select("full_name, avatar_url")
           .eq("user_id", uid)
-          .single();
+          .maybeSingle();
         const { data: sp } = await (supabase as any)
           .from("student_profiles_public")
           .select("major, graduation_year")
