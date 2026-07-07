@@ -54,8 +54,8 @@ const StudentDiscovery = () => {
       if (!studentProfiles || studentProfiles.length === 0) return [];
 
       const userIds = studentProfiles.map((s) => s.user_id);
-      const { data: profiles } = await supabase
-        .from("profiles")
+      const { data: profiles } = await (supabase as any)
+        .from("profiles_public")
         .select("user_id, full_name, avatar_url")
         .in("user_id", userIds);
 
