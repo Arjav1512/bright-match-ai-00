@@ -309,11 +309,11 @@ export function usePeerUpCircles() {
     
     const participants: CircleParticipant[] = await Promise.all(
       allUserIds.map(async (uid) => {
-        const { data: profile } = await supabase
-          .from("profiles")
+        const { data: profile } = await (supabase as any)
+          .from("profiles_public")
           .select("full_name, avatar_url")
           .eq("user_id", uid)
-          .single();
+          .maybeSingle();
         const { data: sp } = await (supabase as any)
           .from("student_profiles_public")
           .select("major, graduation_year")
