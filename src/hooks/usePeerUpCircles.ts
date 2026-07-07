@@ -245,11 +245,11 @@ export function usePeerUpCircles() {
 
     const enriched = await Promise.all(
       data.map(async (r: any) => {
-        const { data: profile } = await supabase
-          .from("profiles")
+        const { data: profile } = await (supabase as any)
+          .from("profiles_public")
           .select("full_name, avatar_url")
           .eq("user_id", r.requester_id)
-          .single();
+          .maybeSingle();
         const { data: sp } = await (supabase as any)
           .from("student_profiles_public")
           .select("major, graduation_year")
