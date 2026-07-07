@@ -66,8 +66,8 @@ export function useDirectMessages() {
     }
 
     const [profilesRes, rolesRes, employersRes] = await Promise.all([
-      supabase
-        .from("profiles")
+      (supabase as any)
+        .from("profiles_public")
         .select("user_id, full_name, avatar_url")
         .in("user_id", partnerIds),
       // FIX (HIGH-chat-route): Fetch partner roles so chat header can link to
