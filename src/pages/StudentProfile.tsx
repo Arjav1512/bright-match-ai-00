@@ -57,6 +57,9 @@ const StudentProfile = () => {
       let profile: any = null;
       let studentProfile: any = null;
 
+      // Full profile (includes bio) is only readable by owner, admin, or
+      // connected users under the tightened RLS. Fall back to the public view
+      // (name/avatar only) so LinkUp/browsing users still see the profile.
       try {
         const { data: p } = await supabase
           .from("profiles")
@@ -66,6 +69,18 @@ const StudentProfile = () => {
         profile = p ?? null;
       } catch (err) {
         console.error("[StudentProfile] profiles fetch failed", err);
+      }
+      if (!profile) {
+        try {
+          const { data: pub } = await (supabase as any)
+            .from("profiles_public")
+            .select("user_id, full_name, avatar_url")
+            .eq("user_id", userId)
+            .maybeSingle();
+          profile = pub ? { ...pub, bio: null } : null;
+        } catch (err) {
+          console.error("[StudentProfile] profiles_public fetch failed", err);
+        }
       }
 
       // Always try the full table first — RLS allows owners, admins, and
