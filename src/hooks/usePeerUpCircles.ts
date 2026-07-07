@@ -78,11 +78,11 @@ export function usePeerUpCircles() {
       const enriched = await Promise.all(
         circlesData.map(async (c: any) => {
           // Get creator profile
-          const { data: profile } = await supabase
-            .from("profiles")
+          const { data: profile } = await (supabase as any)
+            .from("profiles_public")
             .select("full_name, avatar_url")
             .eq("user_id", c.creator_id)
-            .single();
+            .maybeSingle();
 
           const { data: studentProfile } = await (supabase as any)
             .from("student_profiles_public")
