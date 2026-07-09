@@ -224,15 +224,15 @@ export function useFollowList(userId: string, type: "followers" | "following") {
   return useQuery({
     queryKey: [type === "followers" ? "followersList" : "followingList", userId],
     queryFn: async () => {
-      const col = type === "followers" ? "follower_id" : "following_id";
-      const otherCol = type === "followers" ? "following_id" : "follower_id";
-      const { data } = await supabase
-        .from("follows")
-        .select(`${col}, created_at, accepted_at`)
-        .eq(otherCol, userId)
-        .eq("status", "accepted");
-      if (!data || data.length === 0) return [];
-      const ids = data.map((d: any) => d[col]);
+      // RLS on `follows` only exposes rows involving the caller, so use a
+      // SECURITY DEFINER RPC to list any user's accepted connections.
+      const { data: rows } = await (supabase as any).rpc("list_follow_connections", {
+        _user_id: userId,
+        _type: type,
+      });
+      const data = (rows ?? []) as { user_id: string; connected_at: string }[];
+      if (data.length === 0) return [];
+      const ids = data.map((d) => d.user_id);
 
       // Pull profiles, roles, and employer company info in parallel so we can
       // render company_name (not email / not "Anonymous") for employer rows
