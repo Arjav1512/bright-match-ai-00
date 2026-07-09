@@ -1356,6 +1356,13 @@ export type Database = {
           website_url: string
         }[]
       }
+      get_follow_counts: {
+        Args: { _user_id: string }
+        Returns: {
+          follower_count: number
+          following_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1389,6 +1396,13 @@ export type Database = {
           user_id: string
           website: string
           year_established: number
+        }[]
+      }
+      list_follow_connections: {
+        Args: { _type: string; _user_id: string }
+        Returns: {
+          connected_at: string
+          user_id: string
         }[]
       }
       list_student_profiles_public: {
