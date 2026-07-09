@@ -1226,16 +1226,19 @@ export type Database = {
       profiles_public: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           full_name: string | null
           user_id: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           full_name?: string | null
           user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           full_name?: string | null
           user_id?: string | null
         }
@@ -1243,6 +1246,8 @@ export type Database = {
       }
       student_profiles_public: {
         Row: {
+          company_feedback_score: number | null
+          completed_internships: number | null
           created_at: string | null
           current_company: string | null
           current_job_title: string | null
@@ -1257,6 +1262,10 @@ export type Database = {
           onboarding_status: string | null
           preferred_course: string | null
           profile_role: string | null
+          profile_strength_score: number | null
+          reputation_score: number | null
+          resume_url: string | null
+          skill_test_score: number | null
           skills: string[] | null
           university: string | null
           user_id: string | null
@@ -1385,6 +1394,8 @@ export type Database = {
       list_student_profiles_public: {
         Args: never
         Returns: {
+          company_feedback_score: number
+          completed_internships: number
           created_at: string
           current_company: string
           current_job_title: string
@@ -1399,6 +1410,10 @@ export type Database = {
           onboarding_status: string
           preferred_course: string
           profile_role: string
+          profile_strength_score: number
+          reputation_score: number
+          resume_url: string
+          skill_test_score: number
           skills: string[]
           university: string
           user_id: string

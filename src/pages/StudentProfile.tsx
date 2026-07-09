@@ -74,10 +74,10 @@ const StudentProfile = () => {
         try {
           const { data: pub } = await (supabase as any)
             .from("profiles_public")
-            .select("user_id, full_name, avatar_url")
+            .select("user_id, full_name, avatar_url, bio")
             .eq("user_id", userId)
             .maybeSingle();
-          profile = pub ? { ...pub, bio: null } : null;
+          profile = pub ?? null;
         } catch (err) {
           console.error("[StudentProfile] profiles_public fetch failed", err);
         }
@@ -102,7 +102,7 @@ const StudentProfile = () => {
           const { data: pub } = await (supabase as any)
             .from("student_profiles_public")
             .select(
-              "user_id, university, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed"
+              "user_id, university, major, graduation_year, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed, resume_url, reputation_score, completed_internships, skill_test_score, company_feedback_score, profile_strength_score"
             )
             .eq("user_id", userId)
             .maybeSingle();
