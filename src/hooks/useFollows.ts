@@ -89,10 +89,8 @@ export function useFollows(targetUserId: string, opts?: { targetRole?: FollowTar
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["follow-outgoing", user?.id, targetUserId] });
     queryClient.invalidateQueries({ queryKey: ["follow-incoming", user?.id, targetUserId] });
-    queryClient.invalidateQueries({ queryKey: ["followerCount", user?.id] });
-    queryClient.invalidateQueries({ queryKey: ["followingCount", user?.id] });
-    queryClient.invalidateQueries({ queryKey: ["followerCount", targetUserId] });
-    queryClient.invalidateQueries({ queryKey: ["followingCount", targetUserId] });
+    queryClient.invalidateQueries({ queryKey: ["followCounts", user?.id] });
+    queryClient.invalidateQueries({ queryKey: ["followCounts", targetUserId] });
     queryClient.invalidateQueries({ queryKey: ["followersList", user?.id] });
     queryClient.invalidateQueries({ queryKey: ["followingList", user?.id] });
     queryClient.invalidateQueries({ queryKey: ["followersList", targetUserId] });
