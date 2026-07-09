@@ -250,8 +250,8 @@ export function useFollowList(userId: string, type: "followers" | "following") {
       const roleById = new Map((roles ?? []).map((r: any) => [r.user_id, r.role]));
       const employerById = new Map((employers ?? []).map((e: any) => [e.user_id, e]));
 
-      return data.map((r: any) => {
-        const uid = r[col];
+      return data.map((r) => {
+        const uid = r.user_id;
         const p = profileById.get(uid) as any;
         const role = roleById.get(uid) as "student" | "employer" | "admin" | undefined;
         const emp = employerById.get(uid) as any;
@@ -265,7 +265,7 @@ export function useFollowList(userId: string, type: "followers" | "following") {
           full_name: display_name,
           avatar_url: avatar_url ?? null,
           role: role ?? null,
-          connected_at: r.accepted_at ?? r.created_at,
+          connected_at: r.connected_at,
         };
       });
     },
