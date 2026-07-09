@@ -74,10 +74,10 @@ const StudentProfile = () => {
         try {
           const { data: pub } = await (supabase as any)
             .from("profiles_public")
-            .select("user_id, full_name, avatar_url")
+            .select("user_id, full_name, avatar_url, bio")
             .eq("user_id", userId)
             .maybeSingle();
-          profile = pub ? { ...pub, bio: null } : null;
+          profile = pub ?? null;
         } catch (err) {
           console.error("[StudentProfile] profiles_public fetch failed", err);
         }
