@@ -67,32 +67,24 @@ export function useFollows(targetUserId: string, opts?: { targetRole?: FollowTar
     enabled: !!user && !!targetUserId && user.id !== targetUserId,
   });
 
-  // Counts: accepted connections only
-  const { data: followerCount = 0 } = useQuery({
-    queryKey: ["followerCount", targetUserId],
+  // Counts: accepted connections only. Uses a SECURITY DEFINER RPC because
+  // the `follows` SELECT policy only exposes rows involving the caller.
+  const { data: followCounts } = useQuery({
+    queryKey: ["followCounts", targetUserId],
     queryFn: async () => {
-      const { count } = await supabase
-        .from("follows")
-        .select("*", { count: "exact", head: true })
-        .eq("following_id", targetUserId)
-        .eq("status", "accepted");
-      return count ?? 0;
+      const { data } = await (supabase as any).rpc("get_follow_counts", {
+        _user_id: targetUserId,
+      });
+      const row = Array.isArray(data) ? data[0] : data;
+      return {
+        follower_count: Number(row?.follower_count ?? 0),
+        following_count: Number(row?.following_count ?? 0),
+      };
     },
     enabled: !!targetUserId,
   });
-
-  const { data: followingCount = 0 } = useQuery({
-    queryKey: ["followingCount", targetUserId],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("follows")
-        .select("*", { count: "exact", head: true })
-        .eq("follower_id", targetUserId)
-        .eq("status", "accepted");
-      return count ?? 0;
-    },
-    enabled: !!targetUserId,
-  });
+  const followerCount = followCounts?.follower_count ?? 0;
+  const followingCount = followCounts?.following_count ?? 0;
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["follow-outgoing", user?.id, targetUserId] });
