@@ -67,40 +67,30 @@ export function useFollows(targetUserId: string, opts?: { targetRole?: FollowTar
     enabled: !!user && !!targetUserId && user.id !== targetUserId,
   });
 
-  // Counts: accepted connections only
-  const { data: followerCount = 0 } = useQuery({
-    queryKey: ["followerCount", targetUserId],
+  // Counts: accepted connections only. Uses a SECURITY DEFINER RPC because
+  // the `follows` SELECT policy only exposes rows involving the caller.
+  const { data: followCounts } = useQuery({
+    queryKey: ["followCounts", targetUserId],
     queryFn: async () => {
-      const { count } = await supabase
-        .from("follows")
-        .select("*", { count: "exact", head: true })
-        .eq("following_id", targetUserId)
-        .eq("status", "accepted");
-      return count ?? 0;
+      const { data } = await (supabase as any).rpc("get_follow_counts", {
+        _user_id: targetUserId,
+      });
+      const row = Array.isArray(data) ? data[0] : data;
+      return {
+        follower_count: Number(row?.follower_count ?? 0),
+        following_count: Number(row?.following_count ?? 0),
+      };
     },
     enabled: !!targetUserId,
   });
-
-  const { data: followingCount = 0 } = useQuery({
-    queryKey: ["followingCount", targetUserId],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("follows")
-        .select("*", { count: "exact", head: true })
-        .eq("follower_id", targetUserId)
-        .eq("status", "accepted");
-      return count ?? 0;
-    },
-    enabled: !!targetUserId,
-  });
+  const followerCount = followCounts?.follower_count ?? 0;
+  const followingCount = followCounts?.following_count ?? 0;
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["follow-outgoing", user?.id, targetUserId] });
     queryClient.invalidateQueries({ queryKey: ["follow-incoming", user?.id, targetUserId] });
-    queryClient.invalidateQueries({ queryKey: ["followerCount", user?.id] });
-    queryClient.invalidateQueries({ queryKey: ["followingCount", user?.id] });
-    queryClient.invalidateQueries({ queryKey: ["followerCount", targetUserId] });
-    queryClient.invalidateQueries({ queryKey: ["followingCount", targetUserId] });
+    queryClient.invalidateQueries({ queryKey: ["followCounts", user?.id] });
+    queryClient.invalidateQueries({ queryKey: ["followCounts", targetUserId] });
     queryClient.invalidateQueries({ queryKey: ["followersList", user?.id] });
     queryClient.invalidateQueries({ queryKey: ["followingList", user?.id] });
     queryClient.invalidateQueries({ queryKey: ["followersList", targetUserId] });
@@ -234,15 +224,15 @@ export function useFollowList(userId: string, type: "followers" | "following") {
   return useQuery({
     queryKey: [type === "followers" ? "followersList" : "followingList", userId],
     queryFn: async () => {
-      const col = type === "followers" ? "follower_id" : "following_id";
-      const otherCol = type === "followers" ? "following_id" : "follower_id";
-      const { data } = await supabase
-        .from("follows")
-        .select(`${col}, created_at, accepted_at`)
-        .eq(otherCol, userId)
-        .eq("status", "accepted");
-      if (!data || data.length === 0) return [];
-      const ids = data.map((d: any) => d[col]);
+      // RLS on `follows` only exposes rows involving the caller, so use a
+      // SECURITY DEFINER RPC to list any user's accepted connections.
+      const { data: rows } = await (supabase as any).rpc("list_follow_connections", {
+        _user_id: userId,
+        _type: type,
+      });
+      const data = (rows ?? []) as { user_id: string; connected_at: string }[];
+      if (data.length === 0) return [];
+      const ids = data.map((d) => d.user_id);
 
       // Pull profiles, roles, and employer company info in parallel so we can
       // render company_name (not email / not "Anonymous") for employer rows
@@ -260,8 +250,8 @@ export function useFollowList(userId: string, type: "followers" | "following") {
       const roleById = new Map((roles ?? []).map((r: any) => [r.user_id, r.role]));
       const employerById = new Map((employers ?? []).map((e: any) => [e.user_id, e]));
 
-      return data.map((r: any) => {
-        const uid = r[col];
+      return data.map((r) => {
+        const uid = r.user_id;
         const p = profileById.get(uid) as any;
         const role = roleById.get(uid) as "student" | "employer" | "admin" | undefined;
         const emp = employerById.get(uid) as any;
@@ -275,7 +265,7 @@ export function useFollowList(userId: string, type: "followers" | "following") {
           full_name: display_name,
           avatar_url: avatar_url ?? null,
           role: role ?? null,
-          connected_at: r.accepted_at ?? r.created_at,
+          connected_at: r.connected_at,
         };
       });
     },
