@@ -32,14 +32,14 @@ const CampusCommunity = () => {
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">PeerUp</h1>
           <p className="text-muted-foreground mt-1">
-            Communities & groups vanish after 24 hours. No traces, just vibes.
+            Wroob Circles & groups vanish after 24 hours. No traces, just vibes.
           </p>
         </div>
 
         <Tabs defaultValue="campus" className="w-full">
           <TabsList className="w-full grid grid-cols-2">
-            <TabsTrigger value="campus">Create Community</TabsTrigger>
-            <TabsTrigger value="groups">Community Groups</TabsTrigger>
+            <TabsTrigger value="campus">Create Wroob Circle</TabsTrigger>
+            <TabsTrigger value="groups">Wroob Circle Groups</TabsTrigger>
           </TabsList>
 
           {/* Campus Feed Tab — Wroob Circles */}
@@ -74,7 +74,7 @@ const CampusCommunity = () => {
                     Be the first to create a Wroob Circle and spark a conversation!
                   </p>
                   <Button onClick={() => setShowCreateForm(true)} className="brand-gradient border-0 text-white">
-                    Create Community
+                    Create Wroob Circle
                   </Button>
                 </CardContent>
               </Card>
