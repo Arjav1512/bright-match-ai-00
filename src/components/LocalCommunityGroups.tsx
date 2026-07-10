@@ -191,7 +191,7 @@ const LocalCommunityGroups = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="font-display text-xl font-bold">Local Community Groups</h2>
+          <h2 className="font-display text-xl font-bold">Local Wroob Circle Groups</h2>
           <Badge variant="secondary" className="text-xs">{groups.length} groups</Badge>
         </div>
         <Button
@@ -211,7 +211,7 @@ const LocalCommunityGroups = () => {
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Join local student communities to connect, collaborate, and grow together.
+        Join local student Wroob Circles to connect, collaborate, and grow together.
         {location && (
           <span className="ml-1 inline-flex items-center gap-1 text-emerald-600">
             <MapPin className="h-3 w-3" /> Location set

@@ -94,7 +94,7 @@ const CreateCircleForm = ({ onSubmit, onClose }: CreateCircleFormProps) => {
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">
-            {mode === null ? "New Community" : mode === "online" ? "Online Community" : "Offline Community"}
+            {mode === null ? "New Wroob Circle" : mode === "online" ? "Online Wroob Circle" : "Offline Wroob Circle"}
           </CardTitle>
           <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
             <X className="h-4 w-4" />
@@ -104,7 +104,7 @@ const CreateCircleForm = ({ onSubmit, onClose }: CreateCircleFormProps) => {
       <CardContent className="space-y-4">
         {mode === null && (
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">Choose the type of community you want to create.</p>
+            <p className="text-sm text-muted-foreground">Choose the type of Wroob Circle you want to create.</p>
             <button
               type="button"
               onClick={() => setMode("offline")}
@@ -114,7 +114,7 @@ const CreateCircleForm = ({ onSubmit, onClose }: CreateCircleFormProps) => {
                 <Users className="h-5 w-5 text-amber-600" />
               </div>
               <div>
-                <p className="font-medium">Offline Community</p>
+                <p className="font-medium">Offline Wroob Circle</p>
                 <p className="text-xs text-muted-foreground">Meet in person at a spot on/near campus.</p>
               </div>
             </button>
@@ -127,7 +127,7 @@ const CreateCircleForm = ({ onSubmit, onClose }: CreateCircleFormProps) => {
                 <Globe className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium">Online Community</p>
+                <p className="font-medium">Online Wroob Circle</p>
                 <p className="text-xs text-muted-foreground">
                   Host over Google Meet, Zoom, Microsoft Teams, or any meeting link.
                 </p>
@@ -145,7 +145,7 @@ const CreateCircleForm = ({ onSubmit, onClose }: CreateCircleFormProps) => {
             <div className="space-y-2">
               <Label className="flex items-center gap-1.5 text-sm">
                 <MapPin className="h-3.5 w-3.5 text-primary" />
-                {mode === "online" ? "Community Name *" : "Spot Location *"}
+                {mode === "online" ? "Wroob Circle Name *" : "Spot Location *"}
               </Label>
               <Input
                 placeholder={mode === "online"

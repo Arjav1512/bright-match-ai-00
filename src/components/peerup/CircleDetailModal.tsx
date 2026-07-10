@@ -162,7 +162,7 @@ const CircleDetailModal = ({
             : "text-[10px] border-amber-500/50 text-amber-600 dark:text-amber-400 gap-1"}
         >
           {circle.mode === "online" ? <Globe className="h-3 w-3" /> : <Users className="h-3 w-3" />}
-          {circle.mode === "online" ? "Online Community" : "Offline Community"}
+          {circle.mode === "online" ? "Online Wroob Circle" : "Offline Wroob Circle"}
         </Badge>
         {isParticipant && (
           <Badge variant="outline" className="text-[10px] border-emerald-500/50 text-emerald-600 dark:text-emerald-400">
@@ -191,7 +191,7 @@ const CircleDetailModal = ({
         </div>
         <div className="bg-muted/50 rounded-lg p-3">
           <p className="text-[11px] text-muted-foreground mb-0.5">
-            {circle.mode === "online" ? "Community Name" : "Spot Location"}
+            {circle.mode === "online" ? "Wroob Circle Name" : "Spot Location"}
           </p>
           <p className="text-sm font-medium">{circle.spot_location || circle.spot_name}</p>
         </div>

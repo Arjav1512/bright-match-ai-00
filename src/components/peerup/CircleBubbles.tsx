@@ -61,7 +61,7 @@ const CircleBubbles = ({ circles, onSelect, onCreateNew }: CircleBubblesProps) =
 
   return (
     <div className="space-y-6">
-      {/* Prominent Create Community CTA */}
+      {/* Prominent Create Wroob Circle CTA */}
       <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 shadow-sm">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-start gap-3">
@@ -69,7 +69,7 @@ const CircleBubbles = ({ circles, onSelect, onCreateNew }: CircleBubblesProps) =
               <Plus className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-base leading-tight">Create a Community</h3>
+              <h3 className="font-semibold text-base leading-tight">Create a Wroob Circle</h3>
               <p className="text-sm text-muted-foreground mt-0.5">
                 Start a Wroob Circle and invite peers to join.
               </p>
@@ -79,7 +79,7 @@ const CircleBubbles = ({ circles, onSelect, onCreateNew }: CircleBubblesProps) =
             onClick={onCreateNew}
             className="brand-gradient text-white text-sm font-medium px-5 py-2.5 rounded-full shadow-sm hover:opacity-90 transition-opacity"
           >
-            + New Community
+            + New Wroob Circle
           </button>
         </div>
 
@@ -96,17 +96,17 @@ const CircleBubbles = ({ circles, onSelect, onCreateNew }: CircleBubblesProps) =
         )}
       </div>
 
-      {/* Communities by other users */}
+      {/* Wroob Circles by other users */}
       <div>
         <div className="flex items-baseline justify-between mb-3">
-          <h3 className="font-semibold text-base">Explore Communities</h3>
+          <h3 className="font-semibold text-base">Explore Wroob Circles</h3>
           <span className="text-xs text-muted-foreground">
             {otherCircles.length} {otherCircles.length === 1 ? "circle" : "circles"}
           </span>
         </div>
         {otherCircles.length === 0 ? (
           <div className="rounded-xl border border-dashed border-muted-foreground/20 py-10 text-center">
-            <p className="text-sm text-muted-foreground">No communities from others yet.</p>
+            <p className="text-sm text-muted-foreground">No Wroob Circles from others yet.</p>
             <p className="text-xs text-muted-foreground/70 mt-1">Be the first — create one above!</p>
           </div>
         ) : (
