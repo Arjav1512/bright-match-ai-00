@@ -181,6 +181,8 @@ export function usePeerUpCircles() {
     meeting_link?: string;
     meeting_login_id?: string;
     meeting_password?: string;
+    latitude?: number | null;
+    longitude?: number | null;
   }) => {
     if (!user) throw new Error("Not authenticated");
     const { data: inserted, error } = await supabase
@@ -194,6 +196,8 @@ export function usePeerUpCircles() {
         additional_info: data.mode === "online" ? (data.additional_info || null) : null,
         mode: data.mode,
         drop_in_time: data.drop_in_time,
+        latitude: data.latitude ?? null,
+        longitude: data.longitude ?? null,
       } as any)
       .select("id")
       .single();
