@@ -20,8 +20,12 @@ interface CreateCircleFormProps {
     meeting_link?: string;
     meeting_login_id?: string;
     meeting_password?: string;
+    latitude?: number | null;
+    longitude?: number | null;
   }) => Promise<void>;
   onClose: () => void;
+  userLat?: number | null;
+  userLng?: number | null;
 }
 
 const CreateCircleForm = ({ onSubmit, onClose }: CreateCircleFormProps) => {
