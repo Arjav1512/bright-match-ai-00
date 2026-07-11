@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,8 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Users, Search, Loader2, RefreshCw } from "lucide-react";
+import { MapPin, Users, Search, Loader2 } from "lucide-react";
 import { CommunityGroupsSkeleton } from "@/components/skeletons";
+import {
+  StoredLocation,
+  distanceKm,
+  NEARBY_RADIUS_KM,
+} from "@/lib/userLocation";
 
 interface LocalGroup {
   id: string;
@@ -17,8 +22,6 @@ interface LocalGroup {
   member_count: number;
   is_member: boolean;
 }
-
-const STORAGE_KEY = "wroob_skillup_location";
 
 const CITY_TAGS: Record<string, string> = {
   mumbai: "Mumbai",
@@ -36,69 +39,23 @@ const extractCity = (label: string): string => {
   return "India";
 };
 
-interface StoredLocation {
-  lat: number;
-  lng: number;
-  capturedAt: number;
+interface LocalCommunityGroupsProps {
+  userLocation?: StoredLocation | null;
+  onRequestLocation?: () => void;
+  locating?: boolean;
 }
 
-function getStoredLocation(): StoredLocation | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (parsed?.lat && parsed?.lng) return parsed;
-  } catch {}
-  return null;
-}
-
-function storeLocation(lat: number, lng: number) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ lat, lng, capturedAt: Date.now() }));
-}
-
-const LocalCommunityGroups = () => {
+const LocalCommunityGroups = ({
+  userLocation,
+  onRequestLocation,
+  locating,
+}: LocalCommunityGroupsProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [groups, setGroups] = useState<LocalGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [joiningId, setJoiningId] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
-  const [location, setLocation] = useState<StoredLocation | null>(getStoredLocation);
-  const [locating, setLocating] = useState(false);
-  const [locationError, setLocationError] = useState("");
-
-  const requestLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      setLocationError("Geolocation is not supported by your browser.");
-      return;
-    }
-    setLocating(true);
-    setLocationError("");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude, capturedAt: Date.now() };
-        storeLocation(loc.lat, loc.lng);
-        setLocation(loc);
-        setLocating(false);
-      },
-      (err) => {
-        setLocating(false);
-        setLocationError(
-          err.code === 1
-            ? "Location access denied. Please enable it in your browser settings."
-            : "Could not get your location. Please try again."
-        );
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  }, []);
-
-  // Request location once if never captured
-  useEffect(() => {
-    if (!getStoredLocation()) {
-      requestLocation();
-    }
-  }, [requestLocation]);
 
   const fetchGroups = useCallback(async () => {
     if (!user) return;
@@ -177,7 +134,18 @@ const LocalCommunityGroups = () => {
     await fetchGroups();
   };
 
-  const filtered = groups.filter((g) => {
+  const nearbyGroups = useMemo(() => {
+    if (!userLocation) return [] as LocalGroup[];
+    return groups.filter((g) => {
+      if (g.centroid_lat == null || g.centroid_lng == null) return false;
+      return (
+        distanceKm(userLocation.lat, userLocation.lng, g.centroid_lat, g.centroid_lng) <=
+        NEARBY_RADIUS_KM
+      );
+    });
+  }, [groups, userLocation]);
+
+  const filtered = nearbyGroups.filter((g) => {
     if (!filter) return true;
     const q = filter.toLowerCase();
     return g.label.toLowerCase().includes(q) || extractCity(g.label).toLowerCase().includes(q);
@@ -192,85 +160,86 @@ const LocalCommunityGroups = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h2 className="font-display text-xl font-bold">Local Wroob Circle Groups</h2>
-          <Badge variant="secondary" className="text-xs">{groups.length} groups</Badge>
+          <Badge variant="secondary" className="text-xs">
+            {nearbyGroups.length} nearby
+          </Badge>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-1.5 text-xs text-muted-foreground"
-          onClick={requestLocation}
-          disabled={locating}
-        >
-          {locating ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
-          ) : (
-            <RefreshCw className="h-3 w-3" />
-          )}
-          {location ? "Change Location" : "Set Location"}
-        </Button>
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Join local student Wroob Circles to connect, collaborate, and grow together.
-        {location && (
-          <span className="ml-1 inline-flex items-center gap-1 text-emerald-600">
-            <MapPin className="h-3 w-3" /> Location set
-          </span>
-        )}
+        Only groups within {NEARBY_RADIUS_KM} km of your current location are shown.
       </p>
 
-      {locationError && (
-        <p className="text-sm text-destructive">{locationError}</p>
-      )}
-
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Filter by location or group name..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="pl-9"
-        />
-      </div>
-
-      {filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-6 text-center">No groups match your filter.</p>
+      {!userLocation ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <MapPin className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
+            <h3 className="font-medium mb-1">Enable location</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              We use your location to show groups within {NEARBY_RADIUS_KM} km.
+            </p>
+            {onRequestLocation && (
+              <Button onClick={onRequestLocation} disabled={locating} className="brand-gradient border-0 text-white">
+                {locating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <MapPin className="h-4 w-4 mr-2" />}
+                Enable location
+              </Button>
+            )}
+          </CardContent>
+        </Card>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {filtered.map((group) => (
-            <Card key={group.id} className="transition-all hover:shadow-md">
-              <CardContent className="pt-5 pb-4">
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-sm truncate">{group.label}</h3>
-                    <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {extractCity(group.label)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        {group.member_count} {group.member_count === 1 ? "member" : "members"}
-                      </span>
+        <>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Filter nearby groups by name..."
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          {filtered.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-6 text-center">
+              No groups within {NEARBY_RADIUS_KM} km match your filter.
+            </p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {filtered.map((group) => (
+                <Card key={group.id} className="transition-all hover:shadow-md">
+                  <CardContent className="pt-5 pb-4">
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-sm truncate">{group.label}</h3>
+                        <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {extractCity(group.label)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            {group.member_count} {group.member_count === 1 ? "member" : "members"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  variant={group.is_member ? "outline" : "default"}
-                  className="w-full text-xs"
-                  disabled={joiningId === group.id}
-                  onClick={() => handleJoinLeave(group)}
-                >
-                  {joiningId === group.id ? (
-                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                  ) : null}
-                  {group.is_member ? "Leave Group" : "Join Group"}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                    <Button
+                      size="sm"
+                      variant={group.is_member ? "outline" : "default"}
+                      className="w-full text-xs"
+                      disabled={joiningId === group.id}
+                      onClick={() => handleJoinLeave(group)}
+                    >
+                      {joiningId === group.id ? (
+                        <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                      ) : null}
+                      {group.is_member ? "Leave Group" : "Join Group"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
