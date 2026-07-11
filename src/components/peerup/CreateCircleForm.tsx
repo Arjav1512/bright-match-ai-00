@@ -83,6 +83,8 @@ const CreateCircleForm = ({ onSubmit, onClose, userLat, userLng }: CreateCircleF
         meeting_link: mode === "online" ? meetingLink.trim() : undefined,
         meeting_login_id: mode === "online" ? meetingLoginId.trim() : undefined,
         meeting_password: mode === "online" ? meetingPassword.trim() : undefined,
+        latitude: userLat ?? null,
+        longitude: userLng ?? null,
       });
       toast({ title: "Circle created!", description: "Your Wroob Circle is now live." });
       onClose();
