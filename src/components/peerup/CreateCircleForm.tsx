@@ -28,7 +28,7 @@ interface CreateCircleFormProps {
   userLng?: number | null;
 }
 
-const CreateCircleForm = ({ onSubmit, onClose }: CreateCircleFormProps) => {
+const CreateCircleForm = ({ onSubmit, onClose, userLat, userLng }: CreateCircleFormProps) => {
   const { toast } = useToast();
   const [mode, setMode] = useState<PeerUpMode | null>(null);
   const [spotLocation, setSpotLocation] = useState("");
