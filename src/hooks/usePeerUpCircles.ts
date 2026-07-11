@@ -23,6 +23,8 @@ export interface PeerUpCircle {
   created_at: string;
   expires_at: string;
   status: string;
+  latitude?: number | null;
+  longitude?: number | null;
   creator_name?: string;
   creator_avatar?: string | null;
   creator_university?: string | null;
