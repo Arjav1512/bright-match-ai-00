@@ -20,11 +20,15 @@ interface CreateCircleFormProps {
     meeting_link?: string;
     meeting_login_id?: string;
     meeting_password?: string;
+    latitude?: number | null;
+    longitude?: number | null;
   }) => Promise<void>;
   onClose: () => void;
+  userLat?: number | null;
+  userLng?: number | null;
 }
 
-const CreateCircleForm = ({ onSubmit, onClose }: CreateCircleFormProps) => {
+const CreateCircleForm = ({ onSubmit, onClose, userLat, userLng }: CreateCircleFormProps) => {
   const { toast } = useToast();
   const [mode, setMode] = useState<PeerUpMode | null>(null);
   const [spotLocation, setSpotLocation] = useState("");
@@ -79,6 +83,8 @@ const CreateCircleForm = ({ onSubmit, onClose }: CreateCircleFormProps) => {
         meeting_link: mode === "online" ? meetingLink.trim() : undefined,
         meeting_login_id: mode === "online" ? meetingLoginId.trim() : undefined,
         meeting_password: mode === "online" ? meetingPassword.trim() : undefined,
+        latitude: userLat ?? null,
+        longitude: userLng ?? null,
       });
       toast({ title: "Circle created!", description: "Your Wroob Circle is now live." });
       onClose();

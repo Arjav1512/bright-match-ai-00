@@ -672,6 +672,8 @@ export type Database = {
           expires_at: string
           fuel_type: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           mode: string
           spot_location: string | null
           spot_name: string
@@ -686,6 +688,8 @@ export type Database = {
           expires_at?: string
           fuel_type?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           mode?: string
           spot_location?: string | null
           spot_name: string
@@ -700,6 +704,8 @@ export type Database = {
           expires_at?: string
           fuel_type?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           mode?: string
           spot_location?: string | null
           spot_name?: string
