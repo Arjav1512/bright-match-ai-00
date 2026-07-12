@@ -61,6 +61,23 @@ export function usePeerUpCircles() {
   const [circles, setCircles] = useState<PeerUpCircle[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchStudentIdentity = async (userId: string) => {
+    const { data: studentProfile } = await (supabase as any)
+      .from("student_profiles_public")
+      .select("full_name, avatar_url, university, major, graduation_year")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    return {
+      name: studentProfile?.full_name || "Student",
+      avatar: studentProfile?.avatar_url ?? null,
+      university: studentProfile?.university ?? null,
+      info: studentProfile
+        ? `${studentProfile.major || "Student"} · Year ${studentProfile.graduation_year || ""}`
+        : "Student",
+    };
+  };
+
   const fetchCircles = useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -79,18 +96,9 @@ export function usePeerUpCircles() {
       // Enrich with creator info and counts
       const enriched = await Promise.all(
         circlesData.map(async (c: any) => {
-          // Get creator profile
-          const { data: profile } = await (supabase as any)
-            .from("profiles_public")
-            .select("full_name, avatar_url")
-            .eq("user_id", c.creator_id)
-            .maybeSingle();
-
-          const { data: studentProfile } = await (supabase as any)
-            .from("student_profiles_public")
-            .select("university")
-            .eq("user_id", c.creator_id)
-            .maybeSingle();
+          // Get creator identity from the public student listing, which joins
+          // registered profile names under backend-controlled permissions.
+          const creatorIdentity = await fetchStudentIdentity(c.creator_id);
 
           // Get request count (for creator)
           let request_count = 0;
@@ -135,9 +143,9 @@ export function usePeerUpCircles() {
 
           return {
             ...c,
-            creator_name: profile?.full_name || "Student",
-            creator_avatar: profile?.avatar_url,
-            creator_university: studentProfile?.university,
+            creator_name: creatorIdentity.name,
+            creator_avatar: creatorIdentity.avatar,
+            creator_university: creatorIdentity.university,
             request_count,
             participant_count: (pCount || 0) + 1, // +1 for creator
             my_request_status,
@@ -251,21 +259,12 @@ export function usePeerUpCircles() {
 
     const enriched = await Promise.all(
       data.map(async (r: any) => {
-        const { data: profile } = await (supabase as any)
-          .from("profiles_public")
-          .select("full_name, avatar_url")
-          .eq("user_id", r.requester_id)
-          .maybeSingle();
-        const { data: sp } = await (supabase as any)
-          .from("student_profiles_public")
-          .select("major, graduation_year")
-          .eq("user_id", r.requester_id)
-          .maybeSingle();
+        const requesterIdentity = await fetchStudentIdentity(r.requester_id);
         return {
           ...r,
-          requester_name: profile?.full_name || "Student",
-          requester_avatar: profile?.avatar_url,
-          requester_info: sp ? `${sp.major || "Student"} · Year ${sp.graduation_year || ""}` : "Student",
+          requester_name: requesterIdentity.name,
+          requester_avatar: requesterIdentity.avatar,
+          requester_info: requesterIdentity.info,
         } as CircleRequest;
       })
     );
@@ -315,25 +314,16 @@ export function usePeerUpCircles() {
     
     const participants: CircleParticipant[] = await Promise.all(
       allUserIds.map(async (uid) => {
-        const { data: profile } = await (supabase as any)
-          .from("profiles_public")
-          .select("full_name, avatar_url")
-          .eq("user_id", uid)
-          .maybeSingle();
-        const { data: sp } = await (supabase as any)
-          .from("student_profiles_public")
-          .select("major, graduation_year")
-          .eq("user_id", uid)
-          .maybeSingle();
+        const participantIdentity = await fetchStudentIdentity(uid);
         const participant = data.find((p: any) => p.user_id === uid);
         return {
           id: participant?.id || uid,
           circle_id: circleId,
           user_id: uid,
           joined_at: participant?.joined_at || new Date().toISOString(),
-          user_name: profile?.full_name || "Student",
-          user_avatar: profile?.avatar_url,
-          user_info: sp ? `${sp.major || "Student"} · Year ${sp.graduation_year || ""}` : "Student",
+          user_name: participantIdentity.name,
+          user_avatar: participantIdentity.avatar,
+          user_info: participantIdentity.info,
           is_creator: uid === creatorId,
         };
       })
