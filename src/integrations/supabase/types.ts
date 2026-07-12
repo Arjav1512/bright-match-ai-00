@@ -1252,12 +1252,15 @@ export type Database = {
       }
       student_profiles_public: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           company_feedback_score: number | null
           completed_internships: number | null
           created_at: string | null
           current_company: string | null
           current_job_title: string | null
           experience_years: string | null
+          full_name: string | null
           graduation_year: number | null
           id: string | null
           is_student: boolean | null
@@ -1414,12 +1417,15 @@ export type Database = {
       list_student_profiles_public: {
         Args: never
         Returns: {
+          avatar_url: string
+          bio: string
           company_feedback_score: number
           completed_internships: number
           created_at: string
           current_company: string
           current_job_title: string
           experience_years: string
+          full_name: string
           graduation_year: number
           id: string
           is_student: boolean

@@ -57,32 +57,6 @@ const StudentProfile = () => {
       let profile: any = null;
       let studentProfile: any = null;
 
-      // Full profile (includes bio) is only readable by owner, admin, or
-      // connected users under the tightened RLS. Fall back to the public view
-      // (name/avatar only) so LinkUp/browsing users still see the profile.
-      try {
-        const { data: p } = await supabase
-          .from("profiles")
-          .select("user_id, full_name, avatar_url, bio")
-          .eq("user_id", userId)
-          .maybeSingle();
-        profile = p ?? null;
-      } catch (err) {
-        console.error("[StudentProfile] profiles fetch failed", err);
-      }
-      if (!profile) {
-        try {
-          const { data: pub } = await (supabase as any)
-            .from("profiles_public")
-            .select("user_id, full_name, avatar_url, bio")
-            .eq("user_id", userId)
-            .maybeSingle();
-          profile = pub ?? null;
-        } catch (err) {
-          console.error("[StudentProfile] profiles_public fetch failed", err);
-        }
-      }
-
       // Always try the full table first — RLS allows owners, admins, and
       // employers-with-applications. Fall through to the safe public view
       // (which only exposes onboarding-completed rows) when RLS denies.
@@ -102,7 +76,7 @@ const StudentProfile = () => {
           const { data: pub } = await (supabase as any)
             .from("student_profiles_public")
             .select(
-              "user_id, university, major, graduation_year, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed, resume_url, reputation_score, completed_internships, skill_test_score, company_feedback_score, profile_strength_score"
+              "user_id, university, major, graduation_year, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed, resume_url, reputation_score, completed_internships, skill_test_score, company_feedback_score, profile_strength_score, full_name, avatar_url, bio"
             )
             .eq("user_id", userId)
             .maybeSingle();
@@ -110,6 +84,29 @@ const StudentProfile = () => {
         } catch (err) {
           console.error("[StudentProfile] public student view fetch failed", err);
         }
+      }
+
+      // Owner/admin/connected users may read the full profile table. Everyone
+      // else uses identity fields joined into student_profiles_public by the
+      // backend helper, so LinkUp never falls back to a generic "Student" label.
+      try {
+        const { data: p } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url, bio")
+          .eq("user_id", userId)
+          .maybeSingle();
+        profile = p ?? null;
+      } catch (err) {
+        console.error("[StudentProfile] profiles fetch failed", err);
+      }
+
+      if (!profile && studentProfile) {
+        profile = {
+          user_id: studentProfile.user_id,
+          full_name: studentProfile.full_name ?? null,
+          avatar_url: studentProfile.avatar_url ?? null,
+          bio: studentProfile.bio ?? null,
+        };
       }
 
       return { profile, studentProfile };

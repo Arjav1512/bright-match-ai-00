@@ -44,30 +44,16 @@ const StudentDiscovery = () => {
   const { data: students = [], isLoading } = useQuery({
     queryKey: ["student-discovery"],
     queryFn: async () => {
-      // SEC-2: use public-safe view (excludes phone/lat-lng/linkedin/resume)
+      // SEC-2: use public-safe view (excludes phone/lat-lng) and includes
+      // registered display identity so LinkUp does not depend on profiles RLS.
       const { data: studentProfiles } = await (supabase as any)
         .from("student_profiles_public")
-        .select("user_id, university, major, skills, location, graduation_year")
+        .select("user_id, university, major, skills, location, graduation_year, full_name, avatar_url")
         .eq("onboarding_status", "completed")
         .limit(100);
 
       if (!studentProfiles || studentProfiles.length === 0) return [];
-
-      const userIds = studentProfiles.map((s) => s.user_id);
-      const { data: profiles } = await (supabase as any)
-        .from("profiles_public")
-        .select("user_id, full_name, avatar_url")
-        .in("user_id", userIds);
-
-      const profileMap = new Map<string, { user_id: string; full_name: string | null; avatar_url: string | null }>(
-        ((profiles as any[]) ?? []).map((p: any) => [p.user_id, p])
-      );
-
-      return studentProfiles.map((s) => ({
-        ...s,
-        full_name: profileMap.get(s.user_id)?.full_name ?? null,
-        avatar_url: profileMap.get(s.user_id)?.avatar_url ?? null,
-      })) as StudentCard[];
+      return studentProfiles as StudentCard[];
     },
     enabled: !!user,
   });
