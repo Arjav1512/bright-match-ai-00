@@ -56,27 +56,27 @@ export interface CircleParticipant {
   is_creator?: boolean;
 }
 
+const fetchStudentIdentity = async (userId: string) => {
+  const { data: studentProfile } = await (supabase as any)
+    .from("student_profiles_public")
+    .select("full_name, avatar_url, university, major, graduation_year")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  return {
+    name: studentProfile?.full_name || "Student",
+    avatar: studentProfile?.avatar_url ?? null,
+    university: studentProfile?.university ?? null,
+    info: studentProfile
+      ? `${studentProfile.major || "Student"} · Year ${studentProfile.graduation_year || ""}`
+      : "Student",
+  };
+};
+
 export function usePeerUpCircles() {
   const { user } = useAuth();
   const [circles, setCircles] = useState<PeerUpCircle[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const fetchStudentIdentity = async (userId: string) => {
-    const { data: studentProfile } = await (supabase as any)
-      .from("student_profiles_public")
-      .select("full_name, avatar_url, university, major, graduation_year")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    return {
-      name: studentProfile?.full_name || "Student",
-      avatar: studentProfile?.avatar_url ?? null,
-      university: studentProfile?.university ?? null,
-      info: studentProfile
-        ? `${studentProfile.major || "Student"} · Year ${studentProfile.graduation_year || ""}`
-        : "Student",
-    };
-  };
 
   const fetchCircles = useCallback(async () => {
     if (!user) return;
