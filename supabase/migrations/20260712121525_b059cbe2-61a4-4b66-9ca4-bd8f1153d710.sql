@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.notify_on_peerup_request_created() FROM PUBLIC, anon, authenticated;
