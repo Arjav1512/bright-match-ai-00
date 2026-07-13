@@ -72,17 +72,14 @@ const StudentProfile = () => {
       }
 
       if (!studentProfile) {
+        // Peers hit RLS on student_profiles; use the SECURITY DEFINER RPC that
+        // returns non-sensitive fields (excludes phone_number, lat, lng).
         try {
           const { data: pub } = await (supabase as any)
-            .from("student_profiles_public")
-            .select(
-              "user_id, university, major, graduation_year, profile_role, preferred_course, skills, location, experience_years, current_job_title, current_company, linkedin_url, website_url, not_employed, resume_url, reputation_score, completed_internships, skill_test_score, company_feedback_score, profile_strength_score, full_name, avatar_url, bio"
-            )
-            .eq("user_id", userId)
-            .maybeSingle();
-          studentProfile = pub ?? null;
+            .rpc("get_student_profile_public", { _user_id: userId });
+          studentProfile = Array.isArray(pub) ? (pub[0] ?? null) : (pub ?? null);
         } catch (err) {
-          console.error("[StudentProfile] public student view fetch failed", err);
+          console.error("[StudentProfile] public student RPC fetch failed", err);
         }
       }
 
