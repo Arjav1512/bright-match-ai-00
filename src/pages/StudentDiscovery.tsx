@@ -44,16 +44,17 @@ const StudentDiscovery = () => {
   const { data: students = [], isLoading } = useQuery({
     queryKey: ["student-discovery"],
     queryFn: async () => {
-      // SEC-2: use public-safe view (excludes phone/lat-lng) and includes
-      // registered display identity so LinkUp does not depend on profiles RLS.
-      const { data: studentProfiles } = await (supabase as any)
-        .from("student_profiles_public")
-        .select("user_id, university, major, skills, location, graduation_year, full_name, avatar_url")
-        .eq("onboarding_status", "completed")
-        .limit(100);
-
-      if (!studentProfiles || studentProfiles.length === 0) return [];
-      return studentProfiles as StudentCard[];
+      // Use SECURITY DEFINER RPC so LinkUp discovery isn't blocked by RLS on
+      // student_profiles / profiles for peer viewers. The RPC excludes
+      // sensitive fields (phone, coordinates) by design.
+      const { data, error } = await (supabase as any).rpc(
+        "list_student_profiles_public"
+      );
+      if (error) {
+        console.warn("[LinkUp] list_student_profiles_public failed:", error.message);
+        return [];
+      }
+      return (data ?? []) as StudentCard[];
     },
     enabled: !!user,
   });
@@ -61,13 +62,16 @@ const StudentDiscovery = () => {
   const { data: companies = [], isLoading: isLoadingCompanies } = useQuery({
     queryKey: ["company-discovery"],
     queryFn: async () => {
-      // SEC-1: use public-safe view (excludes GSTIN/PAN/CIN/HR & manager phones+emails)
-      const { data: employerProfiles } = await (supabase as any)
-        .from("employer_profiles_public")
-        .select("user_id, company_name, industry, city, state, logo_url, company_size")
-        .limit(100);
-
-      return (employerProfiles ?? []) as CompanyCard[];
+      // Use SECURITY DEFINER RPC — the public view returns 0 rows for peer
+      // viewers because employer_profiles RLS restricts SELECT to owner/admin.
+      const { data, error } = await (supabase as any).rpc(
+        "list_employer_profiles_public"
+      );
+      if (error) {
+        console.warn("[LinkUp] list_employer_profiles_public failed:", error.message);
+        return [];
+      }
+      return (data ?? []) as CompanyCard[];
     },
     enabled: !!user && activeTab === "companies",
   });
