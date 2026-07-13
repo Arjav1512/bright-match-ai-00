@@ -1372,6 +1372,38 @@ export type Database = {
           following_count: number
         }[]
       }
+      get_student_profile_public: {
+        Args: { _user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          company_feedback_score: number
+          completed_internships: number
+          created_at: string
+          current_company: string
+          current_job_title: string
+          experience_years: string
+          full_name: string
+          graduation_year: number
+          id: string
+          is_student: boolean
+          linkedin_url: string
+          location: string
+          major: string
+          not_employed: boolean
+          onboarding_status: string
+          preferred_course: string
+          profile_role: string
+          profile_strength_score: number
+          reputation_score: number
+          resume_url: string
+          skill_test_score: number
+          skills: string[]
+          university: string
+          user_id: string
+          website_url: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
