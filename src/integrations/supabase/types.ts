@@ -396,6 +396,7 @@ export type Database = {
         Row: {
           centroid_lat: number | null
           centroid_lng: number | null
+          circle_id: string | null
           company_id: string | null
           created_at: string
           geohash: string | null
@@ -407,6 +408,7 @@ export type Database = {
         Insert: {
           centroid_lat?: number | null
           centroid_lng?: number | null
+          circle_id?: string | null
           company_id?: string | null
           created_at?: string
           geohash?: string | null
@@ -418,6 +420,7 @@ export type Database = {
         Update: {
           centroid_lat?: number | null
           centroid_lng?: number | null
+          circle_id?: string | null
           company_id?: string | null
           created_at?: string
           geohash?: string | null
@@ -426,7 +429,15 @@ export type Database = {
           label?: string
           type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "groups_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "peerup_circles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       internship_feedback: {
         Row: {
