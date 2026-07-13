@@ -47,28 +47,29 @@ const EmployerProfile = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["public-employer-profile", userId, role, user?.id],
     queryFn: async () => {
-      if (!userId) throw new Error("No user ID");
+      if (!userId) return { employer: null, internships: [] };
 
-      // Always try the full table first. RLS allows:
-      //  - the owner ("Employer can read own profile")
-      //  - admins ("Admins can read employer profiles")
-      //  - any authenticated user ("Discovery: read public columns of employer profiles")
-      // Fall back to the public view if RLS denies for any reason.
-      let { data: employer } = await supabase
+      // Owner / admin can hit the base table directly (full RLS-permitted read).
+      let employer: any = null;
+      const { data: baseRow } = await supabase
         .from("employer_profiles")
         .select("*")
         .eq("user_id", userId)
         .maybeSingle();
+      employer = baseRow;
 
+      // Peer viewers (students / other employers) are blocked by RLS on the
+      // base table and by missing grants on the public view — fall through to
+      // the SECURITY DEFINER RPC which returns the safe public columns.
       if (!employer) {
-        const { data: pub } = await (supabase as any)
-          .from("employer_profiles_public")
-          .select(
-            "user_id, company_name, logo_url, is_verified, industry, city, state, company_description, company_size, year_established, funding_stage, website, linkedin_profile"
-          )
-          .eq("user_id", userId)
-          .maybeSingle();
-        employer = pub;
+        const { data: publicRows, error: rpcErr } = await (supabase as any).rpc(
+          "list_employer_profiles_public"
+        );
+        if (rpcErr) {
+          console.warn("[EmployerProfile] public RPC failed:", rpcErr.message);
+        } else if (Array.isArray(publicRows)) {
+          employer = publicRows.find((r: any) => r.user_id === userId) ?? null;
+        }
       }
 
       const { data: internships } = await supabase
