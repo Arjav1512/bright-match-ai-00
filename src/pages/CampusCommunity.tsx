@@ -57,29 +57,30 @@ const CampusCommunity = () => {
     }
   }, [askLocation]);
 
-  const nearbyCircles = useMemo(() => {
-    if (!location) return [] as PeerUpCircle[];
+  // Online circles are visible to everyone regardless of location.
+  // Offline circles remain gated by the 5 km radius.
+  const visibleByLocation = useMemo(() => {
     return circles.filter((c) => {
+      if (c.mode === "online") return true;
+      if (!location) return false;
       if (c.latitude == null || c.longitude == null) return false;
       return distanceKm(location.lat, location.lng, c.latitude, c.longitude) <= NEARBY_RADIUS_KM;
     });
   }, [circles, location]);
 
   const visibleCircles = useMemo(() => {
-    const base = location ? nearbyCircles : [];
     const q = search.trim().toLowerCase();
     const filtered = q
-      ? base.filter((c) =>
+      ? visibleByLocation.filter((c) =>
           [c.spot_name, c.topic, c.spot_location, c.additional_info, c.fuel_type, c.creator_name]
             .filter(Boolean)
             .some((v) => (v as string).toLowerCase().includes(q))
         )
-      : base;
-    // Most-recently-updated first
+      : visibleByLocation;
     return [...filtered].sort(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-  }, [nearbyCircles, search, location]);
+  }, [visibleByLocation, search]);
 
   return (
     <div className="min-h-screen bg-background">
