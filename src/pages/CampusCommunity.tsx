@@ -100,12 +100,13 @@ const CampusCommunity = () => {
               <MapPin className={`h-4 w-4 ${location ? "text-emerald-600" : "text-muted-foreground"}`} />
               {location ? (
                 <span className="text-muted-foreground">
-                  Showing Wroob Circles within{" "}
-                  <span className="font-medium text-foreground">{NEARBY_RADIUS_KM} km</span> of your location.
+                  Showing <span className="font-medium text-foreground">Online</span> Wroob Circles from everywhere,
+                  and <span className="font-medium text-foreground">Offline</span> ones within{" "}
+                  <span className="font-medium text-foreground">{NEARBY_RADIUS_KM} km</span> of you.
                 </span>
               ) : (
                 <span className="text-muted-foreground">
-                  Enable location to see Wroob Circles and groups near you.
+                  Online Wroob Circles are always visible. Enable location to also see offline circles within {NEARBY_RADIUS_KM} km.
                 </span>
               )}
             </div>
