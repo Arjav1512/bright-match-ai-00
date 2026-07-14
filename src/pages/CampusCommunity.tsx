@@ -57,29 +57,30 @@ const CampusCommunity = () => {
     }
   }, [askLocation]);
 
-  const nearbyCircles = useMemo(() => {
-    if (!location) return [] as PeerUpCircle[];
+  // Online circles are visible to everyone regardless of location.
+  // Offline circles remain gated by the 5 km radius.
+  const visibleByLocation = useMemo(() => {
     return circles.filter((c) => {
+      if (c.mode === "online") return true;
+      if (!location) return false;
       if (c.latitude == null || c.longitude == null) return false;
       return distanceKm(location.lat, location.lng, c.latitude, c.longitude) <= NEARBY_RADIUS_KM;
     });
   }, [circles, location]);
 
   const visibleCircles = useMemo(() => {
-    const base = location ? nearbyCircles : [];
     const q = search.trim().toLowerCase();
     const filtered = q
-      ? base.filter((c) =>
+      ? visibleByLocation.filter((c) =>
           [c.spot_name, c.topic, c.spot_location, c.additional_info, c.fuel_type, c.creator_name]
             .filter(Boolean)
             .some((v) => (v as string).toLowerCase().includes(q))
         )
-      : base;
-    // Most-recently-updated first
+      : visibleByLocation;
     return [...filtered].sort(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-  }, [nearbyCircles, search, location]);
+  }, [visibleByLocation, search]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -99,12 +100,13 @@ const CampusCommunity = () => {
               <MapPin className={`h-4 w-4 ${location ? "text-emerald-600" : "text-muted-foreground"}`} />
               {location ? (
                 <span className="text-muted-foreground">
-                  Showing Wroob Circles within{" "}
-                  <span className="font-medium text-foreground">{NEARBY_RADIUS_KM} km</span> of your location.
+                  Showing <span className="font-medium text-foreground">Online</span> Wroob Circles from everywhere,
+                  and <span className="font-medium text-foreground">Offline</span> ones within{" "}
+                  <span className="font-medium text-foreground">{NEARBY_RADIUS_KM} km</span> of you.
                 </span>
               ) : (
                 <span className="text-muted-foreground">
-                  Enable location to see Wroob Circles and groups near you.
+                  Online Wroob Circles are always visible. Enable location to also see offline circles within {NEARBY_RADIUS_KM} km.
                 </span>
               )}
             </div>
@@ -155,28 +157,21 @@ const CampusCommunity = () => {
 
             {loading ? (
               <CircleBubblesSkeleton />
-            ) : !location ? (
-              <Card>
-                <CardContent className="py-16 text-center">
-                  <MapPin className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
-                  <h3 className="font-medium mb-1">Location needed</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    We only show Wroob Circles within {NEARBY_RADIUS_KM} km of you.
-                  </p>
-                  <Button onClick={askLocation} disabled={locating} className="brand-gradient border-0 text-white">
-                    Enable location
-                  </Button>
-                </CardContent>
-              </Card>
             ) : visibleCircles.length === 0 ? (
               <Card>
                 <CardContent className="py-16 text-center">
                   <Sparkles className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
                   <h3 className="font-medium mb-1">
-                    {search ? "No matching circles nearby" : "No circles within 5 km"}
+                    {search
+                      ? "No matching circles"
+                      : location
+                      ? "No circles nearby or online yet"
+                      : "No online circles yet"}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Be the first to create a Wroob Circle in your area!
+                    {!location
+                      ? `Enable location to also see offline circles within ${NEARBY_RADIUS_KM} km, or create one yourself.`
+                      : "Be the first to create a Wroob Circle!"}
                   </p>
                   <Button onClick={() => setShowCreateForm(true)} className="brand-gradient border-0 text-white">
                     Create Wroob Circle
