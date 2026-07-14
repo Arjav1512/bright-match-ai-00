@@ -157,28 +157,21 @@ const CampusCommunity = () => {
 
             {loading ? (
               <CircleBubblesSkeleton />
-            ) : !location ? (
-              <Card>
-                <CardContent className="py-16 text-center">
-                  <MapPin className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
-                  <h3 className="font-medium mb-1">Location needed</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    We only show Wroob Circles within {NEARBY_RADIUS_KM} km of you.
-                  </p>
-                  <Button onClick={askLocation} disabled={locating} className="brand-gradient border-0 text-white">
-                    Enable location
-                  </Button>
-                </CardContent>
-              </Card>
             ) : visibleCircles.length === 0 ? (
               <Card>
                 <CardContent className="py-16 text-center">
                   <Sparkles className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
                   <h3 className="font-medium mb-1">
-                    {search ? "No matching circles nearby" : "No circles within 5 km"}
+                    {search
+                      ? "No matching circles"
+                      : location
+                      ? "No circles nearby or online yet"
+                      : "No online circles yet"}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Be the first to create a Wroob Circle in your area!
+                    {!location
+                      ? `Enable location to also see offline circles within ${NEARBY_RADIUS_KM} km, or create one yourself.`
+                      : "Be the first to create a Wroob Circle!"}
                   </p>
                   <Button onClick={() => setShowCreateForm(true)} className="brand-gradient border-0 text-white">
                     Create Wroob Circle
