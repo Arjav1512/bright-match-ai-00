@@ -368,6 +368,7 @@ const EmployerProfile = () => {
               </Card>
             )}
           </div>
+          </EmployerProfileBoundary>
         )}
       </div>
     </div>
