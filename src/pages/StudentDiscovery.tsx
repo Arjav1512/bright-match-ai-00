@@ -186,12 +186,25 @@ const StudentDiscovery = () => {
                                 <ProfileLink userId={student.user_id} type="student" className="font-semibold text-foreground truncate block">
                                   {student.full_name || "Student"}
                                 </ProfileLink>
-                                {student.university && (
+                                {(student.major || student.university) && (
                                   <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
                                     <GraduationCap className="h-3.5 w-3.5 shrink-0" />
                                     <span className="truncate">
-                                      {student.major ? `${student.major} · ` : ""}
-                                      {student.university}
+                                      {[student.major || student.preferred_course, student.university].filter(Boolean).join(" · ")}
+                                    </span>
+                                  </p>
+                                )}
+                                {student.graduation_year && (
+                                  <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
+                                    <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="truncate">Class of {student.graduation_year}</span>
+                                  </p>
+                                )}
+                                {(student.current_job_title || student.current_company) && (
+                                  <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
+                                    <Briefcase className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="truncate">
+                                      {[student.current_job_title, student.current_company].filter(Boolean).join(" @ ")}
                                     </span>
                                   </p>
                                 )}
@@ -204,20 +217,44 @@ const StudentDiscovery = () => {
                               </div>
                               <FollowButton targetUserId={student.user_id} targetRole="student" />
                             </div>
+                            {student.bio && (
+                              <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{student.bio}</p>
+                            )}
                             {student.skills && student.skills.length > 0 && (
                               <div className="flex flex-wrap gap-1.5 mt-3">
-                                {student.skills.slice(0, 4).map((skill) => (
+                                {student.skills.slice(0, 6).map((skill) => (
                                   <Badge key={skill} variant="secondary" className="text-xs">
                                     {skill}
                                   </Badge>
                                 ))}
-                                {student.skills.length > 4 && (
+                                {student.skills.length > 6 && (
                                   <Badge variant="outline" className="text-xs">
-                                    +{student.skills.length - 4}
+                                    +{student.skills.length - 6}
                                   </Badge>
                                 )}
                               </div>
                             )}
+                            <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
+                              {typeof student.reputation_score === "number" && student.reputation_score > 0 && (
+                                <span className="flex items-center gap-1">
+                                  <Star className="h-3.5 w-3.5 text-amber-500" />
+                                  {Math.round(student.reputation_score)}
+                                </span>
+                              )}
+                              {student.experience_years && (
+                                <span className="truncate">{student.experience_years} exp</span>
+                              )}
+                              {student.linkedin_url && (
+                                <a href={student.linkedin_url} target="_blank" rel="noopener noreferrer" className="hover:text-primary" aria-label="LinkedIn">
+                                  <Linkedin className="h-3.5 w-3.5" />
+                                </a>
+                              )}
+                              {student.website_url && (
+                                <a href={student.website_url} target="_blank" rel="noopener noreferrer" className="hover:text-primary" aria-label="Website">
+                                  <Globe className="h-3.5 w-3.5" />
+                                </a>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </CardContent>
@@ -227,6 +264,7 @@ const StudentDiscovery = () => {
               </div>
             )}
           </TabsContent>
+
 
           <TabsContent value="companies">
             {isLoadingCompanies ? (
