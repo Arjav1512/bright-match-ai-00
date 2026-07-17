@@ -76,38 +76,52 @@ const EmployerProfile = () => {
     queryFn: async () => {
       if (!userId) return { employer: null, internships: [] };
 
-      // Owner / admin can hit the base table directly (full RLS-permitted read).
       let employer: any = null;
-      const { data: baseRow } = await supabase
-        .from("employer_profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
-      employer = baseRow;
 
-      // Peer viewers (students / other employers) are blocked by RLS on the
-      // base table and by missing grants on the public view — fall through to
-      // the SECURITY DEFINER RPC which returns the safe public columns.
+      // Owner / admin can hit the base table directly. Wrap in try so a
+      // permission error for peer viewers never rejects the whole query.
+      try {
+        const { data: baseRow } = await supabase
+          .from("employer_profiles")
+          .select("*")
+          .eq("user_id", userId)
+          .maybeSingle();
+        employer = baseRow;
+      } catch (e) {
+        console.warn("[EmployerProfile] base-table read blocked:", (e as any)?.message);
+      }
+
+      // Peer viewers fall through to the SECURITY DEFINER RPC.
       if (!employer) {
-        const { data: publicRows, error: rpcErr } = await (supabase as any).rpc(
-          "list_employer_profiles_public"
-        );
-        if (rpcErr) {
-          console.warn("[EmployerProfile] public RPC failed:", rpcErr.message);
-        } else if (Array.isArray(publicRows)) {
-          employer = publicRows.find((r: any) => r.user_id === userId) ?? null;
+        try {
+          const { data: publicRows, error: rpcErr } = await (supabase as any).rpc(
+            "list_employer_profiles_public"
+          );
+          if (rpcErr) {
+            console.warn("[EmployerProfile] public RPC failed:", rpcErr.message);
+          } else if (Array.isArray(publicRows)) {
+            employer = publicRows.find((r: any) => r?.user_id === userId) ?? null;
+          }
+        } catch (e) {
+          console.warn("[EmployerProfile] public RPC threw:", (e as any)?.message);
         }
       }
 
-      const { data: internships } = await supabase
-        .from("internships")
-        .select("id, title, type, location, status, created_at")
-        .eq("employer_id", userId)
-        .eq("status", "published")
-        .order("created_at", { ascending: false })
-        .limit(10);
+      let internships: any[] = [];
+      try {
+        const { data } = await supabase
+          .from("internships")
+          .select("id, title, type, location, status, created_at")
+          .eq("employer_id", userId)
+          .eq("status", "published")
+          .order("created_at", { ascending: false })
+          .limit(10);
+        internships = data || [];
+      } catch (e) {
+        console.warn("[EmployerProfile] internships read failed:", (e as any)?.message);
+      }
 
-      return { employer, internships: internships || [] };
+      return { employer, internships };
     },
     enabled: !!userId && !authLoading,
     staleTime: 0,
