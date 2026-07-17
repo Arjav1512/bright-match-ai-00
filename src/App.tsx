@@ -13,59 +13,77 @@ import { lazy, Suspense } from "react";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 
+// Retry a dynamic import once, then reload the page so a stale index.html
+// referencing an old chunk hash (after a redeploy) recovers automatically.
+function lazyWithReload<T extends { default: React.ComponentType<any> }>(
+  factory: () => Promise<T>
+) {
+  return lazy(() =>
+    factory().catch((err) => {
+      if (!sessionStorage.getItem("chunk-reload")) {
+        sessionStorage.setItem("chunk-reload", "1");
+        window.location.reload();
+        return new Promise<T>(() => {});
+      }
+      throw err;
+    })
+  );
+}
+
 // Auth-overlay components — only needed once a user is signed in. Lazy-loading
 // them shaves a meaningful chunk off first paint for landing/auth visitors.
-const SessionTimeoutWarning = lazy(() =>
+const SessionTimeoutWarning = lazyWithReload(() =>
   import("@/components/SessionTimeoutWarning").then((m) => ({ default: m.SessionTimeoutWarning }))
 );
-const LoginGreeting = lazy(() => import("@/components/LoginGreeting"));
-const ChatPopup = lazy(() => import("@/components/chat/ChatPopup"));
+const LoginGreeting = lazyWithReload(() => import("@/components/LoginGreeting"));
+const ChatPopup = lazyWithReload(() => import("@/components/chat/ChatPopup"));
+
 
 // Lazy loaded routes
-const Login = lazy(() => import("./pages/Login"));
-const Signup = lazy(() => import("./pages/Signup"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const SelectRole = lazy(() => import("./pages/SelectRole"));
-const Profile = lazy(() => import("./pages/Profile"));
-const Internships = lazy(() => import("./pages/Internships"));
-const InternshipDetail = lazy(() => import("./pages/InternshipDetail"));
-const MyApplications = lazy(() => import("./pages/MyApplications"));
-const PostInternship = lazy(() => import("./pages/PostInternship"));
-const MyInternships = lazy(() => import("./pages/MyInternships"));
-const ApplicantReview = lazy(() => import("./pages/ApplicantReview"));
-const Notifications = lazy(() => import("./pages/Notifications"));
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
-const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
-const AdminInternships = lazy(() => import("./pages/admin/AdminInternships"));
-const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
-const AdminVerification = lazy(() => import("./pages/admin/AdminVerification"));
-const About = lazy(() => import("./pages/About"));
-const Blog = lazy(() => import("./pages/Blog"));
-const BlogPost = lazy(() => import("./pages/BlogPost"));
-const Help = lazy(() => import("./pages/Help"));
-const EditInternship = lazy(() => import("./pages/EditInternship"));
-const Terms = lazy(() => import("./pages/Terms"));
-const Privacy = lazy(() => import("./pages/Privacy"));
-const Groups = lazy(() => import("./pages/Groups"));
-const StudentDiscovery = lazy(() => import("./pages/StudentDiscovery"));
-const SkillTests = lazy(() => import("./pages/SkillTests"));
-const CampusCommunity = lazy(() => import("./pages/CampusCommunity"));
+const Login = lazyWithReload(() => import("./pages/Login"));
+const Signup = lazyWithReload(() => import("./pages/Signup"));
+const ForgotPassword = lazyWithReload(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazyWithReload(() => import("./pages/ResetPassword"));
+const Dashboard = lazyWithReload(() => import("./pages/Dashboard"));
+const SelectRole = lazyWithReload(() => import("./pages/SelectRole"));
+const Profile = lazyWithReload(() => import("./pages/Profile"));
+const Internships = lazyWithReload(() => import("./pages/Internships"));
+const InternshipDetail = lazyWithReload(() => import("./pages/InternshipDetail"));
+const MyApplications = lazyWithReload(() => import("./pages/MyApplications"));
+const PostInternship = lazyWithReload(() => import("./pages/PostInternship"));
+const MyInternships = lazyWithReload(() => import("./pages/MyInternships"));
+const ApplicantReview = lazyWithReload(() => import("./pages/ApplicantReview"));
+const Notifications = lazyWithReload(() => import("./pages/Notifications"));
+const AdminDashboard = lazyWithReload(() => import("./pages/admin/AdminDashboard"));
+const AdminUsers = lazyWithReload(() => import("./pages/admin/AdminUsers"));
+const AdminInternships = lazyWithReload(() => import("./pages/admin/AdminInternships"));
+const AdminSettings = lazyWithReload(() => import("./pages/admin/AdminSettings"));
+const AdminVerification = lazyWithReload(() => import("./pages/admin/AdminVerification"));
+const About = lazyWithReload(() => import("./pages/About"));
+const Blog = lazyWithReload(() => import("./pages/Blog"));
+const BlogPost = lazyWithReload(() => import("./pages/BlogPost"));
+const Help = lazyWithReload(() => import("./pages/Help"));
+const EditInternship = lazyWithReload(() => import("./pages/EditInternship"));
+const Terms = lazyWithReload(() => import("./pages/Terms"));
+const Privacy = lazyWithReload(() => import("./pages/Privacy"));
+const Groups = lazyWithReload(() => import("./pages/Groups"));
+const StudentDiscovery = lazyWithReload(() => import("./pages/StudentDiscovery"));
+const SkillTests = lazyWithReload(() => import("./pages/SkillTests"));
+const CampusCommunity = lazyWithReload(() => import("./pages/CampusCommunity"));
 
-const StudentProfile = lazy(() => import("./pages/StudentProfile"));
-const EmployerProfile = lazy(() => import("./pages/EmployerProfile"));
-const OnboardingProfile = lazy(() => import("./pages/onboarding/OnboardingProfile"));
-const OnboardingCulture = lazy(() => import("./pages/onboarding/OnboardingCulture"));
-const OnboardingResume = lazy(() => import("./pages/onboarding/OnboardingResume"));
-const OnboardingDone = lazy(() => import("./pages/onboarding/OnboardingDone"));
-const EmployerOnboardingCompany = lazy(() => import("./pages/employer-onboarding/EmployerOnboardingCompany"));
-const EmployerOnboardingLocation = lazy(() => import("./pages/employer-onboarding/EmployerOnboardingLocation"));
-const EmployerOnboardingManager = lazy(() => import("./pages/employer-onboarding/EmployerOnboardingManager"));
-const EmployerOnboardingLegal = lazy(() => import("./pages/employer-onboarding/EmployerOnboardingLegal"));
-const EmployerOnboardingVerify = lazy(() => import("./pages/employer-onboarding/EmployerOnboardingVerify"));
-const EmployerOnboardingTeam = lazy(() => import("./pages/employer-onboarding/EmployerOnboardingTeam"));
-const EmployerOnboardingDone = lazy(() => import("./pages/employer-onboarding/EmployerOnboardingDone"));
+const StudentProfile = lazyWithReload(() => import("./pages/StudentProfile"));
+const EmployerProfile = lazyWithReload(() => import("./pages/EmployerProfile"));
+const OnboardingProfile = lazyWithReload(() => import("./pages/onboarding/OnboardingProfile"));
+const OnboardingCulture = lazyWithReload(() => import("./pages/onboarding/OnboardingCulture"));
+const OnboardingResume = lazyWithReload(() => import("./pages/onboarding/OnboardingResume"));
+const OnboardingDone = lazyWithReload(() => import("./pages/onboarding/OnboardingDone"));
+const EmployerOnboardingCompany = lazyWithReload(() => import("./pages/employer-onboarding/EmployerOnboardingCompany"));
+const EmployerOnboardingLocation = lazyWithReload(() => import("./pages/employer-onboarding/EmployerOnboardingLocation"));
+const EmployerOnboardingManager = lazyWithReload(() => import("./pages/employer-onboarding/EmployerOnboardingManager"));
+const EmployerOnboardingLegal = lazyWithReload(() => import("./pages/employer-onboarding/EmployerOnboardingLegal"));
+const EmployerOnboardingVerify = lazyWithReload(() => import("./pages/employer-onboarding/EmployerOnboardingVerify"));
+const EmployerOnboardingTeam = lazyWithReload(() => import("./pages/employer-onboarding/EmployerOnboardingTeam"));
+const EmployerOnboardingDone = lazyWithReload(() => import("./pages/employer-onboarding/EmployerOnboardingDone"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
