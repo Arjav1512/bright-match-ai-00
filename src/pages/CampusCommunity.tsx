@@ -23,11 +23,12 @@ import {
 
 const CampusCommunity = () => {
   const { user } = useAuth();
+  const [location, setLocation] = useState<StoredLocation | null>(getStoredLocation);
   const {
     circles, loading, createCircle, requestToJoin,
     fetchRequests, handleRequest, approveAll,
     fetchParticipants, deleteCircle, refresh, fetchCredentials,
-  } = usePeerUpCircles();
+  } = usePeerUpCircles(location ? { lat: location.lat, lng: location.lng } : null);
 
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedCircle, setSelectedCircle] = useState<PeerUpCircle | null>(null);
