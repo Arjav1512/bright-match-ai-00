@@ -169,7 +169,7 @@ export function usePeerUpCircles(userLocation?: { lat: number; lng: number } | n
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, userLocation?.lat, userLocation?.lng]);
 
   useEffect(() => {
     fetchCircles();
