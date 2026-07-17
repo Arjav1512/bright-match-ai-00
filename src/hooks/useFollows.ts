@@ -101,8 +101,12 @@ export function useFollows(targetUserId: string, opts?: { targetRole?: FollowTar
   // so the UI updates immediately without manual refresh.
   useEffect(() => {
     if (!user || !targetUserId || user.id === targetUserId) return;
+    const channelId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const channel = supabase
-      .channel(`follows:${user.id}:${targetUserId}`)
+      .channel(`follows:${user.id}:${targetUserId}:${channelId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "follows" },
