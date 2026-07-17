@@ -13,13 +13,31 @@ import { lazy, Suspense } from "react";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 
+// Retry a dynamic import once, then reload the page so a stale index.html
+// referencing an old chunk hash (after a redeploy) recovers automatically.
+function lazyWithReload<T extends { default: React.ComponentType<any> }>(
+  factory: () => Promise<T>
+) {
+  return lazy(() =>
+    factory().catch((err) => {
+      if (!sessionStorage.getItem("chunk-reload")) {
+        sessionStorage.setItem("chunk-reload", "1");
+        window.location.reload();
+        return new Promise<T>(() => {});
+      }
+      throw err;
+    })
+  );
+}
+
 // Auth-overlay components — only needed once a user is signed in. Lazy-loading
 // them shaves a meaningful chunk off first paint for landing/auth visitors.
-const SessionTimeoutWarning = lazy(() =>
+const SessionTimeoutWarning = lazyWithReload(() =>
   import("@/components/SessionTimeoutWarning").then((m) => ({ default: m.SessionTimeoutWarning }))
 );
-const LoginGreeting = lazy(() => import("@/components/LoginGreeting"));
-const ChatPopup = lazy(() => import("@/components/chat/ChatPopup"));
+const LoginGreeting = lazyWithReload(() => import("@/components/LoginGreeting"));
+const ChatPopup = lazyWithReload(() => import("@/components/chat/ChatPopup"));
+
 
 // Lazy loaded routes
 const Login = lazy(() => import("./pages/Login"));
