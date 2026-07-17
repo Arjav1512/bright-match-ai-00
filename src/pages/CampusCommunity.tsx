@@ -34,7 +34,6 @@ const CampusCommunity = () => {
   const [selectedCircle, setSelectedCircle] = useState<PeerUpCircle | null>(null);
   const [search, setSearch] = useState("");
 
-  const [location, setLocation] = useState<StoredLocation | null>(getStoredLocation);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState("");
 
