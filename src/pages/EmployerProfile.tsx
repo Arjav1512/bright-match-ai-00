@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Component, ErrorInfo, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,32 @@ import AdminField from "@/components/admin/AdminField";
 import { ProfileSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/contexts/AuthContext";
 import { safeExternalUrl } from "@/lib/utils";
+
+/**
+ * Page-local error boundary. Any render exception inside the profile falls
+ * back to a friendly "couldn't display" panel instead of bubbling to the
+ * top-level ErrorBoundary (which shows the generic "Something went wrong"
+ * screen students were hitting on LinkUp → company profile clicks).
+ */
+class EmployerProfileBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("[EmployerProfile] render error:", error, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Card>
+          <CardContent className="py-12 text-center text-muted-foreground">
+            We couldn't display this company profile right now. Please try again.
+          </CardContent>
+        </Card>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const hasDisplayValue = (value: unknown) => {
   if (value === null || value === undefined) return false;
