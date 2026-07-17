@@ -73,7 +73,7 @@ const fetchStudentIdentity = async (userId: string) => {
   };
 };
 
-export function usePeerUpCircles() {
+export function usePeerUpCircles(userLocation?: { lat: number; lng: number } | null) {
   const { user } = useAuth();
   const [circles, setCircles] = useState<PeerUpCircle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,16 +82,25 @@ export function usePeerUpCircles() {
     if (!user) return;
     setLoading(true);
     try {
-      // Fetch active circles
-      const { data: circlesData, error } = await supabase
-        .from("peerup_circles")
-        .select("*")
-        .eq("status", "active")
-        .gt("expires_at", new Date().toISOString())
-        .order("created_at", { ascending: false });
+      // Discovery goes through a SECURITY DEFINER RPC so location details
+      // for offline circles are only returned to nearby students (plus the
+      // creator, participants, and requesters). Online circles are always
+      // returned regardless of the caller's location.
+      const { data: circlesData, error } = await (supabase as any).rpc(
+        "list_visible_peerup_circles",
+        {
+          _lat: userLocation?.lat ?? null,
+          _lng: userLocation?.lng ?? null,
+          _radius_km: 5,
+        }
+      );
 
       if (error) throw error;
       if (!circlesData) { setCircles([]); return; }
+      // Sort newest first — RPC returns unsorted rows.
+      circlesData.sort((a: any, b: any) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
 
       // Enrich with creator info and counts
       const enriched = await Promise.all(
@@ -160,7 +169,7 @@ export function usePeerUpCircles() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, userLocation?.lat, userLocation?.lng]);
 
   useEffect(() => {
     fetchCircles();

@@ -1489,6 +1489,31 @@ export type Database = {
           website_url: string
         }[]
       }
+      list_visible_peerup_circles: {
+        Args: { _lat: number; _lng: number; _radius_km?: number }
+        Returns: {
+          additional_info: string | null
+          created_at: string
+          creator_id: string
+          drop_in_time: string
+          expires_at: string
+          fuel_type: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          mode: string
+          spot_location: string | null
+          spot_name: string
+          status: string
+          topic: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "peerup_circles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       set_initial_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: undefined
