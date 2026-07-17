@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, GraduationCap, MapPin, Users, Building2 } from "lucide-react";
+import { Search, GraduationCap, MapPin, Users, Building2, Briefcase, Linkedin, Globe, Star, CalendarDays } from "lucide-react";
 import FollowButton from "@/components/FollowButton";
 import { StudentGridSkeleton } from "@/components/skeletons";
 import { motion } from "framer-motion";
