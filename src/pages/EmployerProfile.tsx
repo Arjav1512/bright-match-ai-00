@@ -198,6 +198,7 @@ const EmployerProfile = () => {
             </CardContent>
           </Card>
         ) : (
+          <EmployerProfileBoundary>
           <div className="space-y-6">
             {/* Header */}
             <Card>
