@@ -24,6 +24,15 @@ interface StudentCard {
   graduation_year: number | null;
   full_name: string | null;
   avatar_url: string | null;
+  bio: string | null;
+  preferred_course: string | null;
+  experience_years: string | null;
+  is_student: boolean | null;
+  current_job_title: string | null;
+  current_company: string | null;
+  linkedin_url: string | null;
+  website_url: string | null;
+  reputation_score: number | null;
 }
 
 interface CompanyCard {
