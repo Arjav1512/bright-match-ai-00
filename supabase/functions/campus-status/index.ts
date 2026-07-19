@@ -236,7 +236,7 @@ Deno.serve(async (req) => {
 
         const enriched = (replies || []).map((r: any) => ({
           ...r,
-          sender_name: profileMap.get(r.sender_id)?.full_name || "Student",
+          sender_name: profileMap.get(r.sender_id)?.full_name || "Unknown User",
           sender_avatar: profileMap.get(r.sender_id)?.avatar_url || null,
         }));
 
