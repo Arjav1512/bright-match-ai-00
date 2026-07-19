@@ -242,7 +242,7 @@ const ApplicantReview = () => {
                                   new CustomEvent("open-dm", {
                                     detail: {
                                       partnerId: app.student_id,
-                                      partnerName: app.profiles?.full_name || "Applicant",
+                                      partnerName: app.profiles?.full_name || "Unknown User",
                                       partnerAvatar: app.profiles?.avatar_url ?? null,
                                       partnerRole: "student",
                                     },
