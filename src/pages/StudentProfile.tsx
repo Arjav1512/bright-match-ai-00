@@ -217,7 +217,7 @@ const StudentProfile = () => {
                             <MessageActionButton
                               targetUserId={userId!}
                               viewerRole={role}
-                              partnerName={profile.full_name || "Student"}
+                              partnerName={profile.full_name || "Unknown User"}
                               partnerAvatar={profile.avatar_url}
                             />
                           )}
