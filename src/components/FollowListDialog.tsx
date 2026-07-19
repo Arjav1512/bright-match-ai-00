@@ -139,7 +139,7 @@ const FollowListDialog = ({ userId, followerCount, followingCount, targetRole }:
                           className="text-sm font-medium hover:text-primary hover:underline transition-colors text-left"
                           onClick={() => { setOpen(false); navigate(p.role === "employer" ? `/employer/${p.user_id}` : `/students?highlight=${p.user_id}`); }}
                         >
-                          {p.full_name || "Anonymous"}
+                          {p.full_name || "Unknown User"}
                         </button>
                         {p.connected_at && (
                           <span className="text-[10px] text-muted-foreground">
