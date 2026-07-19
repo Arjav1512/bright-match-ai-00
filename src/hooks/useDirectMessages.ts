@@ -107,8 +107,8 @@ export function useDirectMessages() {
       return {
         partnerId: pid,
         partnerName: isEmployer
-          ? (emp?.company_name || profile?.full_name || "Company")
-          : (profile?.full_name || "Student"),
+          ? (emp?.company_name || profile?.full_name || "Unknown Company")
+          : (profile?.full_name || "Unknown User"),
         partnerAvatar: (isEmployer ? emp?.logo_url : profile?.avatar_url) || profile?.avatar_url || null,
         partnerRole: role,
         lastMessage: conv.messages[0]?.text || "",
