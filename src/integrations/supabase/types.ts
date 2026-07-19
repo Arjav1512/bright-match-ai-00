@@ -1250,13 +1250,13 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
-          full_name?: string | null
+          full_name?: never
           user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
-          full_name?: string | null
+          full_name?: never
           user_id?: string | null
         }
         Relationships: []
@@ -1519,6 +1519,14 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      resolve_display_names: {
+        Args: { _user_ids: string[] }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          user_id: string
+        }[]
       }
       set_initial_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
