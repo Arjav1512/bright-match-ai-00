@@ -72,7 +72,7 @@ const AdminInternships = () => {
 
       setInternships(internData.map((i) => ({
         ...i,
-        company_name: employerMap.get(i.employer_id) || "Unknown",
+        company_name: employerMap.get(i.employer_id) || "Unknown Company",
       })));
       setLoading(false);
     };
