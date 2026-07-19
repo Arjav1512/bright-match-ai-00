@@ -94,7 +94,7 @@ export function useGroupChat(groupId: string | null) {
       await supabase.from("group_messages").insert({
         group_id: groupId,
         sender_id: user.id,
-        sender_name: profile?.full_name || "Anonymous",
+        sender_name: profile?.full_name || user.email?.split("@")[0] || "Unknown User",
         text,
       });
     },
