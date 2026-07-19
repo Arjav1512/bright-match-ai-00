@@ -17,6 +17,16 @@ export function useGroupChat(groupId: string | null) {
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
 
+  // Resolve current display names for a set of sender_ids and rewrite the
+  // stored `sender_name` snapshot so name changes propagate to old messages.
+  const applyLiveNames = useCallback(async (msgs: GroupMessage[]) => {
+    const ids = Array.from(new Set(msgs.map((m) => m.sender_id))).filter(Boolean);
+    if (ids.length === 0) return msgs;
+    const { data } = await (supabase as any).rpc("resolve_display_names", { _user_ids: ids });
+    const map = new Map<string, string>((data || []).map((r: any) => [r.user_id, r.display_name]));
+    return msgs.map((m) => ({ ...m, sender_name: map.get(m.sender_id) || m.sender_name }));
+  }, []);
+
   useEffect(() => {
     if (!groupId) return;
     setLoading(true);
@@ -27,8 +37,11 @@ export function useGroupChat(groupId: string | null) {
       .select("*")
       .eq("group_id", groupId)
       .order("created_at", { ascending: true })
-      .then(({ data }) => {
-        if (data) setMessages(data as GroupMessage[]);
+      .then(async ({ data }) => {
+        if (data) {
+          const resolved = await applyLiveNames(data as GroupMessage[]);
+          setMessages(resolved);
+        }
         setLoading(false);
       });
 
@@ -52,11 +65,12 @@ export function useGroupChat(groupId: string | null) {
           table: "group_messages",
           filter: `group_id=eq.${groupId}`,
         },
-        (payload) => {
+        async (payload) => {
+          const next = payload.new as GroupMessage;
+          const [withName] = await applyLiveNames([next]);
           setMessages((prev) => {
-            const next = payload.new as GroupMessage;
             if (prev.some((m) => m.id === next.id)) return prev;
-            return [...prev, next];
+            return [...prev, withName];
           });
         }
       )
@@ -79,7 +93,8 @@ export function useGroupChat(groupId: string | null) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [groupId, user]);
+  }, [groupId, user, applyLiveNames]);
+
 
   const sendMessage = useCallback(
     async (text: string) => {
