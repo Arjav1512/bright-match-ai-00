@@ -64,7 +64,7 @@ const fetchStudentIdentity = async (userId: string) => {
     .maybeSingle();
 
   return {
-    name: studentProfile?.full_name || "Student",
+    name: studentProfile?.full_name || "Unknown User",
     avatar: studentProfile?.avatar_url ?? null,
     university: studentProfile?.university ?? null,
     info: studentProfile
