@@ -1356,11 +1356,13 @@ export type Database = {
       get_applicant_profiles_for_employer: {
         Args: { p_internship_id: string }
         Returns: {
+          avatar_url: string
           company_feedback_score: number
           completed_internships: number
           current_company: string
           current_job_title: string
           experience_years: string
+          full_name: string
           graduation_year: number
           linkedin_url: string
           location: string
@@ -1414,6 +1416,10 @@ export type Database = {
           user_id: string
           website_url: string
         }[]
+      }
+      has_application_relationship: {
+        Args: { _a: string; _b: string }
+        Returns: boolean
       }
       has_role: {
         Args: {

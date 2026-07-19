@@ -37,7 +37,7 @@ const ActiveChat = ({ partnerId, partnerName, partnerAvatar, partnerRole, onBack
       const { toast } = await import("sonner");
       toast.error(
         /row-level security|policy/i.test(res.error)
-          ? "You must be connected to message this student."
+          ? "You can only message people you're connected with or who have applied to your internship."
           : "Failed to send message."
       );
     } else {

@@ -80,11 +80,18 @@ const ApplicantReview = () => {
         profilesById = Object.fromEntries((profs || []).map((p: any) => [p.user_id, p]));
         studentProfilesById = Object.fromEntries(((sps as any[]) || []).map((s: any) => [s.user_id, s]));
       }
-      const appsData = baseApps.map((a: any) => ({
-        ...a,
-        profiles: profilesById[a.student_id] || null,
-        student_profiles: studentProfilesById[a.student_id] || null,
-      }));
+      const appsData = baseApps.map((a: any) => {
+        const sp = studentProfilesById[a.student_id] || null;
+        const prof = profilesById[a.student_id] || null;
+        // Fall back to name/avatar returned by the SECURITY DEFINER RPC when
+        // profiles_public is blocked by RLS (employers aren't "connected" to
+        // applicants), so the card never shows "Unknown" for a real user.
+        const mergedProfile = {
+          full_name: prof?.full_name || sp?.full_name || null,
+          avatar_url: prof?.avatar_url || sp?.avatar_url || null,
+        };
+        return { ...a, profiles: mergedProfile, student_profiles: sp };
+      });
       setApplicants(appsData);
 
       // Generate 1-hour signed URLs for each applicant's resume via the shared
