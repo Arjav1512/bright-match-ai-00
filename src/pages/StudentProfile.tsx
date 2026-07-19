@@ -202,7 +202,7 @@ const StudentProfile = () => {
                     <AvatarFallback className="brand-gradient text-white text-xl">{getInitials()}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <h1 className="font-display text-2xl font-bold truncate">{profile.full_name || "Student"}</h1>
+                    <h1 className="font-display text-2xl font-bold truncate">{profile.full_name || "Unknown User"}</h1>
                     {sp?.location && (
                       <p className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                         <MapPin className="h-3.5 w-3.5" /> {sp.location}
@@ -217,7 +217,7 @@ const StudentProfile = () => {
                             <MessageActionButton
                               targetUserId={userId!}
                               viewerRole={role}
-                              partnerName={profile.full_name || "Student"}
+                              partnerName={profile.full_name || "Unknown User"}
                               partnerAvatar={profile.avatar_url}
                             />
                           )}

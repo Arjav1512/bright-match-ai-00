@@ -261,8 +261,8 @@ export function useFollowList(userId: string, type: "followers" | "following") {
         const emp = employerById.get(uid) as any;
         const isEmployer = role === "employer";
         const display_name = isEmployer
-          ? (emp?.company_name || p?.full_name || "Company")
-          : (p?.full_name || "Student");
+          ? (emp?.company_name || p?.full_name || "Unknown Company")
+          : (p?.full_name || "Unknown User");
         const avatar_url = isEmployer ? (emp?.logo_url || p?.avatar_url) : p?.avatar_url;
         return {
           user_id: uid,
