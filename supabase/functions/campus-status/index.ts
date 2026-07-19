@@ -236,7 +236,7 @@ Deno.serve(async (req) => {
 
         const enriched = (replies || []).map((r: any) => ({
           ...r,
-          sender_name: profileMap.get(r.sender_id)?.full_name || "Student",
+          sender_name: profileMap.get(r.sender_id)?.full_name || "Unknown User",
           sender_avatar: profileMap.get(r.sender_id)?.avatar_url || null,
         }));
 
@@ -302,7 +302,7 @@ Deno.serve(async (req) => {
         const { latitude: _lat, longitude: _lng, ...safe } = s;
         return {
           ...safe,
-          student_name: profileMap.get(s.student_id)?.full_name || "Student",
+          student_name: profileMap.get(s.student_id)?.full_name || "Unknown User",
           student_avatar: profileMap.get(s.student_id)?.avatar_url || null,
           reply_count: replyCountMap.get(s.id) || 0,
         };
