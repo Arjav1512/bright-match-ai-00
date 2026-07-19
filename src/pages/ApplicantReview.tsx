@@ -168,7 +168,7 @@ const ApplicantReview = () => {
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3">
-                              <ProfileLink userId={app.student_id} type="student" className="font-semibold">{app.profiles?.full_name || "Unknown"}</ProfileLink>
+                              <ProfileLink userId={app.student_id} type="student" className="font-semibold">{app.profiles?.full_name || "Unknown User"}</ProfileLink>
                               {score > 0 && (
                                 <Badge variant={score >= 70 ? "default" : "secondary"}>{score}% match</Badge>
                               )}
