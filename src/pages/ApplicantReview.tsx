@@ -71,13 +71,13 @@ const ApplicantReview = () => {
       let studentProfilesById: Record<string, any> = {};
       if (studentIds.length > 0) {
         const [{ data: profs }, { data: sps }] = await Promise.all([
-          (supabase as any).from("profiles_public").select("user_id, full_name, avatar_url").in("user_id", studentIds),
+          (supabase as any).rpc("resolve_display_names", { _user_ids: studentIds }),
           // SECURITY: employers no longer have direct row access to student_profiles.
           // Use the SECURITY DEFINER RPC which exposes only non-sensitive applicant fields
           // (excludes phone_number, lat, lng, geohash).
           supabase.rpc("get_applicant_profiles_for_employer", { p_internship_id: id! }),
         ]);
-        profilesById = Object.fromEntries((profs || []).map((p: any) => [p.user_id, p]));
+        profilesById = Object.fromEntries((profs || []).map((p: any) => [p.user_id, { full_name: p.display_name, avatar_url: p.avatar_url }]));
         studentProfilesById = Object.fromEntries(((sps as any[]) || []).map((s: any) => [s.user_id, s]));
       }
       const appsData = baseApps.map((a: any) => {
