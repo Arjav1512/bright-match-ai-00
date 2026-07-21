@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Public profile fields viewable by authenticated" ON public.profiles;

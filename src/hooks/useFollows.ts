@@ -242,7 +242,7 @@ export function useFollowList(userId: string, type: "followers" | "following") {
       // render company_name (not email / not "Anonymous") for employer rows
       // and route clicks to the correct profile type.
       const [{ data: profiles }, { data: roles }, { data: employers }] = await Promise.all([
-        (supabase as any).from("profiles_public").select("user_id, full_name, avatar_url").in("user_id", ids),
+        (supabase as any).rpc("resolve_display_names", { _user_ids: ids }),
         supabase.from("user_roles").select("user_id, role").in("user_id", ids),
         (supabase as any)
           .from("employer_profiles_public")
@@ -261,8 +261,8 @@ export function useFollowList(userId: string, type: "followers" | "following") {
         const emp = employerById.get(uid) as any;
         const isEmployer = role === "employer";
         const display_name = isEmployer
-          ? (emp?.company_name || p?.full_name || "Unknown Company")
-          : (p?.full_name || "Unknown User");
+          ? (emp?.company_name || p?.display_name || "Unknown Company")
+          : (p?.display_name || "Unknown User");
         const avatar_url = isEmployer ? (emp?.logo_url || p?.avatar_url) : p?.avatar_url;
         return {
           user_id: uid,
