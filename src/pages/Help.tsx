@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const FAQS = [
   { q: "How do I create an account?", a: "Click 'Sign Up' in the top navigation, choose whether you're a student or employer, and fill in your details. You'll receive a verification email to confirm your account." },
@@ -23,15 +24,43 @@ const FAQS = [
 const Help = () => {
   const [sending, setSending] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const fd = new FormData(form);
+    const email = String(fd.get("email") || "").trim();
+    const subject = String(fd.get("subject") || "").trim();
+    const message = String(fd.get("message") || "").trim();
+
+    if (!email || !subject || !message) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+
     setSending(true);
-    setTimeout(() => {
-      setSending(false);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-help-message", {
+        body: { email, subject, message },
+      });
+      if (error || (data && (data as any).error)) {
+        const details =
+          error && "context" in (error as any)
+            ? await (error as any).context.text().catch(() => "")
+            : (data as any)?.error || (error as any)?.message;
+        console.error("Help message send failed:", details);
+        toast.error("Couldn't send message. Please email yourwroob@gmail.com directly.");
+        return;
+      }
       toast.success("Message sent! We'll get back to you soon.");
-      (e.target as HTMLFormElement).reset();
-    }, 1000);
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't send message. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
+
 
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -78,9 +107,10 @@ const Help = () => {
             <h2 className="font-display text-2xl font-bold text-center">Still need help?</h2>
             <p className="mt-2 text-center text-sm text-muted-foreground">Send us a message and we'll get back to you within 24 hours.</p>
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-              <Input placeholder="Your email" type="email" required />
-              <Input placeholder="Subject" required />
-              <Textarea placeholder="Describe your issue..." rows={5} required />
+              <Input name="email" placeholder="Your email" type="email" required />
+              <Input name="subject" placeholder="Subject" required />
+              <Textarea name="message" placeholder="Describe your issue..." rows={5} required />
+
               <Button type="submit" className="w-full brand-gradient border-0 text-white" disabled={sending}>
                 {sending ? "Sending..." : "Send Message"}
               </Button>

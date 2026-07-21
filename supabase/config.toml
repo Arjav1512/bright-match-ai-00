@@ -10,3 +10,8 @@ project_id = "vlavfpvrxnmoutybczfy"
 # initial setup.
 [functions.seed-admin]
 verify_jwt = false
+
+# send-help-message is a public contact-form endpoint accepting submissions from
+# unauthenticated visitors on the Help page.
+[functions.send-help-message]
+verify_jwt = false
