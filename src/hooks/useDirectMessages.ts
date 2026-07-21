@@ -66,10 +66,7 @@ export function useDirectMessages() {
     }
 
     const [profilesRes, rolesRes, employersRes] = await Promise.all([
-      (supabase as any)
-        .from("profiles_public")
-        .select("user_id, full_name, avatar_url")
-        .in("user_id", partnerIds),
+      (supabase as any).rpc("resolve_display_names", { _user_ids: partnerIds }),
       // FIX (HIGH-chat-route): Fetch partner roles so chat header can link to
       // the correct profile route (/student/:id vs /employers/:id).
       supabase
@@ -87,7 +84,7 @@ export function useDirectMessages() {
     if (!mountedRef.current) return;
 
     const profileMap = new Map<string, { user_id: string; full_name: string | null; avatar_url: string | null }>(
-      (((profilesRes as any).data as any[]) || []).map((p: any) => [p.user_id, p])
+      (((profilesRes as any).data as any[]) || []).map((p: any) => [p.user_id, { user_id: p.user_id, full_name: p.display_name, avatar_url: p.avatar_url }])
     );
     const roleMap = new Map(
       (rolesRes.data || []).map((r) => [r.user_id, r.role as "student" | "employer"])
