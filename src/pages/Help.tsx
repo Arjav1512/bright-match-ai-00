@@ -107,9 +107,10 @@ const Help = () => {
             <h2 className="font-display text-2xl font-bold text-center">Still need help?</h2>
             <p className="mt-2 text-center text-sm text-muted-foreground">Send us a message and we'll get back to you within 24 hours.</p>
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-              <Input placeholder="Your email" type="email" required />
-              <Input placeholder="Subject" required />
-              <Textarea placeholder="Describe your issue..." rows={5} required />
+              <Input name="email" placeholder="Your email" type="email" required />
+              <Input name="subject" placeholder="Subject" required />
+              <Textarea name="message" placeholder="Describe your issue..." rows={5} required />
+
               <Button type="submit" className="w-full brand-gradient border-0 text-white" disabled={sending}>
                 {sending ? "Sending..." : "Send Message"}
               </Button>
