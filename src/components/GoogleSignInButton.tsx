@@ -33,9 +33,18 @@ export const GoogleSignInButton = forwardRef<HTMLButtonElement, GoogleSignInButt
           try { sessionStorage.setItem("wroob_pending_role", role); } catch {}
         }
 
+        // Normalize origin to the apex — www.wroob.in has no DNS, so an
+        // OAuth callback landing there dies with NXDOMAIN. Everything else
+        // (previews, lovable.app, localhost) passes through unchanged.
+        const origin =
+          window.location.hostname === "www.wroob.in"
+            ? "https://wroob.in"
+            : window.location.origin;
+
         const result = await lovable.auth.signInWithOAuth("google", {
-          redirect_uri: `${window.location.origin}/dashboard`,
+          redirect_uri: `${origin}/dashboard`,
         });
+
 
         if (result.error) {
           toast({ title: "Error", description: String(result.error), variant: "destructive" });
