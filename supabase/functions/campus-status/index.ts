@@ -215,11 +215,35 @@ Deno.serve(async (req) => {
           });
         }
 
-        const { data: replies, error } = await supabaseAdmin
+        // SECURITY: Only the status owner may read the full reply thread.
+        // Other students may only see replies they themselves sent.
+        const { data: statusRow, error: statusErr } = await supabaseAdmin
+          .from("campus_statuses")
+          .select("student_id")
+          .eq("id", statusId)
+          .maybeSingle();
+
+        if (statusErr) throw statusErr;
+        if (!statusRow) {
+          return new Response(JSON.stringify({ error: "Not found" }), {
+            status: 404,
+            headers: { ...responseHeaders },
+          });
+        }
+
+        const isOwner = statusRow.student_id === user.id;
+
+        let repliesQuery = supabaseAdmin
           .from("status_replies")
           .select("*")
           .eq("status_id", statusId)
           .order("created_at", { ascending: true });
+
+        if (!isOwner) {
+          repliesQuery = repliesQuery.eq("sender_id", user.id);
+        }
+
+        const { data: replies, error } = await repliesQuery;
 
         if (error) throw error;
 
