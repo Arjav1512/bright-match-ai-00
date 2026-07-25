@@ -51,86 +51,77 @@ Deno.serve(async (req) => {
 
     const { email, subject, message } = parsed.data;
 
-    const resendKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendKey) {
-      console.error("RESEND_API_KEY not configured");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !serviceKey) {
+      console.error("Supabase env not configured");
       return new Response(
         JSON.stringify({ error: "Email service not configured" }),
         { status: 500, headers: responseHeaders }
       );
     }
 
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px;">
-        <h2>New Help Center Message</h2>
-        <p><strong>From:</strong> ${escapeHtml(email)}</p>
-        <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
-        <hr />
-        <p style="white-space: pre-wrap;">${escapeHtml(message)}</p>
-      </div>
-    `;
+    const idem = crypto.randomUUID();
 
-    const resendRes = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "Wroob Help <onboarding@resend.dev>",
-        to: ["yourwroob@gmail.com"],
-        reply_to: email,
-        subject: `[Help Center] ${subject}`,
-        html,
-      }),
-    });
+    // 1) Support notification via Lovable Emails (from: Wroob <info@wroob.in>, to: yourwroob@gmail.com)
+    const supportRes = await fetch(
+      `${supabaseUrl}/functions/v1/send-transactional-email`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${serviceKey}`,
+          apikey: serviceKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          templateName: "support-notification",
+          idempotencyKey: `help-support-${idem}`,
+          templateData: { fromEmail: email, subject, message },
+        }),
+      }
+    );
 
-    const resendData = await resendRes.json();
-
-    if (!resendRes.ok) {
-      console.error("Resend API error (support):", resendData);
-      return new Response(JSON.stringify({ error: "Email delivery failed", details: resendData }), {
-        status: 502,
-        headers: responseHeaders,
-      });
+    if (!supportRes.ok) {
+      const supportErr = await supportRes.json().catch(() => ({}));
+      console.error("Support notification failed:", supportErr);
+      return new Response(
+        JSON.stringify({ error: "Email delivery failed", details: supportErr }),
+        { status: 502, headers: responseHeaders }
+      );
     }
 
-    // Send acknowledgement email to user via Lovable Emails (non-blocking on failure).
+    // 2) User acknowledgement (non-blocking on failure)
     try {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL");
-      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-      if (supabaseUrl && serviceKey) {
-        const ackRes = await fetch(
-          `${supabaseUrl}/functions/v1/send-transactional-email`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${serviceKey}`,
-              apikey: serviceKey,
-              "Content-Type": "application/json",
+      const ackRes = await fetch(
+        `${supabaseUrl}/functions/v1/send-transactional-email`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${serviceKey}`,
+            apikey: serviceKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            templateName: "help-confirmation",
+            recipientEmail: email,
+            idempotencyKey: `help-ack-${idem}`,
+            templateData: {
+              name: email.split("@")[0] || "there",
+              subject,
+              message,
             },
-            body: JSON.stringify({
-              templateName: "help-confirmation",
-              recipientEmail: email,
-              idempotencyKey: `help-ack-${resendData?.id ?? crypto.randomUUID()}`,
-              templateData: {
-                name: email.split("@")[0] || "there",
-                subject,
-                message,
-              },
-            }),
-          }
-        );
-        if (!ackRes.ok) {
-          const ackErr = await ackRes.json().catch(() => ({}));
-          console.error("Transactional ack email failed:", ackErr);
+          }),
         }
+      );
+      if (!ackRes.ok) {
+        const ackErr = await ackRes.json().catch(() => ({}));
+        console.error("Transactional ack email failed:", ackErr);
       }
     } catch (ackErr) {
       console.error("User acknowledgement email failed:", ackErr);
     }
 
-    return new Response(JSON.stringify({ success: true, id: resendData?.id }), {
+    return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: responseHeaders,
     });
