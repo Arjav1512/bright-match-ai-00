@@ -15,3 +15,6 @@ verify_jwt = false
 # unauthenticated visitors on the Help page.
 [functions.send-help-message]
 verify_jwt = false
+
+[functions.process-email-queue]
+verify_jwt = true
