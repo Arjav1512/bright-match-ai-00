@@ -70,6 +70,7 @@ const Groups = lazyWithReload(() => import("./pages/Groups"));
 const StudentDiscovery = lazyWithReload(() => import("./pages/StudentDiscovery"));
 const SkillTests = lazyWithReload(() => import("./pages/SkillTests"));
 const CampusCommunity = lazyWithReload(() => import("./pages/CampusCommunity"));
+const Unsubscribe = lazyWithReload(() => import("./pages/Unsubscribe"));
 
 const StudentProfile = lazyWithReload(() => import("./pages/StudentProfile"));
 const EmployerProfile = lazyWithReload(() => import("./pages/EmployerProfile"));
@@ -174,6 +175,7 @@ const App = () => (
               <Route path="/help" element={<Help />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
