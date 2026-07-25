@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Wroob Help <onboarding@resend.dev>",
+        from: "Wroob Help <onboarding@resend.dev>", // Support inbox notification only — Resend requires domain verification to send from info@wroob.in; kept as-is because notify.wroob.in is delegated to Lovable Emails
         to: ["yourwroob@gmail.com"],
         reply_to: email,
         subject: `[Help Center] ${subject}`,
