@@ -280,25 +280,11 @@ const AdminUsers = () => {
                         <td className="p-4 text-muted-foreground text-xs">{formatLastActive(u.last_sign_in_at)}</td>
                         <td className="p-4 text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</td>
                         <td className="p-4">
-                          {/* ISSUE-05: Admin cannot change their own role. */}
-                          {isSelf ? (
-                            <span className="text-xs text-muted-foreground italic">Your account</span>
-                          ) : (
-                            <Select
-                              value={u.role === "unknown" ? undefined : u.role}
-                              onValueChange={(v) => setPendingChange({ user: u, newRole: v as AppRole })}
-                            >
-                              <SelectTrigger className="h-8 w-32 text-xs">
-                                <SelectValue placeholder="Set role" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="student">Student</SelectItem>
-                                <SelectItem value="employer">Employer</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
+                          <span className="text-xs text-muted-foreground italic">
+                            {isSelf ? "Your account" : "—"}
+                          </span>
                         </td>
+
                       </tr>
                     );
                   })
