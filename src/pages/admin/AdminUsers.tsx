@@ -65,11 +65,6 @@ const getOnboardingDisplay = (u: UserRow): OnboardingDisplay => {
 };
 
 
-interface PendingRoleChange {
-  user: UserRow;
-  newRole: AppRole;
-}
-
 const AdminUsers = () => {
   const { user: currentUser } = useAuth();
   const { toast } = useToast();
