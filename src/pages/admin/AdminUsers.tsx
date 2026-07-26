@@ -8,9 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
-} from "@/components/ui/dialog";
 import { Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ProfileLink from "@/components/ProfileLink";
@@ -68,11 +65,6 @@ const getOnboardingDisplay = (u: UserRow): OnboardingDisplay => {
 };
 
 
-interface PendingRoleChange {
-  user: UserRow;
-  newRole: AppRole;
-}
-
 const AdminUsers = () => {
   const { user: currentUser } = useAuth();
   const { toast } = useToast();
@@ -82,8 +74,6 @@ const AdminUsers = () => {
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
-  const [pendingChange, setPendingChange] = useState<PendingRoleChange | null>(null);
-  const [saving, setSaving] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -100,40 +90,11 @@ const AdminUsers = () => {
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
 
-  // ISSUE-05: Confirm role change before applying.
-  const confirmRoleChange = async () => {
-    if (!pendingChange || !currentUser) return;
-    setSaving(true);
-    const { user: target, newRole } = pendingChange;
+  // Role changes intentionally not available in the admin UI: no backing
+  // authorization policy exists on user_roles. Removed to eliminate dead
+  // code that would silently accumulate risk if a permissive policy were
+  // ever added. Reassign roles via a dedicated SECURITY DEFINER RPC.
 
-    const { error } = await supabase
-      .from("user_roles")
-      .update({ role: newRole })
-      .eq("user_id", target.user_id);
-
-    if (error) {
-      toast({ title: "Role update failed", description: error.message, variant: "destructive" });
-    } else {
-      setUsers((prev) =>
-        prev.map((u) => u.user_id === target.user_id ? { ...u, role: newRole } : u)
-      );
-      toast({ title: "Role updated", description: `${target.full_name || target.user_id.slice(0, 8)} → ${newRole}` });
-
-      // ISSUE-08: Non-blocking audit log.
-      supabase.from("audit_log").insert({
-        action: "role_change",
-        admin_id: currentUser.id,
-        target_id: target.user_id,
-        target_type: "user",
-        details: { from: target.role, to: newRole } as any,
-      }).then(({ error: auditErr }) => {
-        if (auditErr) console.warn("audit_log write failed:", auditErr.message);
-      });
-    }
-
-    setSaving(false);
-    setPendingChange(null);
-  };
 
   const filtered = users.filter((u) => {
     const q = search.toLowerCase();
@@ -312,25 +273,11 @@ const AdminUsers = () => {
                         <td className="p-4 text-muted-foreground text-xs">{formatLastActive(u.last_sign_in_at)}</td>
                         <td className="p-4 text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</td>
                         <td className="p-4">
-                          {/* ISSUE-05: Admin cannot change their own role. */}
-                          {isSelf ? (
-                            <span className="text-xs text-muted-foreground italic">Your account</span>
-                          ) : (
-                            <Select
-                              value={u.role === "unknown" ? undefined : u.role}
-                              onValueChange={(v) => setPendingChange({ user: u, newRole: v as AppRole })}
-                            >
-                              <SelectTrigger className="h-8 w-32 text-xs">
-                                <SelectValue placeholder="Set role" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="student">Student</SelectItem>
-                                <SelectItem value="employer">Employer</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
+                          <span className="text-xs text-muted-foreground italic">
+                            {isSelf ? "Your account" : "—"}
+                          </span>
                         </td>
+
                       </tr>
                     );
                   })
@@ -342,25 +289,6 @@ const AdminUsers = () => {
       </Card>
       <p className="mt-4 text-sm text-muted-foreground">{filtered.length} user{filtered.length !== 1 ? "s" : ""}</p>
 
-      {/* ISSUE-05: Confirmation dialog for role change. */}
-      <Dialog open={!!pendingChange} onOpenChange={() => setPendingChange(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Change User Role</DialogTitle>
-            <DialogDescription>
-              Change <strong>{pendingChange?.user.full_name || pendingChange?.user.user_id.slice(0, 8)}</strong>'s
-              role from <strong>{pendingChange?.user.role}</strong> to <strong>{pendingChange?.newRole}</strong>?
-              This affects what they can access on the platform.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPendingChange(null)}>Cancel</Button>
-            <Button onClick={confirmRoleChange} disabled={saving}>
-              {saving ? "Saving…" : "Confirm Change"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </AdminLayout>
   );
 };
