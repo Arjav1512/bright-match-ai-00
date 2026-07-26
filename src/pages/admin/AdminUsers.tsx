@@ -74,8 +74,6 @@ const AdminUsers = () => {
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
-  const [pendingChange, setPendingChange] = useState<PendingRoleChange | null>(null);
-  const [saving, setSaving] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
