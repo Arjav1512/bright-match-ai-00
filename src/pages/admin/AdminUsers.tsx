@@ -296,25 +296,6 @@ const AdminUsers = () => {
       </Card>
       <p className="mt-4 text-sm text-muted-foreground">{filtered.length} user{filtered.length !== 1 ? "s" : ""}</p>
 
-      {/* ISSUE-05: Confirmation dialog for role change. */}
-      <Dialog open={!!pendingChange} onOpenChange={() => setPendingChange(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Change User Role</DialogTitle>
-            <DialogDescription>
-              Change <strong>{pendingChange?.user.full_name || pendingChange?.user.user_id.slice(0, 8)}</strong>'s
-              role from <strong>{pendingChange?.user.role}</strong> to <strong>{pendingChange?.newRole}</strong>?
-              This affects what they can access on the platform.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPendingChange(null)}>Cancel</Button>
-            <Button onClick={confirmRoleChange} disabled={saving}>
-              {saving ? "Saving…" : "Confirm Change"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </AdminLayout>
   );
 };
