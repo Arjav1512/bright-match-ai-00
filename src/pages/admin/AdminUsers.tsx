@@ -97,40 +97,11 @@ const AdminUsers = () => {
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
 
-  // ISSUE-05: Confirm role change before applying.
-  const confirmRoleChange = async () => {
-    if (!pendingChange || !currentUser) return;
-    setSaving(true);
-    const { user: target, newRole } = pendingChange;
+  // Role changes intentionally not available in the admin UI: no backing
+  // authorization policy exists on user_roles. Removed to eliminate dead
+  // code that would silently accumulate risk if a permissive policy were
+  // ever added. Reassign roles via a dedicated SECURITY DEFINER RPC.
 
-    const { error } = await supabase
-      .from("user_roles")
-      .update({ role: newRole })
-      .eq("user_id", target.user_id);
-
-    if (error) {
-      toast({ title: "Role update failed", description: error.message, variant: "destructive" });
-    } else {
-      setUsers((prev) =>
-        prev.map((u) => u.user_id === target.user_id ? { ...u, role: newRole } : u)
-      );
-      toast({ title: "Role updated", description: `${target.full_name || target.user_id.slice(0, 8)} → ${newRole}` });
-
-      // ISSUE-08: Non-blocking audit log.
-      supabase.from("audit_log").insert({
-        action: "role_change",
-        admin_id: currentUser.id,
-        target_id: target.user_id,
-        target_type: "user",
-        details: { from: target.role, to: newRole } as any,
-      }).then(({ error: auditErr }) => {
-        if (auditErr) console.warn("audit_log write failed:", auditErr.message);
-      });
-    }
-
-    setSaving(false);
-    setPendingChange(null);
-  };
 
   const filtered = users.filter((u) => {
     const q = search.toLowerCase();
