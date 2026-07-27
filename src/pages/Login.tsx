@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
@@ -26,7 +26,7 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signIn(email, password);
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setLoading(false);
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -36,8 +36,11 @@ const Login = () => {
 
     // Resolve role + onboarding status immediately so returning users land on
     // their dashboard directly — never on /select-role, even on race conditions.
+    // PERF: use the user object returned by signIn (no extra getUser() round-trip),
+    // and fetch role + both onboarding rows in a single Promise.all so we don't
+    // wait sequentially on role → then profile.
     try {
-      const { data: { user: signedInUser } } = await supabase.auth.getUser();
+      const signedInUser = signInData?.user;
       if (signedInUser) {
         // Honour an explicit redirect target first (e.g. came from /internships/:id).
         if (rawRedirect.startsWith("/") && rawRedirect !== "/dashboard") {
@@ -46,25 +49,20 @@ const Login = () => {
           return;
         }
 
-        const { data: roleRow } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", signedInUser.id)
-          .maybeSingle();
+        const uid = signedInUser.id;
+        const [{ data: roleRow }, { data: sp }, { data: ep }] = await Promise.all([
+          supabase.from("user_roles").select("role").eq("user_id", uid).maybeSingle(),
+          supabase.from("student_profiles").select("onboarding_status").eq("user_id", uid).maybeSingle(),
+          supabase.from("employer_profiles").select("onboarding_status").eq("user_id", uid).maybeSingle(),
+        ]);
         const userRole = (roleRow as any)?.role as "student" | "employer" | "admin" | undefined;
 
+        setLoading(false);
         if (userRole === "admin") {
-          setLoading(false);
           navigate("/admin");
           return;
         }
         if (userRole === "student") {
-          const { data: sp } = await supabase
-            .from("student_profiles")
-            .select("onboarding_status, onboarding_step")
-            .eq("user_id", signedInUser.id)
-            .maybeSingle();
-          setLoading(false);
           if (sp && (sp as any).onboarding_status !== "completed") {
             navigate("/dashboard");
           } else {
@@ -73,12 +71,6 @@ const Login = () => {
           return;
         }
         if (userRole === "employer") {
-          const { data: ep } = await supabase
-            .from("employer_profiles")
-            .select("onboarding_status, onboarding_step")
-            .eq("user_id", signedInUser.id)
-            .maybeSingle();
-          setLoading(false);
           if (ep && (ep as any).onboarding_status !== "completed") {
             navigate("/dashboard");
           } else {
