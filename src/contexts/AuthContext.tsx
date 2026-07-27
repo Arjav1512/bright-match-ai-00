@@ -88,7 +88,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const [{ data: roleData }, { data: profileData }] = await Promise.all([
         supabase.from("user_roles").select("role").eq("user_id", nextSession.user.id).maybeSingle(),
-        supabase.from("profiles").select("*").eq("user_id", nextSession.user.id).maybeSingle(),
+        // PERF: narrow to the columns actually consumed by AuthContext consumers
+        // (full_name, avatar_url). Cuts payload / parse time vs select("*").
+        supabase.from("profiles").select("user_id, full_name, avatar_url").eq("user_id", nextSession.user.id).maybeSingle(),
       ]);
 
       if (!mountedRef.current || requestId !== requestIdRef.current) return;
