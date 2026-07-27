@@ -55,29 +55,31 @@ const InternshipDetail = () => {
         .maybeSingle();
 
       if (data) {
-        // SEC-1: read employer info from public-safe view
-        const { data: ep } = await (supabase as any)
-          .from("employer_profiles_public")
-          .select("company_name, logo_url, industry, website, is_verified")
-          .eq("user_id", data.employer_id)
-          .maybeSingle();
+        // PERF (Phase 2): parallelize the three follow-up reads (employer info,
+        // has-applied check, student skills) instead of awaiting them serially.
+        const [{ data: ep }, appRes, spRes] = await Promise.all([
+          (supabase as any)
+            .from("employer_profiles_public")
+            .select("company_name, logo_url, industry, website, is_verified")
+            .eq("user_id", data.employer_id)
+            .maybeSingle(),
+          user
+            ? supabase.from("applications").select("id").eq("student_id", user.id).eq("internship_id", id!).maybeSingle()
+            : Promise.resolve({ data: null } as any),
+          user && role === "student"
+            ? supabase.from("student_profiles").select("skills").eq("user_id", user.id).maybeSingle()
+            : Promise.resolve({ data: null } as any),
+        ]);
         setInternship({ ...data, employer_profiles: ep });
+        setHasApplied(!!(appRes as any)?.data);
+        const sp = (spRes as any)?.data;
+        if (sp?.skills) setStudentSkills(sp.skills);
       } else {
         setInternship(null);
       }
-
-
-      if (user) {
-        const { data: app } = await supabase.from("applications").select("id").eq("student_id", user.id).eq("internship_id", id!).maybeSingle();
-        setHasApplied(!!app);
-
-        if (role === "student") {
-          const { data: sp } = await supabase.from("student_profiles").select("skills").eq("user_id", user.id).maybeSingle();
-          if (sp?.skills) setStudentSkills(sp.skills);
-        }
-      }
       setLoading(false);
     };
+
     fetchData();
 
     // P0-2: Re-fetch when the page is restored from the browser's bfcache or

@@ -61,6 +61,9 @@ const Internships = () => {
   }, [role, needsOnboarding, onboardingLoading, navigate]);
 
   // PERF-1: server-side pagination via PostgREST .range()
+  // PERF-2 (Phase 2): narrow SELECT to columns the card + filters actually use.
+  // Cuts row payload from 38 → 15 cols (~60% smaller) and avoids re-parsing
+  // large select strings at the type level (cast via `sel`).
   const fetchPage = useCallback(async (pageIndex: number, append: boolean) => {
     if (append) setLoadingMore(true); else setLoading(true);
 
@@ -69,13 +72,15 @@ const Internships = () => {
 
     // P0-1: Exclude expired internships (deadline before today) from public list.
     const todayIso = new Date().toISOString().slice(0, 10);
+    const sel = (s: string): string => s;
     const { data } = await supabase
       .from("internships")
-      .select("*")
+      .select(sel("id,title,description,skills_required,location,type,deadline,industry,employer_id,created_at,status,stipend_type,stipend_amount,duration_months,internship_category"))
       .eq("status", "published")
       .or(`deadline.is.null,deadline.gte.${todayIso}`)
       .order("created_at", { ascending: false })
       .range(from, to);
+
 
     const internshipsRaw = (data as any[]) || [];
     setHasMore(internshipsRaw.length === PAGE_SIZE);
