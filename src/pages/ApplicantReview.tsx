@@ -44,7 +44,8 @@ const ApplicantReview = () => {
         return;
       }
 
-      const { data: intern } = await supabase.from("internships").select("*").eq("id", id!).maybeSingle();
+      // PERF: only the fields consumed by this page (title, skills, ownership check).
+      const { data: intern } = await supabase.from("internships").select("id, title, employer_id, skills_required").eq("id", id!).maybeSingle();
 
       // SECURITY: Verify this employer owns the internship before showing applicants.
       // RLS enforces this at the DB level, but an explicit UI check provides
