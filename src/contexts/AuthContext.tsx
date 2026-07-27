@@ -189,7 +189,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshProfile = useCallback(async () => {
     if (!user) return;
-    const { data: profileData } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
+    const { data: profileData } = await supabase.from("profiles").select("user_id, full_name, avatar_url").eq("user_id", user.id).maybeSingle();
     if (mountedRef.current) {
       setProfile(profileData ?? null);
       setCachedAuth(user.id, role, profileData ?? null);
