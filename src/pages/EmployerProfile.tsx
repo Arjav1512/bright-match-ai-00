@@ -230,7 +230,7 @@ const EmployerProfile = () => {
                     )}
                     {userId && <EmployerFollowStats userId={userId} />}
                     {user && user.id !== userId && !isAdmin && (
-                      <div className="mt-3 flex items-center gap-2">
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
                         <FollowButton targetUserId={userId!} targetRole="employer" />
                         {/* FIX (HIGH-student-employer-dm): Students can now initiate DMs
                             from the employer profile page — previously there was no
