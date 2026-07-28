@@ -80,12 +80,12 @@ const MyApplications = () => {
             {applications.map((app) => (
               <Link key={app.id} to={`/internships/${app.internship_id}`}>
                 <Card className="transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                  <CardContent className="flex items-center justify-between p-6">
-                    <div>
-                      <h3 className="font-semibold">{app.internships?.title}</h3>
-                      <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                        <Building2 className="h-3.5 w-3.5" />
-                        <ProfileLink userId={app.internships?.employer_id} type="employer">
+                  <CardContent className="flex items-start justify-between gap-3 p-6">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold break-words">{app.internships?.title}</h3>
+                      <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground min-w-0">
+                        <Building2 className="h-3.5 w-3.5 shrink-0" />
+                        <ProfileLink userId={app.internships?.employer_id} type="employer" className="truncate">
                           {app.internships?.employer_profiles?.company_name || "Company"}
                         </ProfileLink>
                       </p>
@@ -93,7 +93,7 @@ const MyApplications = () => {
                         Applied {format(new Date(app.applied_at), "MMM d, yyyy")}
                       </p>
                     </div>
-                    <Badge className={statusColors[app.status] || ""} variant="outline">
+                    <Badge className={`${statusColors[app.status] || ""} shrink-0`} variant="outline">
                       {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                     </Badge>
                   </CardContent>
