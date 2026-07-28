@@ -86,9 +86,9 @@ const MyInternships = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container max-w-3xl py-10">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <h1 className="font-display text-3xl font-bold">My Internships</h1>
-          <Button onClick={() => navigate("/post-internship")} className="gap-2">
+          <Button onClick={() => navigate("/post-internship")} className="gap-2 shrink-0">
             <Plus className="h-4 w-4" /> Post New
           </Button>
         </div>
