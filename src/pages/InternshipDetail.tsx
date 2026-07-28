@@ -257,10 +257,10 @@ const InternshipDetail = () => {
         >
           {/* Header */}
           <div>
-            <div className="flex items-start justify-between gap-4">
-              <div>
+            <div className="flex items-start justify-between gap-4 flex-wrap sm:flex-nowrap">
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <h1 className="font-display text-3xl font-bold md:text-4xl">{internship.title}</h1>
+                  <h1 className="font-display text-3xl font-bold md:text-4xl break-words">{internship.title}</h1>
                   <Badge
                     variant="outline"
                     className={
@@ -273,18 +273,18 @@ const InternshipDetail = () => {
                     {isClosed ? "Closed" : "Live"}
                   </Badge>
                 </div>
-                <div className="mt-3 flex items-center gap-2 text-muted-foreground">
-                  <Building2 className="h-4 w-4" />
-                  <ProfileLink userId={internship.employer_id} type="employer" className="font-medium">
+                <div className="mt-3 flex items-center gap-2 flex-wrap text-muted-foreground">
+                  <Building2 className="h-4 w-4 shrink-0" />
+                  <ProfileLink userId={internship.employer_id} type="employer" className="font-medium min-w-0 truncate">
                     {internship.employer_profiles?.company_name || "Company"}
                   </ProfileLink>
                   {internship.employer_profiles?.is_verified && (
-                    <Badge className="bg-green-100 text-green-800 border-green-200 gap-1">
+                    <Badge className="bg-green-100 text-green-800 border-green-200 gap-1 shrink-0">
                       <BadgeCheck className="h-3 w-3" /> Verified
                     </Badge>
                   )}
                   {safeExternalUrl(internship.employer_profiles?.website) && (
-                    <a href={safeExternalUrl(internship.employer_profiles.website)} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+                    <a href={safeExternalUrl(internship.employer_profiles.website)} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
                       <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   )}
