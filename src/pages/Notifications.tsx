@@ -129,9 +129,9 @@ const Notifications = () => {
               <Card key={n.id} className={cn("cursor-pointer transition-all hover:shadow-md", !n.read && "border-primary/20 bg-primary/5")} onClick={() => handleClick(n)}>
                 <CardContent className="flex items-start gap-3 p-4">
                   <div className={cn("mt-1 h-2 w-2 shrink-0 rounded-full", n.read ? "bg-transparent" : "bg-primary")} />
-                  <div className="flex-1">
-                    <h4 className="font-medium text-sm">{n.title}</h4>
-                    {n.message && <p className="mt-1 text-sm text-muted-foreground">{n.message}</p>}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-sm break-words">{n.title}</h4>
+                    {n.message && <p className="mt-1 text-sm text-muted-foreground break-words">{n.message}</p>}
                     <p className="mt-1 text-xs text-muted-foreground">{format(new Date(n.created_at), "MMM d, yyyy 'at' h:mm a")}</p>
                   </div>
                 </CardContent>
