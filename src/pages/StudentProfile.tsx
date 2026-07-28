@@ -210,17 +210,19 @@ const StudentProfile = () => {
                     )}
                     {profile.bio && <p className="text-sm mt-2">{profile.bio}</p>}
                     {user && user.id !== userId && !isAdmin && (
-                      <div className="mt-3 flex items-center gap-2">
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
                         <SafeInteractionZone>
-                          <FollowButton targetUserId={userId!} targetRole="student" />
-                          {(role === "student" || role === "employer") && (
-                            <MessageActionButton
-                              targetUserId={userId!}
-                              viewerRole={role}
-                              partnerName={profile.full_name || "Unknown User"}
-                              partnerAvatar={profile.avatar_url}
-                            />
-                          )}
+                          <div className="flex flex-wrap items-center gap-2">
+                            <FollowButton targetUserId={userId!} targetRole="student" />
+                            {(role === "student" || role === "employer") && (
+                              <MessageActionButton
+                                targetUserId={userId!}
+                                viewerRole={role}
+                                partnerName={profile.full_name || "Unknown User"}
+                                partnerAvatar={profile.avatar_url}
+                              />
+                            )}
+                          </div>
                         </SafeInteractionZone>
                       </div>
                     )}
@@ -237,9 +239,9 @@ const StudentProfile = () => {
                 <CardContent className="space-y-3">
                   {studentDetailFields.map((field) =>
                     field.render ? (
-                      <div key={field.label} className="flex items-start gap-2 text-sm">
-                        <span className="text-muted-foreground min-w-[140px]">{field.label}:</span>
-                        {field.render()}
+                      <div key={field.label} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2 text-sm">
+                        <span className="text-muted-foreground sm:min-w-[140px] sm:shrink-0">{field.label}:</span>
+                        <div className="min-w-0 break-words">{field.render()}</div>
                       </div>
                     ) : (
                       <AdminField key={field.label} label={field.label} value={field.value} />
