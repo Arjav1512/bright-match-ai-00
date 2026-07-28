@@ -33,10 +33,12 @@ const AdminField = ({ label, value, icon, showEmpty = false }: AdminFieldProps) 
   else display = String(value);
 
   return (
-    <div className="flex items-start gap-2">
-      {icon && <span className="text-muted-foreground mt-0.5">{icon}</span>}
-      <span className="text-muted-foreground min-w-[140px]">{label}:</span>
-      <span className={`break-all ${isEmpty ? "text-muted-foreground italic" : ""}`}>{display}</span>
+    <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2">
+      <div className="flex items-start gap-2 sm:min-w-[140px] sm:shrink-0">
+        {icon && <span className="text-muted-foreground mt-0.5">{icon}</span>}
+        <span className="text-muted-foreground">{label}:</span>
+      </div>
+      <span className={`min-w-0 break-words ${isEmpty ? "text-muted-foreground italic" : ""}`}>{display}</span>
     </div>
   );
 };
