@@ -124,10 +124,13 @@ const Landing = () => {
           {FLOATING_TAGS.map((tag, i) => {
             const speed = 0.3 + (i % 4) * 0.15;
             const yTransform = useTransform(scrollYProgress, [0, 1], [0, enableParallax ? -80 * speed : 0]);
+            // Floating decorative tags are hidden on mobile — with a compressed
+            // hero height they were overlapping the eyebrow, headline, and CTAs.
             const renderOnMobile = mobileVisibleSlugs.has(tag.label);
             const hiddenClass = isMobile
-              ? (renderOnMobile ? "" : "hidden")
-              : (tag.showOnMobile ? "" : "hidden md:block");
+              ? "hidden"
+              : (tag.showOnMobile ? "hidden md:block" : "hidden md:block");
+            void renderOnMobile;
             return (
               <motion.div
                 key={tag.label}
