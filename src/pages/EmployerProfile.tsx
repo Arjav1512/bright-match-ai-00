@@ -209,8 +209,8 @@ const EmployerProfile = () => {
                     <AvatarFallback className="brand-gradient text-white text-xl">{getInitials()}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h1 className="font-display text-2xl font-bold truncate">{ep.company_name || "Company"}</h1>
+                    <div className="flex items-center gap-2 flex-wrap min-w-0">
+                      <h1 className="font-display text-2xl font-bold min-w-0 break-words">{ep.company_name || "Company"}</h1>
                       {ep.is_verified && (
                         <Badge className="bg-green-100 text-green-800 border-green-200 gap-1 shrink-0">
                           <BadgeCheck className="h-3 w-3" /> Verified
@@ -230,7 +230,7 @@ const EmployerProfile = () => {
                     )}
                     {userId && <EmployerFollowStats userId={userId} />}
                     {user && user.id !== userId && !isAdmin && (
-                      <div className="mt-3 flex items-center gap-2">
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
                         <FollowButton targetUserId={userId!} targetRole="employer" />
                         {/* FIX (HIGH-student-employer-dm): Students can now initiate DMs
                             from the employer profile page — previously there was no
