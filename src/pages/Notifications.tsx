@@ -100,12 +100,12 @@ const Notifications = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container max-w-2xl py-10">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <h1 className="font-display text-3xl font-bold">Notifications</h1>
           <Button
             variant="outline"
             size="sm"
-            className="gap-1"
+            className="gap-1 shrink-0"
             onClick={markAllRead}
             disabled={markingAll || unreadCount === 0}
             aria-busy={markingAll}
