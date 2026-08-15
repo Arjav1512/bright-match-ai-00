@@ -21,6 +21,7 @@ const navItems = [
   { title: "Users", url: "/admin/users", icon: Users },
   { title: "Internships", url: "/admin/internships", icon: Briefcase },
   { title: "Verification", url: "/admin/verification", icon: BadgeCheck },
+  { title: "Blog", url: "/admin/blog", icon: Newspaper },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
