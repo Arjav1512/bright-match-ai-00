@@ -58,6 +58,7 @@ const AdminDashboard = lazyWithReload(() => import("./pages/admin/AdminDashboard
 const AdminUsers = lazyWithReload(() => import("./pages/admin/AdminUsers"));
 const AdminInternships = lazyWithReload(() => import("./pages/admin/AdminInternships"));
 const AdminSettings = lazyWithReload(() => import("./pages/admin/AdminSettings"));
+const AdminBlogs = lazyWithReload(() => import("./pages/admin/AdminBlogs"));
 const AdminVerification = lazyWithReload(() => import("./pages/admin/AdminVerification"));
 const About = lazyWithReload(() => import("./pages/About"));
 const Blog = lazyWithReload(() => import("./pages/Blog"));
@@ -153,6 +154,7 @@ const App = () => (
               <Route path="/admin/users" element={<ProtectedRoute allowedRoles={["admin"]}><AdminUsers /></ProtectedRoute>} />
               <Route path="/admin/internships" element={<ProtectedRoute allowedRoles={["admin"]}><AdminInternships /></ProtectedRoute>} />
               <Route path="/admin/verification" element={<ProtectedRoute allowedRoles={["admin"]}><AdminVerification /></ProtectedRoute>} />
+              <Route path="/admin/blog" element={<ProtectedRoute allowedRoles={["admin"]}><AdminBlogs /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={["admin"]}><AdminSettings /></ProtectedRoute>} />
               {/* Student onboarding */}
               <Route path="/onboarding/profile" element={<ProtectedRoute allowedRoles={["student"]}><OnboardingProfile /></ProtectedRoute>} />
