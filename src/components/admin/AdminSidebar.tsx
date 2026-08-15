@@ -1,4 +1,4 @@
-import { BarChart3, Users, Briefcase, Settings, Shield, LogOut, BadgeCheck } from "lucide-react";
+import { BarChart3, Users, Briefcase, Settings, Shield, LogOut, BadgeCheck, Newspaper } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
