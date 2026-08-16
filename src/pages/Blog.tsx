@@ -3,12 +3,15 @@ import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import BlogCover from "@/components/blog/BlogCover";
 import { motion } from "framer-motion";
-import { CalendarDays, ArrowRight, User } from "lucide-react";
+import { CalendarDays, ArrowRight, User, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BLOG_LIST_FIELDS, formatBlogDate, type BlogPost } from "@/lib/blog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 
 type BlogCard = Pick<
   BlogPost,
@@ -34,6 +37,25 @@ export function usePublishedPosts() {
 
 const Blog = () => {
   const { data: posts = [], isLoading } = usePublishedPosts();
+  const [query, setQuery] = useState("");
+
+  const normalizedQuery = query.trim().toLowerCase();
+
+  const filteredPosts = useMemo(() => {
+    if (!normalizedQuery) return posts;
+    return posts.filter((post) => {
+      const haystack = [
+        post.title,
+        post.category,
+        post.excerpt,
+        post.author,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(normalizedQuery);
+    });
+  }, [posts, normalizedQuery]);
 
   const blogJsonLd = [
     {
@@ -41,7 +63,7 @@ const Blog = () => {
       "@type": "Blog",
       name: "Wroob Blog",
       url: "https://wroob.in/blog",
-      blogPost: posts.map((p) => ({
+      blogPost: filteredPosts.map((p) => ({
         "@type": "BlogPosting",
         headline: p.title,
         url: `https://wroob.in/blog/${p.slug}`,
@@ -63,8 +85,8 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Wroob Blog — Internship tips, careers & industry insights"
-        description="Career guides, internship advice, and industry trends for students and employers from the Wroob team."
+        title="The Wroob Blog — Internship tips, careers & industry insights"
+        description="From Learning to Earning, One Insight at a Time. Explore career insights, student opportunities, skill building tips, and stories from the Group Circle."
         path="/blog"
         jsonLd={blogJsonLd}
       />
@@ -78,23 +100,61 @@ const Blog = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">Blog</h1>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
+              The Wroob Blog
+            </h1>
             <p className="mt-4 text-lg text-muted-foreground">
-              Career insights, platform updates, and industry trends.
+              From Learning to Earning, One Insight at a Time. Explore Career Insights, Student
+              Opportunities, Skill Building Tips, and Stories from the Group Circle.
             </p>
           </motion.div>
 
+          <div className="mx-auto mt-8 max-w-xl">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by title, category, author, or topic..."
+                className={cn(
+                  "h-12 w-full rounded-full border border-border pl-10 pr-4 shadow-sm",
+                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                )}
+                aria-label="Search blog posts"
+              />
+            </div>
+          </div>
+
           {isLoading ? (
-            <div className="mx-auto mt-14 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mx-auto mt-12 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={i} className="h-72 rounded-2xl" />
               ))}
             </div>
-          ) : posts.length === 0 ? (
-            <p className="mt-14 text-center text-muted-foreground">No articles published yet.</p>
+          ) : filteredPosts.length === 0 ? (
+            <div className="mx-auto mt-14 max-w-md text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                <Search className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <p className="mt-4 text-lg font-medium">No blogs found</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {query.trim()
+                  ? "Try a different keyword or clear the search to see all published blogs."
+                  : "No articles published yet."}
+              </p>
+              {query.trim() && (
+                <button
+                  onClick={() => setQuery("")}
+                  className="mt-4 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
           ) : (
-            <div className="mx-auto mt-14 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {posts.map((post, i) => (
+            <div className="mx-auto mt-12 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredPosts.map((post, i) => (
                 <Link key={post.id} to={`/blog/${post.slug}`} className="block">
                   <motion.article
                     className="group card-depth flex h-full flex-col p-4"
