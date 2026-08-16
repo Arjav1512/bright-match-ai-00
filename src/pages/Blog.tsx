@@ -3,12 +3,15 @@ import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import BlogCover from "@/components/blog/BlogCover";
 import { motion } from "framer-motion";
-import { CalendarDays, ArrowRight, User } from "lucide-react";
+import { CalendarDays, ArrowRight, User, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BLOG_LIST_FIELDS, formatBlogDate, type BlogPost } from "@/lib/blog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 
 type BlogCard = Pick<
   BlogPost,
