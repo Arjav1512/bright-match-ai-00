@@ -86,7 +86,7 @@ const Blog = () => {
     <div className="min-h-screen bg-background">
       <SEO
         title="The Wroob Blog — Internship tips, careers & industry insights"
-        description="From Learning to Earning, One Insight at a Time. Explore career insights, student opportunities, skill building tips, and stories from the Group Circle."
+        description="From Learning to Earning, One Insight at a Time. Explore Career Insights, Student Opportunities, Skill Building Tips, and Stories from the Wroob&nbsp;Circle."
         path="/blog"
         jsonLd={blogJsonLd}
       />
@@ -105,7 +105,7 @@ const Blog = () => {
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
               From Learning to Earning, One Insight at a Time. Explore Career Insights, Student
-              Opportunities, Skill Building Tips, and Stories from the Group Circle.
+              Opportunities, Skill Building Tips, and Stories from the Wroob&nbsp;Circle.
             </p>
           </motion.div>
 
