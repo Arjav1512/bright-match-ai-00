@@ -23,6 +23,9 @@ export function SessionTimeoutWarning() {
   const [refreshing, setRefreshing] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Track whether the warning/countdown has already been started for the
+  // current session so we don't kill the interval on a React re-render.
+  const warningStartedRef = useRef(false);
 
   const clearTimers = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -32,6 +35,8 @@ export function SessionTimeoutWarning() {
   }, []);
 
   useEffect(() => {
+    warningStartedRef.current = false;
+
     if (!session?.expires_at || !user) {
       setShowWarning(false);
       clearTimers();
@@ -46,18 +51,21 @@ export function SessionTimeoutWarning() {
       if (timeLeft <= 0) {
         // Already expired — sign out handled by Supabase
         setShowWarning(false);
+        warningStartedRef.current = false;
         return;
       }
 
-      if (timeLeft <= WARNING_BEFORE_EXPIRY_MS && !showWarning) {
+      if (timeLeft <= WARNING_BEFORE_EXPIRY_MS && !warningStartedRef.current) {
         setRemainingSeconds(Math.floor(timeLeft / 1000));
         setShowWarning(true);
+        warningStartedRef.current = true;
 
         // Start countdown
         countdownRef.current = setInterval(() => {
           setRemainingSeconds((prev) => {
             if (prev <= 1) {
               setShowWarning(false);
+              warningStartedRef.current = false;
               clearTimers();
               return 0;
             }
@@ -71,7 +79,7 @@ export function SessionTimeoutWarning() {
     timerRef.current = setInterval(checkExpiry, CHECK_INTERVAL_MS);
 
     return clearTimers;
-  }, [session, user, clearTimers, showWarning]);
+  }, [session, user, clearTimers]);
 
   const handleExtendSession = async () => {
     setRefreshing(true);
@@ -79,6 +87,7 @@ export function SessionTimeoutWarning() {
       const { error } = await supabase.auth.refreshSession();
       if (!error) {
         setShowWarning(false);
+        warningStartedRef.current = false;
         clearTimers();
       }
     } catch (e) {
@@ -90,6 +99,7 @@ export function SessionTimeoutWarning() {
 
   const handleDismiss = () => {
     setShowWarning(false);
+    warningStartedRef.current = false;
     if (countdownRef.current) {
       clearInterval(countdownRef.current);
       countdownRef.current = null;
@@ -131,3 +141,4 @@ export function SessionTimeoutWarning() {
     </AlertDialog>
   );
 }
+
