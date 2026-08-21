@@ -151,7 +151,7 @@ const Navbar = () => {
           <Link to="/my-applications" {...prefetchProps("/my-applications")} className={navLinkClass("/my-applications")} style={{ font: "var(--text-nav)" }}>My Applications</Link>
           <Link to="/skill-tests" {...prefetchProps("/skill-tests")} className={navLinkClass("/skill-tests")} style={{ font: "var(--text-nav)" }}>Skill Tests</Link>
           <Link to="/students" {...prefetchProps("/students")} className={navLinkClass("/students")} style={{ font: "var(--text-nav)" }}>LinkUp</Link>
-          <Link to="/campus" {...prefetchProps("/campus")} className={navLinkClass("/campus")} style={{ font: "var(--text-nav)" }}>PeerUp</Link>
+          <Link to="/campus" {...prefetchProps("/campus")} className={navLinkClass("/campus")} style={{ font: "var(--text-nav)" }}>Wroob&nbsp;Circle</Link>
           <Link to="/groups" {...prefetchProps("/groups")} onClick={markGroupsRead} className={cn("relative", navLinkClass("/groups"))} style={{ font: "var(--text-nav)" }}>
             Groups
             {unreadGroupCount > 0 && (

@@ -21,7 +21,7 @@ const VALUE_PROPS = [
     audience: "For universities & campuses",
     title: "Connect your students to real opportunities",
     body:
-      "Wroob's hyperlocal PeerUp circles let students at the same campus discover each other, share leads, and team up on applications. Career cells get visibility into internship outcomes without any extra admin overhead.",
+      "Wroob's hyperlocal Wroob Circles let students at the same campus discover each other, share leads, and team up on applications. Career cells get visibility into internship outcomes without any extra admin overhead.",
   },
 ];
 
