@@ -87,7 +87,7 @@ const CampusCommunity = () => {
       <Navbar />
       <div className="container max-w-4xl py-8 space-y-6">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">PeerUp</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Wroob Circle</h1>
           <p className="text-muted-foreground mt-1">
             Wroob Circles & groups vanish after 24 hours. No traces, just vibes.
           </p>
