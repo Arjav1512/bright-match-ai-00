@@ -22,12 +22,23 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   useEffect(() => {
     let cancelled = false;
     if (user && !loading && !role && location.pathname !== "/select-role") {
-      setRecheckingRole(true);
-      refreshRole().then((r) => {
-        if (cancelled) return;
-        setRecheckedRole(r ?? null);
+      if (typeof refreshRole !== "function") {
+        setRecheckedRole(null);
         setRecheckingRole(false);
-      });
+        return;
+      }
+      setRecheckingRole(true);
+      Promise.resolve(refreshRole())
+        .then((r) => {
+          if (cancelled) return;
+          setRecheckedRole(r ?? null);
+        })
+        .catch(() => {
+          if (!cancelled) setRecheckedRole(null);
+        })
+        .finally(() => {
+          if (!cancelled) setRecheckingRole(false);
+        });
     } else {
       setRecheckedRole("unknown");
     }
