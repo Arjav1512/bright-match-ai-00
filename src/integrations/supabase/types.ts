@@ -1586,11 +1586,23 @@ export type Database = {
         Args: { _a: string; _b: string }
         Returns: boolean
       }
+      has_approved_circle_request: {
+        Args: { _circle_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_circle_creator: {
+        Args: { _circle_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_circle_participant: {
+        Args: { _circle_id: string; _user_id: string }
         Returns: boolean
       }
       is_group_member: {
