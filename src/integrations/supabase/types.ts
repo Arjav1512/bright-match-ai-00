@@ -1497,6 +1497,7 @@ export type Database = {
         Returns: boolean
       }
       cleanup_expired_group_messages: { Args: never; Returns: number }
+      cleanup_expired_peerup_circles: { Args: never; Returns: number }
       cleanup_old_closed_internships: { Args: never; Returns: number }
       create_notification: {
         Args: {
@@ -1605,6 +1606,7 @@ export type Database = {
         Args: { _circle_id: string; _user_id: string }
         Returns: boolean
       }
+      is_group_active: { Args: { _group_id: string }; Returns: boolean }
       is_group_member: {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
