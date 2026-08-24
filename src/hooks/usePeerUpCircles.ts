@@ -56,22 +56,35 @@ export interface CircleParticipant {
   is_creator?: boolean;
 }
 
+// Identity resolution goes through the canonical `resolve_display_names` RPC
+// (profile name -> auth metadata -> email prefix). `student_profiles_public`
+// is only used for the optional academic sub-line, since it excludes students
+// who have not completed onboarding — which is why those users previously
+// rendered as "Unknown User".
 const fetchStudentIdentity = async (userId: string) => {
-  const { data: studentProfile } = await (supabase as any)
-    .from("student_profiles_public")
-    .select("full_name, avatar_url, university, major, graduation_year")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const [{ data: resolved }, { data: studentProfile }] = await Promise.all([
+    (supabase as any).rpc("resolve_display_names", { _user_ids: [userId] }),
+    (supabase as any)
+      .from("student_profiles_public")
+      .select("avatar_url, university, major, graduation_year")
+      .eq("user_id", userId)
+      .maybeSingle(),
+  ]);
+
+  const identity = Array.isArray(resolved) ? resolved[0] : null;
 
   return {
-    name: studentProfile?.full_name || "Unknown User",
-    avatar: studentProfile?.avatar_url ?? null,
+    name: identity?.display_name || "Unknown User",
+    avatar: studentProfile?.avatar_url ?? identity?.avatar_url ?? null,
     university: studentProfile?.university ?? null,
     info: studentProfile
-      ? `${studentProfile.major || "Student"} · Year ${studentProfile.graduation_year || ""}`
+      ? `${studentProfile.major || "Student"}${
+          studentProfile.graduation_year ? ` · Year ${studentProfile.graduation_year}` : ""
+        }`
       : "Student",
   };
 };
+
 
 export function usePeerUpCircles(userLocation?: { lat: number; lng: number } | null) {
   const { user } = useAuth();
