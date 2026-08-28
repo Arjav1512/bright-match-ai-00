@@ -38,7 +38,7 @@ export const SignupEmail = ({
           <Link href={siteUrl} style={link}>
             <strong>{siteName}</strong>
           </Link>
-          . Confirm your email ({recipient}) to unlock internships, Wroob Circles and your Wroob profile.
+          . Confirm your email ({recipient}) to unlock internships, PeerUp circles and your Wroob profile.
         </Text>
         <Button style={button} href={confirmationUrl}>
           Confirm my email
