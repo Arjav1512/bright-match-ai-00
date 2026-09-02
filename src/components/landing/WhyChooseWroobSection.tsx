@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Factory, Cpu, ShieldCheck, Users, LayoutDashboard,
-  FileText, Trophy, GraduationCap, Map, HardHat,
+  FileText, GraduationCap, Map, HardHat,
   Wallet, Network
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -21,7 +21,6 @@ const WHY_CARDS: WhyCard[] = [
   { title: "Mentor from the Shop Floor", tag: "Guidance built-in", description: "Assigned mentor + weekly check-ins", icon: Users },
   { title: "Live Industry Project Dashboard", tag: "Transparency first", description: "Track tasks, attendance, milestones, feedback", icon: LayoutDashboard },
   { title: "Smart Internship Report Generator", tag: "Student time-saver", description: "Auto-generate reports from logs", icon: FileText },
-  { title: "Wroob Score (Industrial Rating)", tag: "Gamified growth", description: "Score based on machines, internships, ratings", icon: Trophy },
   { title: "College Partnership Portal", tag: "B2B growth engine", description: "College dashboard for tracking & compliance", icon: GraduationCap },
   { title: "Pan-India Manufacturing Map", tag: "Discovery feature", description: "Visual map of internships by location/sector", icon: Map },
   { title: "Safety Induction & Compliance", tag: "Industry-grade trust", description: "Mandatory safety training before internship", icon: HardHat },
