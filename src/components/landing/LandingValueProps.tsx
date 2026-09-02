@@ -7,14 +7,14 @@ const VALUE_PROPS = [
     audience: "For students",
     title: "Land internships built around your skills",
     body:
-      "Create a free Wroob profile, add the skills you actually have, and we surface internships where you already match the requirements. Apply with one click, track every application, and build a verifiable reputation score with each completed role and skill test.",
+      "Create a free Wroob profile, add the skills you actually have, and we surface internships where you already match the requirements. Apply with one click, track every application,. Build a verifiable profile with each completed role.",
   },
   {
     Icon: Building2,
     audience: "For employers",
     title: "Hire interns who can ship from day one",
     body:
-      "Post an internship in minutes and reach pre-vetted students across India. Every applicant arrives with a match percentage, a verified skill profile, and a public reputation score — so you spend less time screening resumes and more time interviewing the right people.",
+      "Post an internship in minutes and reach pre-vetted students across India. Every applicant arrives with a match percentage, and a verified skill profile — so you spend less time screening resumes and more time interviewing the right people.",
   },
   {
     Icon: Sparkles,
@@ -40,7 +40,7 @@ const LandingValueProps = () => (
           Built for students, employers and campuses
         </h2>
         <p className="mt-4 text-muted-foreground" style={{ font: "var(--text-body)" }}>
-          Wroob is a skills-based internship platform connecting ambitious students in India with innovative companies through transparent matching, verified reputation, and hyperlocal community.
+          Wroob is a skills-based internship platform connecting ambitious students in India with innovative companies through transparent matching and hyperlocal community.
         </p>
       </div>
       <div className="grid gap-6 md:grid-cols-3">

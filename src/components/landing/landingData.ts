@@ -27,10 +27,6 @@ export const LANDING_FAQS = [
     a: "You'll find remote, on-site, and hybrid internships across software engineering (frontend, backend, AI/ML), data science, product, design, marketing, fintech and more. Roles range from short micro-internships to full-time multi-month positions, primarily across India.",
   },
   {
-    q: "How does the Wroob reputation score work?",
-    a: "Your Wroob Score (0–100) blends profile completeness, verified skill-test results, and completed internships. Employers see your score on every application, which helps strong candidates stand out regardless of their college pedigree.",
-  },
-  {
     q: "How do employers post internships on Wroob?",
     a: "Sign up as an employer, complete the company profile (including GSTIN/PAN for verification), and post an internship through the dashboard. Verified employers get an official badge that increases applicant trust and apply-through rate.",
   },
