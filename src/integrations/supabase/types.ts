@@ -1232,8 +1232,6 @@ export type Database = {
       }
       student_profiles: {
         Row: {
-          company_feedback_score: number
-          completed_internships: number
           created_at: string
           current_company: string | null
           current_job_title: string | null
@@ -1254,10 +1252,7 @@ export type Database = {
           phone_number: string | null
           preferred_course: string | null
           profile_role: string | null
-          profile_strength_score: number
-          reputation_score: number
           resume_url: string | null
-          skill_test_score: number
           skills: string[] | null
           university: string | null
           updated_at: string
@@ -1265,8 +1260,6 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
-          company_feedback_score?: number
-          completed_internships?: number
           created_at?: string
           current_company?: string | null
           current_job_title?: string | null
@@ -1287,10 +1280,7 @@ export type Database = {
           phone_number?: string | null
           preferred_course?: string | null
           profile_role?: string | null
-          profile_strength_score?: number
-          reputation_score?: number
           resume_url?: string | null
-          skill_test_score?: number
           skills?: string[] | null
           university?: string | null
           updated_at?: string
@@ -1298,8 +1288,6 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
-          company_feedback_score?: number
-          completed_internships?: number
           created_at?: string
           current_company?: string | null
           current_job_title?: string | null
@@ -1320,10 +1308,7 @@ export type Database = {
           phone_number?: string | null
           preferred_course?: string | null
           profile_role?: string | null
-          profile_strength_score?: number
-          reputation_score?: number
           resume_url?: string | null
-          skill_test_score?: number
           skills?: string[] | null
           university?: string | null
           updated_at?: string
@@ -1421,8 +1406,6 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
-          company_feedback_score: number | null
-          completed_internships: number | null
           created_at: string | null
           current_company: string | null
           current_job_title: string | null
@@ -1438,10 +1421,7 @@ export type Database = {
           onboarding_status: string | null
           preferred_course: string | null
           profile_role: string | null
-          profile_strength_score: number | null
-          reputation_score: number | null
           resume_url: string | null
-          skill_test_score: number | null
           skills: string[] | null
           university: string | null
           user_id: string | null
@@ -1514,8 +1494,6 @@ export type Database = {
         Args: { p_internship_id: string }
         Returns: {
           avatar_url: string
-          company_feedback_score: number
-          completed_internships: number
           current_company: string
           current_job_title: string
           experience_years: string
@@ -1525,10 +1503,7 @@ export type Database = {
           location: string
           major: string
           preferred_course: string
-          profile_strength_score: number
-          reputation_score: number
           resume_url: string
-          skill_test_score: number
           skills: string[]
           university: string
           user_id: string
@@ -1547,8 +1522,6 @@ export type Database = {
         Returns: {
           avatar_url: string
           bio: string
-          company_feedback_score: number
-          completed_internships: number
           created_at: string
           current_company: string
           current_job_title: string
@@ -1564,10 +1537,7 @@ export type Database = {
           onboarding_status: string
           preferred_course: string
           profile_role: string
-          profile_strength_score: number
-          reputation_score: number
           resume_url: string
-          skill_test_score: number
           skills: string[]
           university: string
           user_id: string
@@ -1638,8 +1608,6 @@ export type Database = {
         Returns: {
           avatar_url: string
           bio: string
-          company_feedback_score: number
-          completed_internships: number
           created_at: string
           current_company: string
           current_job_title: string
@@ -1655,10 +1623,7 @@ export type Database = {
           onboarding_status: string
           preferred_course: string
           profile_role: string
-          profile_strength_score: number
-          reputation_score: number
           resume_url: string
-          skill_test_score: number
           skills: string[]
           university: string
           user_id: string
@@ -1723,10 +1688,6 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
-      }
-      update_student_reputation: {
-        Args: { _student_id: string }
-        Returns: undefined
       }
     }
     Enums: {

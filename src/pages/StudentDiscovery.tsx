@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, GraduationCap, MapPin, Users, Building2, Briefcase, Linkedin, Globe, Star, CalendarDays } from "lucide-react";
+import { Search, GraduationCap, MapPin, Users, Building2, Briefcase, Linkedin, Globe, CalendarDays } from "lucide-react";
 import FollowButton from "@/components/FollowButton";
 import { StudentGridSkeleton } from "@/components/skeletons";
 import { motion } from "framer-motion";
@@ -32,7 +32,6 @@ interface StudentCard {
   current_company: string | null;
   linkedin_url: string | null;
   website_url: string | null;
-  reputation_score: number | null;
 }
 
 interface CompanyCard {
@@ -235,12 +234,6 @@ const StudentDiscovery = () => {
                               </div>
                             )}
                             <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                              {typeof student.reputation_score === "number" && student.reputation_score > 0 && (
-                                <span className="flex items-center gap-1">
-                                  <Star className="h-3.5 w-3.5 text-amber-500" />
-                                  {Math.round(student.reputation_score)}
-                                </span>
-                              )}
                               {student.experience_years && (
                                 <span className="truncate">{student.experience_years} exp</span>
                               )}
