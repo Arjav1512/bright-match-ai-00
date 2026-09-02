@@ -15,28 +15,50 @@ import NotFound from "./pages/NotFound";
 
 // Retry a dynamic import once, then reload the page so a stale index.html
 // referencing an old chunk hash (after a redeploy) recovers automatically.
+const RELOAD_KEY = "chunk-reload-at";
+
 function lazyWithReload<T extends { default: React.ComponentType<any> }>(
   factory: () => Promise<T>
 ) {
   return lazy(() =>
-    factory().catch((err) => {
-      if (!sessionStorage.getItem("chunk-reload")) {
-        sessionStorage.setItem("chunk-reload", "1");
-        window.location.reload();
-        return new Promise<T>(() => {});
+    factory().catch(async (err) => {
+      // One in-place retry first — most failures are transient network blips.
+      try {
+        return await factory();
+      } catch {
+        // Only reload once per minute to avoid infinite reload loops.
+        const last = Number(sessionStorage.getItem(RELOAD_KEY) || 0);
+        if (Date.now() - last > 60_000) {
+          sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
+          window.location.reload();
+          return new Promise<T>(() => {});
+        }
+        throw err;
       }
-      throw err;
     })
+  );
+}
+
+// Non-critical overlays: if their chunk fails to load, render nothing rather
+// than letting the rejected import bubble up and blank the whole app.
+function lazyOptional<T extends { default: React.ComponentType<any> }>(
+  factory: () => Promise<T>
+) {
+  return lazy(() =>
+    factory().catch(() =>
+      factory().catch(() => ({ default: () => null } as unknown as T))
+    )
   );
 }
 
 // Auth-overlay components — only needed once a user is signed in. Lazy-loading
 // them shaves a meaningful chunk off first paint for landing/auth visitors.
-const SessionTimeoutWarning = lazyWithReload(() =>
+const SessionTimeoutWarning = lazyOptional(() =>
   import("@/components/SessionTimeoutWarning").then((m) => ({ default: m.SessionTimeoutWarning }))
 );
-const LoginGreeting = lazyWithReload(() => import("@/components/LoginGreeting"));
-const ChatPopup = lazyWithReload(() => import("@/components/chat/ChatPopup"));
+const LoginGreeting = lazyOptional(() => import("@/components/LoginGreeting"));
+const ChatPopup = lazyOptional(() => import("@/components/chat/ChatPopup"));
+
 
 
 // Lazy loaded routes
