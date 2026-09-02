@@ -253,9 +253,6 @@ serve(async (req) => {
         passed,
       }, { onConflict: "student_id,skill_name" });
 
-      // Recalculate reputation
-      await serviceClient.rpc("update_student_reputation", { _student_id: user.id });
-
       return new Response(JSON.stringify({ score, passed, correct, total: test.questions.length }), {
         headers: { ...responseHeaders },
       });

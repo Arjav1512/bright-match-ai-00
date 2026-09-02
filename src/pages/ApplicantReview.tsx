@@ -12,7 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ApplicantListSkeleton } from "@/components/skeletons";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Download, MessageCircle, Users } from "lucide-react";
-import { CandidateScoreBadge } from "@/components/reputation/ReputationScoreCard";
 import { getResumeSignedUrl, resumeErrorMessage, type ResumeErrorCode } from "@/lib/resumeStorage";
 
 const statusColors: Record<string, string> = {
@@ -172,9 +171,6 @@ const ApplicantReview = () => {
                               <ProfileLink userId={app.student_id} type="student" className="font-semibold">{app.profiles?.full_name || "Unknown User"}</ProfileLink>
                               {score > 0 && (
                                 <Badge variant={score >= 70 ? "default" : "secondary"}>{score}% match</Badge>
-                              )}
-                              {(app.student_profiles as any)?.reputation_score > 0 && (
-                                <CandidateScoreBadge score={Number((app.student_profiles as any).reputation_score)} />
                               )}
                             </div>
                             {app.student_profiles?.university && (

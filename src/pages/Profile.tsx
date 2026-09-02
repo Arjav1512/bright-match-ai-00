@@ -22,8 +22,6 @@ import LocationCapture from "@/components/groups/LocationCapture";
 import AvatarUpload from "@/components/AvatarUpload";
 import FollowListDialog from "@/components/FollowListDialog";
 import { useFollows } from "@/hooks/useFollows";
-import { ReputationScoreCard } from "@/components/reputation/ReputationScoreCard";
-import { useReputation } from "@/hooks/useReputation";
 import { COURSE_CATEGORIES, SCHOOL_NAMES } from "@/data/courseData";
 import CourseSearchSelect from "@/components/CourseSearchSelect";
 import ResumeLink from "@/components/ResumeLink";
@@ -85,7 +83,6 @@ const Profile = () => {
     hr_contact_name: "", hr_designation: "", hr_email: "", hr_phone: "",
     gstin: "", pan_number: "", cin: "", linkedin_profile: "",
   });
-  const { data: reputation, recalculate: recalcReputation } = useReputation(role === "student" ? user?.id : undefined);
   const [allSkills, setAllSkills] = useState<{ name: string; category: string }[]>([]);
   const [skillSearch, setSkillSearch] = useState("");
   const [locationCaptured, setLocationCaptured] = useState(false);
@@ -305,7 +302,6 @@ const Profile = () => {
     suppressDraftFlush.current = false;
     setLoading(false);
     toast({ title: "Profile updated!" });
-    if (role === "student") recalcReputation();
   };
 
   const addSkill = (skill: string) => {
@@ -369,12 +365,6 @@ const Profile = () => {
       <Navbar />
       <div className="container max-w-2xl py-10">
         <h1 className="font-display text-3xl font-bold mb-8">My Profile</h1>
-
-        {role === "student" && reputation && (
-          <div className="mb-6">
-            <ReputationScoreCard score={reputation.reputation_score} breakdown={reputation.breakdown} />
-          </div>
-        )}
 
         <div className="space-y-6">
           <Card>
