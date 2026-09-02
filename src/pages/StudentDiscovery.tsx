@@ -32,7 +32,6 @@ interface StudentCard {
   current_company: string | null;
   linkedin_url: string | null;
   website_url: string | null;
-  }
 }
 
 interface CompanyCard {
