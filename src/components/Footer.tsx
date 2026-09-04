@@ -10,7 +10,7 @@ const XIcon = ({ className }: { className?: string }) => (
 
 const QuoraIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.55 14.03c-1.05.78-2.46 1.17-4.08 1.17-1.95 0-3.5-.67-4.6-1.9-1.08-1.2-1.63-2.84-1.63-4.8 0-1.98.6-3.58 1.7-4.78 1.12-1.2 2.65-1.84 4.45-1.84 1.5 0 2.78.37 3.74 1.06l-1.1 1.92c-.65-.47-1.5-.72-2.46-.72-1.12 0-2.03.42-2.68 1.22-.65.8-.98 1.9-.98 3.18 0 1.28.32 2.3.92 3 .6.7 1.42 1.06 2.42 1.06.95 0 1.84-.3 2.56-.86l1.14 1.97z" />
+    <path d="M12.738 18.702c-.831.53-1.9.79-3.2.79-2.62 0-4.72-.9-6.28-2.71C1.7 14.97.92 12.7.92 9.96c0-2.76.79-5.03 2.36-6.83C4.86 1.32 6.97.41 9.61.41c2.6 0 4.69.91 6.24 2.72 1.56 1.8 2.34 4.08 2.34 6.83 0 1.62-.28 3.08-.83 4.37-.36.85-.84 1.6-1.44 2.26.5.53 1.03.79 1.6.79.62 0 1.07-.2 1.36-.6.29-.4.45-.98.48-1.74h1.86c-.05 1.62-.5 2.86-1.36 3.72-.86.86-2.02 1.29-3.48 1.29-1.2 0-2.4-.45-3.64-1.35zM9.6 15.6c.86 0 1.6.2 2.24.6.5-.98.75-2.72.75-5.22 0-2.6-.3-4.42-.9-5.46-.6-1.05-1.62-1.57-3.05-1.57-1.4 0-2.4.53-3 1.58-.6 1.05-.9 2.86-.9 5.45 0 2.57.3 4.38.9 5.44.6 1.05 1.6 1.58 3 1.58.36 0 .7-.05 1.02-.15-.5-.5-1.1-.75-1.8-.75-.3 0-.6.04-.9.13l-.6-1.3c.98-.4 2.06-.33 3.24-.33z" />
   </svg>
 );
 
@@ -52,11 +52,12 @@ const columns = [
 
 const Footer = () => {
   return (
-    <footer className="bg-foreground text-background">
-      <div className="container py-12 md:py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-12">
+    <footer className="border-t bg-secondary/60 text-foreground">
+      {/* Upper footer */}
+      <div className="container py-10 md:py-12">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4 lg:grid-cols-[1.6fr_1fr_1fr_1fr] lg:gap-x-10">
           {/* Brand */}
-          <div className="max-w-xs">
+          <div className="col-span-2 md:col-span-4 lg:col-span-1 lg:max-w-xs">
             <img
               src={wroobeLogo}
               alt="Wroob"
@@ -64,38 +65,24 @@ const Footer = () => {
               height="56"
               loading="lazy"
               decoding="async"
-              className="h-11 w-auto brightness-0 invert"
+              className="h-8 w-auto dark:brightness-0 dark:invert"
             />
-            <p className="mt-4 text-[13px] leading-6 text-background/60">
+            <p className="mt-3 text-[13px] leading-5 text-muted-foreground">
               Skills-based internship matching for students and companies.
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3">
-              {socials.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={item.label}
-                  className="inline-flex h-5 w-5 items-center justify-center text-background/55 transition-colors hover:text-background"
-                >
-                  <item.Icon className="h-[18px] w-[18px]" />
-                </a>
-              ))}
-            </div>
           </div>
 
           {columns.map((col) => (
             <div key={col.title}>
-              <h4 className="font-display text-[11px] font-bold uppercase tracking-[0.12em] text-background/50">
+              <h4 className="text-[12px] font-bold uppercase tracking-[0.08em] text-foreground">
                 {col.title}
               </h4>
-              <ul className="mt-4 space-y-3">
+              <ul className="mt-3 space-y-2">
                 {col.links.map((l) => (
                   <li key={l.label}>
                     <Link
                       to={l.href}
-                      className="text-[13px] leading-5 text-background/80 transition-colors hover:text-background"
+                      className="text-[13px] leading-5 text-muted-foreground transition-colors hover:text-primary"
                     >
                       {l.label}
                     </Link>
@@ -107,9 +94,26 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="border-t border-background/10">
-        <div className="container flex flex-col items-center justify-between gap-2 py-5 sm:flex-row">
-          <p className="text-[12px] text-background/50">© 2026 Wroob. All rights reserved.</p>
+      {/* Lower footer */}
+      <div className="border-t border-border">
+        <div className="container flex flex-col-reverse items-center justify-between gap-4 py-4 sm:flex-row">
+          <p className="text-[12px] leading-5 text-muted-foreground">
+            © 2026 Wroob. All rights reserved.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-1">
+            {socials.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={item.label}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-background hover:text-primary"
+              >
+                <item.Icon className="h-4 w-4" />
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </footer>
