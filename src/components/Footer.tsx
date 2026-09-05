@@ -97,7 +97,7 @@ const Footer = () => {
       {/* Lower footer */}
       <div className="border-t border-border">
         <div className="container flex flex-col-reverse items-center justify-between gap-4 py-4 sm:flex-row">
-          <p className="text-[12px] leading-5 text-muted-foreground">
+          <p className="text-[12px] leading-5 font-bold text-white">
             © 2026 Wroob. All rights reserved.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-1">
