@@ -67,7 +67,7 @@ const Footer = () => {
               decoding="async"
               className="h-8 w-auto dark:brightness-0 dark:invert"
             />
-            <p className="mt-3 text-[13px] leading-5 text-muted-foreground">
+            <p className="mt-3 text-[13px] leading-5 font-bold text-white">
               Skills-based internship matching for students and companies.
             </p>
           </div>
