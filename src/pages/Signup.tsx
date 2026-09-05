@@ -62,7 +62,7 @@ const Signup = () => {
           <CardContent>
             <div className="mb-6 grid grid-cols-2 gap-3">
               {[
-                { value: "student" as const, label: "Student", icon: GraduationCap, desc: "Find internships" },
+                { value: "student" as const, label: "Student/Professor", icon: GraduationCap, desc: "Find internships" },
                 { value: "employer" as const, label: "Employer", icon: Building2, desc: "Post internships" },
               ].map((r) => (
                 <button
