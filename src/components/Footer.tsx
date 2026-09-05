@@ -52,7 +52,7 @@ const columns = [
 
 const Footer = () => {
   return (
-    <footer className="border-t bg-secondary/60 text-foreground">
+    <footer className="border-t bg-[#333333] text-foreground">
       {/* Upper footer */}
       <div className="container py-10 md:py-12">
         <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4 lg:grid-cols-[1.6fr_1fr_1fr_1fr] lg:gap-x-10">
