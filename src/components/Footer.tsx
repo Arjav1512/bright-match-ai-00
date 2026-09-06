@@ -108,7 +108,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={item.label}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-background hover:text-primary"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10 hover:text-white"
               >
                 <item.Icon className="h-4 w-4" />
               </a>
