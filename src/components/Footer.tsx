@@ -67,14 +67,14 @@ const Footer = () => {
               decoding="async"
               className="h-8 w-auto dark:brightness-0 dark:invert"
             />
-            <p className="mt-3 text-[13px] leading-5 font-bold text-white">
+            <p className="mt-3 text-[14px] leading-5 font-bold text-white">
               Skills-based internship matching for students and companies.
             </p>
           </div>
 
           {columns.map((col) => (
             <div key={col.title}>
-              <h4 className="text-[12px] font-bold uppercase tracking-[0.08em] text-white">
+              <h4 className="text-[13px] font-bold uppercase tracking-[0.08em] text-white">
                 {col.title}
               </h4>
               <ul className="mt-3 space-y-2">
@@ -82,7 +82,7 @@ const Footer = () => {
                   <li key={l.label}>
                     <Link
                       to={l.href}
-                      className="text-[13px] leading-5 font-bold text-white transition-colors hover:text-primary"
+                      className="text-[14px] leading-5 font-bold text-white transition-colors hover:text-primary"
                     >
                       {l.label}
                     </Link>
