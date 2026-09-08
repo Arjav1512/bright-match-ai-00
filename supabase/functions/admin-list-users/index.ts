@@ -59,7 +59,8 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: responseHeaders });
     }
 
-    const { data: isAdmin } = await service.rpc("has_role", { _user_id: user.id, _role: "admin" });
+    const { data: isAdmin, error: roleErr } = await service.rpc("has_role", { _user_id: user.id, _role: "admin" });
+    if (roleErr) console.error("has_role check failed:", roleErr);
     if (!isAdmin) {
       return new Response(JSON.stringify({ error: "Admin access required" }), { status: 403, headers: responseHeaders });
     }
