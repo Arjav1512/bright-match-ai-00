@@ -192,7 +192,7 @@ export function usePeerUpCircles(userLocation?: { lat: number; lng: number } | n
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel("peerup-realtime")
+      .channel(`peerup-${user.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "peerup_circles" }, () => fetchCircles())
       .on("postgres_changes", { event: "*", schema: "public", table: "peerup_requests" }, () => fetchCircles())
       .on("postgres_changes", { event: "*", schema: "public", table: "peerup_participants" }, () => fetchCircles())

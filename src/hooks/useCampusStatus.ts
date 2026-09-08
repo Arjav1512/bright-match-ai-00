@@ -92,7 +92,7 @@ export function useCampusStatus() {
   useEffect(() => {
     if (!location) return;
     const channel = supabase
-      .channel("campus-statuses-realtime")
+      .channel(`campus-statuses-${user?.id ?? "anon"}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "campus_statuses" }, () => {
         fetchStatuses();
       })
