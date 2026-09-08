@@ -74,7 +74,7 @@ const Footer = () => {
 
           {columns.map((col) => (
             <div key={col.title}>
-              <h4 className="text-[13px] font-bold uppercase tracking-[0.08em] text-white">
+              <h4 className="text-[12.5px] font-bold uppercase tracking-[0.08em] text-white">
                 {col.title}
               </h4>
               <ul className="mt-3 space-y-2">
