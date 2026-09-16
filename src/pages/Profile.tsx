@@ -26,6 +26,7 @@ import { COURSE_CATEGORIES, SCHOOL_NAMES } from "@/data/courseData";
 import CourseSearchSelect from "@/components/CourseSearchSelect";
 import ResumeLink from "@/components/ResumeLink";
 import { uploadResume, resumeDisplayName } from "@/lib/resumeStorage";
+import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 
 const EXPERIENCE_OPTIONS = [
   { value: "0", label: "0 months" },
@@ -804,6 +805,8 @@ const Profile = () => {
           <Button onClick={handleSave} disabled={loading} size="lg" className="w-full rounded-full brand-gradient border-0 text-white shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200">
             {loading ? "Saving..." : "Save Profile"}
           </Button>
+
+          <DeleteAccountDialog />
         </div>
       </div>
     </div>
