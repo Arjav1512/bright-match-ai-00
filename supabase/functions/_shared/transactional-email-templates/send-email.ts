@@ -24,6 +24,8 @@ export interface SendTemplateEmailOptions {
   /** Dedupes retries of the same logical send; defaults to a random UUID (no dedupe). */
   idempotencyKey?: string
   replyTo?: string
+  /** Optional local-part override for the From address (e.g. "info"). */
+  fromLocalPart?: string
 }
 
 /**
