@@ -1,5 +1,6 @@
 import type { ComponentType } from 'npm:react@18.3.1'
 import { template as helpConfirmation } from './help-confirmation.tsx'
+import { template as accountDeletionOtp } from './account-deletion-otp.tsx'
 import { template as supportNotification } from './support-notification.tsx'
 
 export interface TemplateEntry {
@@ -12,5 +13,6 @@ export interface TemplateEntry {
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'help-confirmation': helpConfirmation,
+  'account-deletion-otp': accountDeletionOtp,
   'support-notification': supportNotification,
 }
