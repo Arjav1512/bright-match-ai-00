@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_deletion_otps: {
+        Row: {
+          attempts: number
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           applied_at: string
@@ -1487,6 +1517,10 @@ export type Database = {
           _type: Database["public"]["Enums"]["notification_type"]
           _user_id: string
         }
+        Returns: undefined
+      }
+      delete_user_account_data: {
+        Args: { _user_id: string }
         Returns: undefined
       }
       display_name_for: { Args: { _user_id: string }; Returns: string }
