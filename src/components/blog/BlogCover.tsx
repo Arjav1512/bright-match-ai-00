@@ -9,9 +9,17 @@ interface BlogCoverProps {
   className?: string;
   /** Tailwind aspect ratio class, keeps layout stable while loading. */
   ratioClassName?: string;
+  /** Natural mode displays the complete image without enforcing a thumbnail crop. */
+  displayMode?: "thumbnail" | "natural";
 }
 
-const BlogCover = ({ cover, alt, className, ratioClassName = "aspect-[16/9]" }: BlogCoverProps) => {
+const BlogCover = ({
+  cover,
+  alt,
+  className,
+  ratioClassName = "aspect-[16/9]",
+  displayMode = "thumbnail",
+}: BlogCoverProps) => {
   const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -26,17 +34,34 @@ const BlogCover = ({ cover, alt, className, ratioClassName = "aspect-[16/9]" }: 
   }, [cover]);
 
   return (
-    <div className={cn("overflow-hidden rounded-xl bg-muted", ratioClassName, className)}>
+    <div
+      className={cn(
+        "rounded-xl bg-muted",
+        displayMode === "thumbnail" && "overflow-hidden",
+        displayMode === "thumbnail" && ratioClassName,
+        className,
+      )}
+    >
       {url ? (
         <img
           src={url}
           alt={alt}
           loading="lazy"
           decoding="async"
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          className={cn(
+            "block w-full",
+            displayMode === "thumbnail"
+              ? "h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              : "h-auto object-contain",
+          )}
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center text-muted-foreground/40">
+        <div
+          className={cn(
+            "flex w-full items-center justify-center text-muted-foreground/40",
+            displayMode === "thumbnail" ? "h-full" : ratioClassName,
+          )}
+        >
           <ImageIcon className="h-6 w-6" />
         </div>
       )}

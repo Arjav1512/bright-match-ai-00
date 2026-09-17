@@ -133,7 +133,7 @@ const BlogPost = () => {
             </div>
 
             {post.cover_image && (
-              <BlogCover cover={post.cover_image} alt={post.title} className="mt-8" />
+              <BlogCover cover={post.cover_image} alt={post.title} className="mt-8" displayMode="natural" />
             )}
 
             <div

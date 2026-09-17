@@ -282,7 +282,7 @@ const AdminBlogs = () => {
               <div className="space-y-2">
                 <Label>Cover image</Label>
                 <div className="flex flex-wrap items-center gap-3">
-                  <BlogCover cover={form.cover_image} alt="Cover preview" className="w-40" />
+                  <BlogCover cover={form.cover_image} alt="Cover preview" className="w-40" displayMode="natural" />
                   <div className="flex flex-wrap gap-2">
                     <Button type="button" variant="outline" disabled={uploading} onClick={() => fileRef.current?.click()}>
                       {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
