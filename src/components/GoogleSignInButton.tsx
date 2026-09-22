@@ -13,10 +13,15 @@ interface GoogleSignInButtonProps {
    * Only "student" / "employer" are honoured (set_initial_role rejects anything else).
    */
   role?: "student" | "employer";
+  /**
+   * Optional same-origin path to return to after the OAuth round trip.
+   * Defaults to /dashboard. Must be a public route.
+   */
+  redirectPath?: string;
 }
 
 export const GoogleSignInButton = forwardRef<HTMLButtonElement, GoogleSignInButtonProps>(
-  ({ label = "Continue with Google", className, role }, ref) => {
+  ({ label = "Continue with Google", className, role, redirectPath }, ref) => {
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
 
