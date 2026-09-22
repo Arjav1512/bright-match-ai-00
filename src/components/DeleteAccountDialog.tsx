@@ -27,7 +27,16 @@ const ERROR_TEXT: Record<string, string> = {
     "We couldn't complete the deletion. Nothing has been removed — please try again or contact support.",
 };
 
-const DeleteAccountDialog = () => {
+interface DeleteAccountDialogProps {
+  /**
+   * "card" renders the Profile page Danger Zone card (default).
+   * "inline" renders a standalone prominent Delete Account button,
+   * used by the public /delete-account entry point.
+   */
+  variant?: "card" | "inline";
+}
+
+const DeleteAccountDialog = ({ variant = "card" }: DeleteAccountDialogProps = {}) => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
 

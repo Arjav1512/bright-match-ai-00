@@ -47,7 +47,9 @@ export const GoogleSignInButton = forwardRef<HTMLButtonElement, GoogleSignInButt
             : window.location.origin;
 
         const result = await lovable.auth.signInWithOAuth("google", {
-          redirect_uri: `${origin}/dashboard`,
+          redirect_uri: `${origin}${
+            redirectPath && redirectPath.startsWith("/") ? redirectPath : "/dashboard"
+          }`,
         });
 
 
