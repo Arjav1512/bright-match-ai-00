@@ -89,6 +89,7 @@ const Help = lazyWithReload(() => import("./pages/Help"));
 const EditInternship = lazyWithReload(() => import("./pages/EditInternship"));
 const Terms = lazyWithReload(() => import("./pages/Terms"));
 const Privacy = lazyWithReload(() => import("./pages/Privacy"));
+const DeleteAccount = lazyWithReload(() => import("./pages/DeleteAccount"));
 const Groups = lazyWithReload(() => import("./pages/Groups"));
 const StudentDiscovery = lazyWithReload(() => import("./pages/StudentDiscovery"));
 const SkillTests = lazyWithReload(() => import("./pages/SkillTests"));
