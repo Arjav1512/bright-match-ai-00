@@ -27,7 +27,16 @@ const ERROR_TEXT: Record<string, string> = {
     "We couldn't complete the deletion. Nothing has been removed — please try again or contact support.",
 };
 
-const DeleteAccountDialog = () => {
+interface DeleteAccountDialogProps {
+  /**
+   * "card" renders the Profile page Danger Zone card (default).
+   * "inline" renders a standalone prominent Delete Account button,
+   * used by the public /delete-account entry point.
+   */
+  variant?: "card" | "inline";
+}
+
+const DeleteAccountDialog = ({ variant = "card" }: DeleteAccountDialogProps = {}) => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -158,26 +167,38 @@ const DeleteAccountDialog = () => {
 
   return (
     <>
-      <Card className="border-destructive/40">
-        <CardHeader>
-          <CardTitle className="text-destructive flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5" /> Danger Zone
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Permanently delete your Wroob account and all associated data. This action cannot be
-            undone.
-          </p>
-          <Button
-            variant="destructive"
-            className="w-full sm:w-auto"
-            onClick={() => setOpen(true)}
-          >
-            <Trash2 className="h-4 w-4 mr-2" /> Delete Account
-          </Button>
-        </CardContent>
-      </Card>
+      {variant === "inline" ? (
+        <Button
+          variant="destructive"
+          size="lg"
+          className="w-full"
+          onClick={() => setOpen(true)}
+        >
+          <Trash2 className="h-4 w-4 mr-2" /> Delete Account
+        </Button>
+      ) : (
+        <Card className="border-destructive/40">
+          <CardHeader>
+            <CardTitle className="text-destructive flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" /> Danger Zone
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Permanently delete your Wroob account and all associated data. This action cannot be
+              undone.
+            </p>
+            <Button
+              variant="destructive"
+              className="w-full sm:w-auto"
+              onClick={() => setOpen(true)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" /> Delete Account
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)]">
