@@ -200,6 +200,7 @@ const App = () => (
               <Route path="/help" element={<Help />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/delete-account" element={<DeleteAccount />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
