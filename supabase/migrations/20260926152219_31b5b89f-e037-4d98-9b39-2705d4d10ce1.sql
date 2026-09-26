@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Published blog covers are readable" ON storage.objects;
