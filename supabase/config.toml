@@ -13,3 +13,6 @@ project_id = "vlavfpvrxnmoutybczfy"
     verify_jwt = false
   [functions.send-help-message]
     verify_jwt = false
+
+[functions.blog-cover-url]
+verify_jwt = false

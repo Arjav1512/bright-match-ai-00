@@ -57,10 +57,19 @@ export async function resolveCoverUrl(cover: string | null | undefined): Promise
   if (/^https?:\/\//i.test(cover)) return cover;
   const cached = signedCache.get(cover);
   if (cached) return cached;
+  // Admins can sign directly; everyone else gets a URL from the server,
+  // which only signs covers belonging to published posts.
   const { data } = await supabase.storage.from(BUCKET).createSignedUrl(cover, 60 * 60 * 24 * 7);
-  if (!data?.signedUrl) return null;
-  signedCache.set(cover, data.signedUrl);
-  return data.signedUrl;
+  let url = data?.signedUrl ?? null;
+  if (!url) {
+    const { data: fn } = await supabase.functions.invoke("blog-cover-url", {
+      body: { path: cover },
+    });
+    url = (fn as { url?: string } | null)?.url ?? null;
+  }
+  if (!url) return null;
+  signedCache.set(cover, url);
+  return url;
 }
 
 export async function uploadBlogCover(file: File): Promise<string> {
