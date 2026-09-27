@@ -1,0 +1,2 @@
+DROP POLICY IF EXISTS "Authenticated users can view skills" ON public.skills;
+CREATE POLICY "Signed-in users can view skills" ON public.skills FOR SELECT TO authenticated USING (auth.uid() IS NOT NULL);
