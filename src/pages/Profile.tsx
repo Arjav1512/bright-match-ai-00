@@ -277,7 +277,7 @@ const Profile = () => {
       }
     } else if (role === "employer") {
       const { error: epError } = await supabase.from("employer_profiles").update({
-        ...employerProfile,
+        ...(({ is_verified: _iv, ...rest }: any) => rest)(employerProfile),
         year_established: employerProfile.year_established ? parseInt(employerProfile.year_established) : null,
       } as any).eq("user_id", user.id);
 
