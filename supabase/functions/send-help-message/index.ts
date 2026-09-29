@@ -110,9 +110,19 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 2) User acknowledgement (non-blocking on failure)
-    try {
-      const ack = await sendTemplateEmail("help-confirmation", email, {
+    // 2) User acknowledgement — only to the verified email of the signed-in
+    // caller, never to an arbitrary address typed into the form.
+    let ackRecipient: string | null = null;
+    const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
+    if (token && supabase) {
+      const { data } = await supabase.auth.getUser(token);
+      const verifiedEmail = data?.user?.email?.toLowerCase();
+      if (verifiedEmail && verifiedEmail === email.toLowerCase()) {
+        ackRecipient = verifiedEmail;
+      }
+    }
+    if (ackRecipient) try {
+      const ack = await sendTemplateEmail("help-confirmation", ackRecipient, {
         templateData: {
           name: email.split("@")[0] || "there",
           subject,
