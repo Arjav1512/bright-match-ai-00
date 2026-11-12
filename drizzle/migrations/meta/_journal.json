@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794488727183,
+      "tag": "0000_add_push_subscription_storage_and_notification_metadata",
+      "breakpoints": true
+    }
+  ]
+}
