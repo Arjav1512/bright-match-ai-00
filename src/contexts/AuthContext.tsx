@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { cleanupPushOnLogout, resyncPush, setPushUser } from "@/lib/webPush";
 
 type AppRole = "student" | "employer" | "admin";
 
@@ -136,6 +137,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [syncAuthState]);
 
+  useEffect(() => {
+    setPushUser(user?.id ?? null);
+    if (user && (role === 'student' || role === 'employer')) {
+      void resyncPush(user.id).catch(() => undefined);
+    }
+  }, [user?.id, role]);
+
   const signUp = async (email: string, password: string, fullName: string, role: AppRole) => {
     // SECURITY: Only pass full_name and the allowed role (student|employer).
     // The trigger enforces this server-side too; this is just belt-and-suspenders.
@@ -168,6 +176,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Await sign-out so the server-side refresh token is invalidated before
     // clearing local state. If the request fails, still clear local state.
     try {
+      if (user) await cleanupPushOnLogout(user.id);
       await supabase.auth.signOut();
     } catch (error) {
       console.error("Sign out error:", error);

@@ -1,4 +1,6 @@
-import { useEffect } from "react";
+import { useState } from "react";
+import PushControls from "@/components/push/PushControls";
+import { usePushRedirectTimer } from "@/hooks/usePushRedirectTimer";
 import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "@/components/onboarding/OnboardingLayout";
 import { Button } from "@/components/ui/button";
@@ -8,10 +10,8 @@ import { motion } from "framer-motion";
 const OnboardingDone = () => {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setTimeout(() => navigate("/dashboard"), 5000);
-    return () => clearTimeout(timer);
-  }, [navigate]);
+  const [pushBusy, setPushBusy] = useState(false);
+  usePushRedirectTimer(pushBusy, () => navigate("/dashboard"));
 
   return (
     <OnboardingLayout
@@ -35,7 +35,9 @@ const OnboardingDone = () => {
         >
           Your profile is now visible to employers. You'll be redirected to your dashboard shortly.
         </motion.p>
+        <PushControls onBusyChange={setPushBusy} />
         <Button
+          disabled={pushBusy}
           onClick={() => navigate("/dashboard")}
           size="lg"
           className="gap-2 rounded-full h-12 px-10 brand-gradient border-0 text-white shadow-lg shadow-primary/20"

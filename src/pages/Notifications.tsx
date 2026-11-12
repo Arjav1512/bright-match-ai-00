@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import PushControls from "@/components/push/PushControls";
 
 const Notifications = () => {
   const { user } = useAuth();
@@ -115,6 +116,7 @@ const Notifications = () => {
           </Button>
         </div>
 
+        <PushControls prompt />
         {loading ? (
           <NotificationSkeleton />
         ) : notifications.length === 0 ? (

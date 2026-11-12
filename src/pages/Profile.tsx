@@ -27,6 +27,7 @@ import CourseSearchSelect from "@/components/CourseSearchSelect";
 import ResumeLink from "@/components/ResumeLink";
 import { uploadResume, resumeDisplayName } from "@/lib/resumeStorage";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import PushControls from "@/components/push/PushControls";
 
 const EXPERIENCE_OPTIONS = [
   { value: "0", label: "0 months" },
@@ -806,6 +807,7 @@ const Profile = () => {
             {loading ? "Saving..." : "Save Profile"}
           </Button>
 
+          <PushControls />
           <DeleteAccountDialog />
         </div>
       </div>

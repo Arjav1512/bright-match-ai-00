@@ -1,4 +1,6 @@
-import { useEffect } from "react";
+import { useState } from "react";
+import PushControls from "@/components/push/PushControls";
+import { usePushRedirectTimer } from "@/hooks/usePushRedirectTimer";
 import { useNavigate } from "react-router-dom";
 import EmployerOnboardingLayout from "@/components/onboarding/EmployerOnboardingLayout";
 import { Button } from "@/components/ui/button";
@@ -8,10 +10,8 @@ import { motion } from "framer-motion";
 const EmployerOnboardingDone = () => {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setTimeout(() => navigate("/dashboard"), 5000);
-    return () => clearTimeout(timer);
-  }, [navigate]);
+  const [pushBusy, setPushBusy] = useState(false);
+  usePushRedirectTimer(pushBusy, () => navigate("/dashboard"));
 
   return (
     <EmployerOnboardingLayout currentStep={6}>
@@ -36,8 +36,10 @@ const EmployerOnboardingDone = () => {
           Your company profile is set up and verified. You can now post internships, review candidates, and manage your hiring pipeline.
         </motion.p>
 
+        <PushControls onBusyChange={setPushBusy} />
         <div className="mt-10">
           <Button
+            disabled={pushBusy}
             onClick={() => navigate("/dashboard")}
             size="lg"
             className="h-14 px-10 text-base bg-foreground text-background hover:bg-foreground/90 rounded-lg gap-2"
